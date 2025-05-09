@@ -1,4 +1,4 @@
-name: team3
+name: team4
 
 on:
   workflow_dispatch:
@@ -55,8 +55,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=pswoo0323_CICD-team3
-            -Dsonar.organization=pswoo0323
+            -Dsonar.projectKey=Tak002_CICD-team4
+            -Dsonar.organization=tak002
             -Dsonar.cfamily.compile-commands=build_wrapper_output_directory/compile_commands.json
 
 
