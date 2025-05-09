@@ -1,0 +1,79 @@
+name: team3
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-test-analyze:
+    runs-on: ubuntu-latest
+
+    env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # SonarCloud 분석에 필요
+
+      #########################
+      # CMake Build & GTest
+      #########################
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake lcov
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build with CMake
+        run: cmake --build build
+
+      - name: Run GoogleTest
+        run: |
+          cd build
+          ctest --output-on-failure
+
+      ###############################
+      # SonarCloud 분석 (C/C++ 기준)
+      ###############################
+      - name: Install Build Wrapper
+        uses: SonarSource/sonarcloud-github-c-cpp@v2
+
+      - name: Run Build Wrapper
+        run: |
+          rm -rf build   # 이전 빌드 폴더 삭제
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+          build-wrapper-linux-x86-64 --out-dir build_wrapper_output_directory cmake --build build --config Debug
+
+      - name: Analyze on SonarCloud
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=pswoo0323_CICD-team3
+            -Dsonar.organization=pswoo0323
+            -Dsonar.cfamily.compile-commands=build_wrapper_output_directory/compile_commands.json
+
+
+     # 빌드 성공 시 Discord 알림
+      - name: Discord Success Notification
+        if: success()
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: '✅ **빌드 성공**: ${{ github.repository }} - ${{ github.workflow }} 워크플로우 성공!'
+
+      # 빌드 실패 시 Discord 알림
+      - name: Discord Failure Notification
+        if: failure()
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: '❌ **빌드 실패**: ${{ github.repository }} - ${{ github.workflow }} 워크플로우 실패! 확인 필요!'
