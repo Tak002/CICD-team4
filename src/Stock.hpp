@@ -7,14 +7,14 @@ using namespace std;
 class Stock {
     
     private:
-        Beverage beverage;
+        list<Beverage> beverage_list;
         void updateStock(int, int);
         void DVMMessageOutofStock(int item_id, int item_num);
         
 
     public:
         void requestBeverage(int item_id, int item_num);
-        list<Beverage> getCurrentStock(int beverageId);
+        list<Beverage> getCurrentStock();
         bool isPrepayment(int item_code, int item_num);
         bool isBuyable(int item_code, int item_num);
         void blockSale();
