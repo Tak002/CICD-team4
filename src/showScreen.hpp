@@ -1,5 +1,4 @@
 #pragma once
 
-class showScreen {
-    
+class ShowScreen {
 };

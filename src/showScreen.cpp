@@ -1,2 +1,2 @@
-// showScreen.cpp
-#include "showScreen.hpp"
+// ShowScreen.cpp
+#include "ShowScreen.hpp"
