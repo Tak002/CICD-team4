@@ -12,6 +12,6 @@ class showScreen {
 
     public:
         void displayCurrentStock(list<Beverage> beverages);
-        
+    
 
 };

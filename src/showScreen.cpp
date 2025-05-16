@@ -11,11 +11,11 @@ void showScreen::display(){
 }
 
 void showScreen::returnToFirstScreen(){
-    
+
 
 }
 
 void showScreen::displayCurrentStock(list<Beverage> beverages){
-
+    
 }
 

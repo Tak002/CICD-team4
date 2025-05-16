@@ -9,4 +9,5 @@ class Beverage {
         bool isSameId(int id);
         bool isEnough(int id);
         void reduceBeverage(int num);
+        int getBevId() const;
 };
