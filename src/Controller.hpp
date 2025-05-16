@@ -1,17 +1,30 @@
 #pragma once
+#include "Bank.hpp"
+#include "Beverage.hpp"
+#include "CertCode.hpp"
+#include "CertCodeManager.hpp"
+#include "MSG.hpp"
+#include "ShowScreen.hpp"
+#include "Stock.hpp"
 
 #include <string>
 
 class Controller {
+private: 
+    Bank bank;
+    CertCode CertCode;
+    CertCodeManager certCodeManager;
+    MSG msg;
+    Stock stock;
+    ShowScreen showScreen;
+
 public:
     // 재고를 출력하는 함수
-    std::string printStock();
+    void printStock();
 
     // 음료의 재고를 확인하는 함수
     bool checkBeverage(int item_code, int item_num);
 
-    // 가장 가까운 자판기 위치 정보를 출력
-    std::string printNearestPos(const std::string& DVMID);
 
     // 선결제 과정에서 결제가 이뤄진 후 제공 자판기에 메시지 전송
     // return이 false시 rollback
