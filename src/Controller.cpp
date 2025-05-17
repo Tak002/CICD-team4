@@ -4,7 +4,7 @@
 
 void Controller::printStock(){
     // Require ShowScreen Class interface
-    // showScreen.displayCurrentStock(stock.getCurrentStock());
+    showScreen.displayCurrentStock(stock.getCurrentStock());
 }
 
 bool Controller::checkBeverage(int item_code, int item_num){
