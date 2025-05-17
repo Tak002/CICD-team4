@@ -29,22 +29,30 @@ using json = nlohmann::json; // JSON 라이브러리 사용
 
 // #define tmp_ip_address "127.0.0.1" // 임시 ip 주소
 
-std::string msgFormat(std::string msg_type = NULL, std::string dst_id = NULL, std::string item_code = NULL, std::string item_num = NULL, std::string coor_x = NULL, std::string coor_y = NULL, std::string cert_code = NULL, std::string availability = NULL)
-{
-    // JSON 객체 생성
-    json msg;
-    msg["msg_type"] = msg_type;
-    msg["src_id"] = "T4";
-    msg["dst_id"] = dst_id;
-    msg["msg_content"]["item_code"] = item_code;
-    msg["msg_content"]["item_num"] = item_num;
-    msg["msg_content"]["coor_x"] = coor_x;
-    msg["msg_content"]["coor_y"] = coor_y;  
-    msg["msg_content"]["cert_code"] = cert_code;
-    msg["msg_content"]["availability"] = availability;   
+// #include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
-    // JSON을 파일로 저장 (2칸 들여쓰기) 일단은 읽기 용이하기 dump(2)로 설정
-    return msg.dump(2);
+std::string msgFormat(const json &params)
+{
+    json msg;
+
+    // 기본값 설정 (필요할 경우)
+    msg["msg_type"] = params.value("msg_type", "");
+    msg["src_id"] = params.value("src_id", "T4");
+    msg["dst_id"] = params.value("dst_id", "T1");
+
+    // msg_content 처리
+    if (params.contains("msg_content"))
+    {
+        msg["msg_content"]["item_code"] = params["msg_content"].value("item_code", "");
+        msg["msg_content"]["item_num"] = params["msg_content"].value("item_num", 0);
+        msg["msg_content"]["coor_x"] = params["msg_content"].value("coor_x", 0);
+        msg["msg_content"]["coor_y"] = params["msg_content"].value("coor_y", 0);
+        msg["msg_content"]["cert_code"] = params["msg_content"].value("cert_code", "");
+        msg["msg_content"]["availability"] = params["msg_content"].value("availability", "T");
+    }
+
+    return msg.dump(2); // 2칸 들여쓰기로 예쁘게 출력
 }
 
 // void socketOpen() // 통신을 하기 위해 소켓을 생성하는 함수 --> 일반적으로 서버 소켓 생성과 클라이언트 소켓 생성은 별도로 구현하는 것이 일반적이다. 묶을 수 있다면 추후에 묶도록 하겠다.
@@ -139,8 +147,14 @@ void clientMessageOpen()
         close(client_fd);
         return;
     }
-    std::string jsonStr = msgFormat();
-    send(client_fd, jsonStr.c_str(), jsonStr.length(), 0);
+
+    json params = {
+        {"msg_type", "Client"},
+        {"dst_id", "T1"},
+        {"msg_content", {{"item_code", "11"}, {"item_num", 10}, {"coor_x", 5}, {"coor_y", 8}, {"cert_code", "ABCDE"}, {"availability", "N"}}}};
+
+    std::string jsonStrClient = msgFormat(params);
+    send(client_fd, jsonStrClient.c_str(), jsonStrClient.length(), 0);
     std::cout << "Message sent to server" << std::endl; // 메시지 전송 성공 시 출력
 
     int valread = read(client_fd, buffer, BUFSIZ);
@@ -155,7 +169,6 @@ void clientMessageOpen()
     else
     {
         buffer[valread] = '\0'; // 문자열 종료 처리
-        std::cout << "Received from server: " << buffer << std::endl;
     }
 
     close(client_fd); // 클라이언트 소켓 닫기
@@ -212,6 +225,8 @@ void serverMessageOpen()
     std::cout << "Client connected" << std::endl; // 클라이언트 연결 성공 시 출력
 
     // 클라이언트 메시지 수신
+    
+    // read(client_socket, buffer, BUFSIZ); // 클라이언트로부터 데이터 수신
     int valread = read(client_socket, buffer, BUFSIZ);
     if (valread > 0)
     {
@@ -219,10 +234,15 @@ void serverMessageOpen()
         std::cout << "Received: " << buffer << std::endl;
     }
 
+    json params = {
+        {"msg_type", "Server"},
+        {"dst_id", "T1"},
+        {"msg_content", {{"item_code", "00"}, {"item_num", 10}, {"coor_x", 5}, {"coor_y", 8}, {"cert_code", "ABCDE"}, {"availability", "Y"}}}};
+
     // JSON 메시지 생성 및 전송
-    std::string jsonStr = msgFormat();
-    send(client_socket, jsonStr.c_str(), jsonStr.length(), 0);
-    std::cout << "Sent JSON:\n"<< jsonStr << std::endl;
+    std::string jsonStrServer = msgFormat(params);
+    send(client_socket, jsonStrServer.c_str(), jsonStrServer.length(), 0);
+    std::cout << "Sent JSON From Server\n" << std::endl;
 
     close(client_socket);
     close(server_fd);
