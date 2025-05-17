@@ -6,14 +6,16 @@
 bool Bank::checkCardValidity(int card_num, int price){
     auto it = cards.find(card_num);
 
-    if (it == cards.end()) {
-        return false;
-    }
+    // 일단 결제가 성공한다고 가정
+    // if (it == cards.end()) {
+    //     return false;
+    // }
 
-    if (it->second < price) {
-        return false;
-    }
+    // if (it->second < price) {
+    //     return false;
+    // }
 
+    updateBalance(card_num, price);
     return true;
 }
 

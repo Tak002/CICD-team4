@@ -20,11 +20,15 @@ std::string CertCode::generateRandomString(size_t length) {
     for (size_t i = 0; i < length; ++i) {
         result += charset[dist(engine)];
     }
-
+    this->value = result;
     return result;    
 }
 
 void CertCode::createCertCode(){
     string code = generateRandomString(5);
     // Controller:: getInstance.sendPrePaymentMSG(code);
+}
+
+string CertCode::toString(){
+    return value;
 }

@@ -11,8 +11,12 @@ Beverage* BeverageTable::find(int id) {
     return it != beverages.end() ? &it->second : nullptr;
 }
 
-std::unordered_map<int, Beverage>  BeverageTable::findAll(){
-    return beverages;
+std::list<Beverage> BeverageTable::findAll() {
+    std::list<Beverage> result;
+    for (const auto& pair : beverages) {
+        result.push_back(pair.second);
+    }
+    return result;
 }
 
 void BeverageTable::init(){

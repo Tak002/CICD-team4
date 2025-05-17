@@ -1,6 +1,6 @@
 #pragma once
 #include <unordered_map>
-
+#include <list>
 #include "Beverage.hpp"
 
 
@@ -11,5 +11,5 @@ class BeverageTable{
         void insert(const Beverage& bev);
         Beverage* find(const int item_code);
         void init();
-        std::unordered_map<int, Beverage> findAll();
+        std::list<Beverage> findAll();
 };

@@ -9,6 +9,8 @@ class ShowScreen {
     private:
         void display(string str);
         void returnToFirstScreen();
+        void displayPaymentSuccess();
+        void displayPaymentFailed();
 
     public:
         void displayCurrentStock(list<Beverage> beverages);
@@ -17,8 +19,10 @@ class ShowScreen {
 
         void displayEnterCardNum();
 
-        void displayPaymentSuccess();
-        void displayPaymentFailed();
+        void displayPaymentResultScreen(bool paymentSuccess);
+
+
+        void displayBeverage(int, int);
 
         void displayCertCodeEnter();
         void displayCertCodeFailed();
