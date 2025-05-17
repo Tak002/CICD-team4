@@ -20,3 +20,11 @@ void Beverage::reduceBeverage(int num){
         bevQuantity -= num;
     }
 }
+
+int Beverage::getBevId() const {
+    return bevId;
+}
+
+int Beverage::getBevQuantity() const {
+    return bevQuantity;
+}

@@ -26,5 +26,5 @@ std::string CertCode::generateRandomString(size_t length) {
 
 void CertCode::createCertCode(){
     string code = generateRandomString(5);
-    Controller:: getInstance.sendPrePaymentMSG(code);
+    // Controller:: getInstance.sendPrePaymentMSG(code);
 }
