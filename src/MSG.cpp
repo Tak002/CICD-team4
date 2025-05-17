@@ -1,6 +1,7 @@
 // MSG.cpp
 #include "MSG.hpp"
 
+#include "Stock.hpp"
 /*
     1. JSON 파일 생성 메시지 형식대로
     2. broadcast 또는 ACK 메시지 전송
@@ -148,85 +149,159 @@ void clientMessageOpen()
         return;
     }
 
-    json params = {
-        {"msg_type", "Client"},
-        {"dst_id", "T1"},
-        {"msg_content", {{"item_code", "11"}, {"item_num", 10}, {"coor_x", 5}, {"coor_y", 8}, {"cert_code", "ABCDE"}, {"availability", "N"}}}};
-
-    std::string jsonStrClient = msgFormat(params);
+    std::string jsonStrClient = msgFormat(msg);
     send(client_fd, jsonStrClient.c_str(), jsonStrClient.length(), 0);
-    std::cout << "Message sent to server" << std::endl; // 메시지 전송 성공 시 출력
+    std::cout << "[" << msg["dst_id"] << "] Message sent" << std::endl;
 
-    int valread = read(client_fd, buffer, BUFSIZ);
-    if (valread < 0)
+    // 타임아웃 설정
+    struct timeval timeout{};
+    timeout.tv_sec = 3;
+    timeout.tv_usec = 0;
+    setsockopt(client_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+
+    int valread = recv(client_fd, buffer, BUFSIZ - 1, 0);
+    if (valread > 0)
     {
-        std::cerr << "Failed to read from server" << std::endl;
-    }
-    else if (valread == 0)
-    {
-        std::cerr << "Server closed connection before sending data" << std::endl;
+        buffer[valread] = '\0';
+        std::cout << "[" << msg["dst_id"] << "] Response: " << buffer << std::endl;
     }
     else
     {
-        buffer[valread] = '\0'; // 문자열 종료 처리
+        std::cerr << "[" << msg["dst_id"] << "] No response or timeout." << std::endl;
     }
 
-    close(client_fd); // 클라이언트 소켓 닫기
-    std::cout << "Client socket closed" << std::endl; // 클라이언트 소켓 닫기 성공 시 출력
-    std::cout << "Received from server: " << buffer << std::endl; // 서버로부터 수신한 메시지 출력
+    close(client_fd);
+    std::cout << "[" << msg["dst_id"] << "] Socket closed" << std::endl;
 }
 
-void serverMessageOpen()
+// void serverMessageOpen(json msg)
+// {
+//     /*
+//         1. socket()        // 소켓 생성
+//         2. bind()          // IP주소와 포트번호를 소켓에 할당
+//         3. listen()        // 연결 요청 대기 상태
+//         4. accept()        // 클라이언트 연결 수락
+//         5. read()/recv()   // 클라이언트로부터 데이터 수신
+//         6. write()/send()  // 클라이언트로 데이터 송신
+//         7. close()         // 소켓 닫기
+//     */
+//     char buffer[BUFSIZ]; // 버퍼 선언
+//     int server_fd = socket(AF_INET, SOCK_STREAM, 0); // 서버 소켓 생성
+//     if (server_fd < 0) // 소켓 생성 실패 시 에러 메시지 출력
+//     {
+//         std::cerr << "Socket creation failed" << std::endl;
+//         return;
+//     }
+//
+//     struct sockaddr_in address; // 서버 주소 구조체 선언
+//     address.sin_family = AF_INET;
+//     address.sin_addr.s_addr = INADDR_ANY;
+//     address.sin_port = htons(PORT_NUM); // 9000 포트로 설정
+//
+//     #pragma region bind
+//     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+//     {
+//         std::cerr << "Bind failed" << std::endl;
+//         close(server_fd);
+//         return;
+//     }
+//     std::cout << "Bind successful" << std::endl; // 바인드 성공 시 출력
+//     #pragma endregion
+// 
+//     #pragma region listen
+//     listen(server_fd, 8); // 연결 요청 대기 상태
+//     std::cout << "Listening on port 9000" << std::endl; // 연결 요청 대기 상태 출력
+//     #pragma endregion
+//
+//     socklen_t addrlen = sizeof(address); // addrlen 선언 및 초기화
+//     int client_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen); // 클라이언트 연결 수락
+//     if (client_socket < 0) // 클라이언트 연결 수락 실패 시 에러 메시지 출력
+//     {
+//         std::cerr << "Accept failed" << std::endl;
+//         return;
+//     }
+//     std::cout << "Client connected" << std::endl; // 클라이언트 연결 성공 시 출력
+//
+//     // 클라이언트 메시지 수신
+//  
+//     // read(client_socket, buffer, BUFSIZ); // 클라이언트로부터 데이터 수신
+//     int valread = read(client_socket, buffer, BUFSIZ);
+//     if (valread > 0)
+//     {
+//         buffer[valread] = '\0';
+//         std::cout << "Received: " << buffer << std::endl;
+//     }
+//
+//     // json params = {
+//     //     {"msg_type", "Server"},
+//     //     {"dst_id", "T1"},
+//     //     {"msg_content", {{"item_code", "00"}, {"item_num", 10}, {"coor_x", 5}, {"coor_y", 8}, {"cert_code", "ABCDE"}, {"availability", "Y"}}}};
+//
+//     // JSON 메시지 생성 및 전송
+//     std::string jsonStrServer = msgFormat(msg);
+//     send(client_socket, jsonStrServer.c_str(), jsonStrServer.length(), 0);
+//     std::cout << "Sent JSON From Server\n" << std::endl;
+//
+//     close(client_socket);
+//     // close(server_fd); // 서버 소켓 닫기 일시 정지
+//
+//     // // std::cout << "Client IP: " << inet_ntoa(address.sin_addr) << ", Port: " << ntohs(address.sin_port) << std::endl; // 클라이언트 IP 주소 및 포트 번호 출력
+//     // read(client_socket, buffer, BUFSIZ);
+//     // send(client_socket, "Hello", strlen("Hello"), 0);
+// }
+
+// 서버 포트 오픈 및 바인드() 함수
+int startServerSocket()
 {
-    /*
-        1. socket()        // 소켓 생성
-        2. bind()          // IP주소와 포트번호를 소켓에 할당
-        3. listen()        // 연결 요청 대기 상태
-        4. accept()        // 클라이언트 연결 수락
-        5. read()/recv()   // 클라이언트로부터 데이터 수신
-        6. write()/send()  // 클라이언트로 데이터 송신
-        7. close()         // 소켓 닫기
-    */
-    char buffer[BUFSIZ]; // 버퍼 선언
-    int server_fd = socket(AF_INET, SOCK_STREAM, 0); // 서버 소켓 생성
-    if (server_fd < 0) // 소켓 생성 실패 시 에러 메시지 출력
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd < 0)
     {
         std::cerr << "Socket creation failed" << std::endl;
-        return;
+        return -1;
     }
 
-    struct sockaddr_in address; // 서버 주소 구조체 선언
+    struct sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT_NUM); // 9000 포트로 설정
+    address.sin_port = htons(PORT_NUM);
 
-    #pragma region bind
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+    bind(server_fd, (struct sockaddr *)&address, sizeof(address));
+
+    // if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+    // {
+    //     std::cerr << "Bind failed" << std::endl;
+    //     close(server_fd);
+    //     return -1;
+    // }
+    std::cout << "Bind successful" << std::endl;
+
+    if (listen(server_fd, 8) < 0)
     {
-        std::cerr << "Bind failed" << std::endl;
+        std::cerr << "Listen failed" << std::endl;
         close(server_fd);
-        return;
+        return -1;
     }
-    std::cout << "Bind successful" << std::endl; // 바인드 성공 시 출력
-    #pragma endregion
-    
-    #pragma region listen
-    listen(server_fd, 3); // 연결 요청 대기 상태
-    std::cout << "Listening on port 9000" << std::endl; // 연결 요청 대기 상태 출력
-    #pragma endregion
 
-    socklen_t addrlen = sizeof(address); // addrlen 선언 및 초기화
-    int client_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen); // 클라이언트 연결 수락
-    if (client_socket < 0) // 클라이언트 연결 수락 실패 시 에러 메시지 출력
+    std::cout << "Listening on port " << PORT_NUM << std::endl;
+    return server_fd;
+}
+
+// 서버 메시지 수신 및 응답 함수
+void acceptAndRespond(int server_fd, json msg)
+{
+    char buffer[BUFSIZ];
+    struct sockaddr_in client_addr;
+    socklen_t addrlen = sizeof(client_addr);
+
+    int client_socket = accept(server_fd, (struct sockaddr *)&client_addr, &addrlen);
+    if (client_socket < 0)
     {
         std::cerr << "Accept failed" << std::endl;
         return;
     }
-    std::cout << "Client connected" << std::endl; // 클라이언트 연결 성공 시 출력
 
-    // 클라이언트 메시지 수신
-    
-    // read(client_socket, buffer, BUFSIZ); // 클라이언트로부터 데이터 수신
+    std::cout << "Client connected from " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl;
+
     int valread = read(client_socket, buffer, BUFSIZ);
     if (valread > 0)
     {
