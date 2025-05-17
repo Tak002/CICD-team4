@@ -27,22 +27,23 @@ using json = nlohmann::json; // JSON 라이브러리 사용
 #define PORT_NUM 9000 // 서버 포트 번호
 #define BUFSIZE 1024 // 버퍼 사이즈
 
+// #define tmp_ip_address "127.0.0.1" // 임시 ip 주소
 
-std::string msgFormat()
+std::string msgFormat(std::string msg_type = NULL, std::string dst_id = NULL, std::string item_code = NULL, std::string item_num = NULL, std::string coor_x = NULL, std::string coor_y = NULL, std::string cert_code = NULL, std::string availability = NULL)
 {
     // JSON 객체 생성
     json msg;
-    msg["msg_type"] = "req_stock";
+    msg["msg_type"] = msg_type;
     msg["src_id"] = "T4";
-    msg["dst_id"] = "T1";
-    msg["msg_content"]["item_code"] = "00";
-    msg["msg_content"]["item_num"] = 0;
-    msg["msg_content"]["coor_x"] = 0;
-    msg["msg_content"]["coor_y"] = 0;  
-    msg["msg_content"]["cert_code"] = "00000";
-    msg["msg_content"]["availability"] = "T";   
+    msg["dst_id"] = dst_id;
+    msg["msg_content"]["item_code"] = item_code;
+    msg["msg_content"]["item_num"] = item_num;
+    msg["msg_content"]["coor_x"] = coor_x;
+    msg["msg_content"]["coor_y"] = coor_y;  
+    msg["msg_content"]["cert_code"] = cert_code;
+    msg["msg_content"]["availability"] = availability;   
 
-    // JSON을 파일로 저장 (2칸 들여쓰기)...?
+    // JSON을 파일로 저장 (2칸 들여쓰기) 일단은 읽기 용이하기 dump(2)로 설정
     return msg.dump(2);
 }
 
@@ -92,7 +93,7 @@ std::string msgFormat()
 //     memset(&serverAddr, 0, sizeof(serverAddr));
 //     serverAddr.sin_family = AF_INET;
 //     serverAddr.sin_port = htons(8080);                     // 포트 설정
-//     inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr); // IP 설정
+//     inet_pton(AF_INET, tmp_ip_address, &serverAddr.sin_addr); // IP 설정
 //
 //     // 서버에 연결 시도
 //     if (connect(clientSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
@@ -138,9 +139,24 @@ void clientMessageOpen()
         close(client_fd);
         return;
     }
-    send(client_fd, "Hello Server", strlen("Hello Server"), 0); // 연결된 소켓 파일 디스크립터, 메시지, 메시지 길이, 플래그
+    std::string jsonStr = msgFormat();
+    send(client_fd, jsonStr.c_str(), jsonStr.length(), 0);
     std::cout << "Message sent to server" << std::endl; // 메시지 전송 성공 시 출력
-    read(client_fd, buffer, BUFSIZ); // 서버로부터 메시지 수신
+
+    int valread = read(client_fd, buffer, BUFSIZ);
+    if (valread < 0)
+    {
+        std::cerr << "Failed to read from server" << std::endl;
+    }
+    else if (valread == 0)
+    {
+        std::cerr << "Server closed connection before sending data" << std::endl;
+    }
+    else
+    {
+        buffer[valread] = '\0'; // 문자열 종료 처리
+        std::cout << "Received from server: " << buffer << std::endl;
+    }
 
     close(client_fd); // 클라이언트 소켓 닫기
     std::cout << "Client socket closed" << std::endl; // 클라이언트 소켓 닫기 성공 시 출력
@@ -249,6 +265,7 @@ void Send(const std::string &authenticationNum)
     std::cout << "[Send] Authentication Number: " << authenticationNum << std::endl;
 }
 
+// 클라이언트 소켓을 생성하고 타 서버에 연결하는 함수를 구현
 void DVMMessageOutofStock(int beverageId, int quantity)
 {
     std::cout << "[Out of Stock] Beverage ID: " << beverageId << ", Quantity: " << quantity << std::endl;
