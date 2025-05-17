@@ -5,13 +5,22 @@
 
 using namespace std;
 
-class showScreen {
+class ShowScreen {
     private:
-        void display();
+        void display(string str);
         void returnToFirstScreen();
 
     public:
         void displayCurrentStock(list<Beverage> beverages);
-    
+        void displayFirstScreen();
+        void displayPrepayLocation(int, int);
+
+        void displayEnterCardNum();
+
+        void displayPaymentSuccess();
+        void displayPaymentFailed();
+
+        void displayCertCodeEnter();
+        void displayCertCodeFailed();
 
 };

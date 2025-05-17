@@ -8,3 +8,7 @@ InMemoryDB& InMemoryDB::instance() {
 void InMemoryDB::initPosition(){
     positionTable.init();
 }
+
+void InMemoryDB::initBeverage(){
+    beverageTable.init();
+}
