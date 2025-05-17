@@ -23,6 +23,7 @@ class Stock {
         void editStock(int item_id, int item_num);
 
         void refreshStock();
+        void cancleBuying();
 
         Beverage getBevToBuy();
 

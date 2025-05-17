@@ -77,3 +77,8 @@ Beverage Stock::getBevToBuy(){
     return bev_to_buy;
 }
 
+void Stock::cancleBuying(){
+    // 구매과정 중인 음료 초기화
+    PendingBeverage& pending = PendingBeverage::instance();
+    pending.reset();
+}
