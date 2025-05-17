@@ -11,8 +11,9 @@
 
 using namespace std;
 
+
 void ShowScreen::display(string str){
-    
+
     cout<<"-------------------------------"<<endl;
     cout<<str<<endl;
     cout<<"-------------------------------"<<endl;
