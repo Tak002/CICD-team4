@@ -1,7 +1,7 @@
 #pragma once
 #include "CurrentState_enum.hpp"
 #include <string>
-#include <Controller.hpp>
+#include "Controller.hpp"
 using std::string;
 
 class Input {
