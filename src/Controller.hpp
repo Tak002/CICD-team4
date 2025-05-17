@@ -12,7 +12,7 @@
 class Controller {
 private: 
     Bank bank;
-    CertCode CertCode;
+    CertCode certCode;
     CertCodeManager certCodeManager;
     MSG msg;
     Stock stock;
