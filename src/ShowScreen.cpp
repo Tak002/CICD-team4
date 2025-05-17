@@ -5,12 +5,14 @@
 #include <string>
 #include <iterator>
 #include <iostream>
+#include <sstream>
 
 #include "ShowScreen.hpp"
 #include "enum/BeverageType.hpp"
 
 using namespace std;
 
+//화면 출력 틀 / private
 void ShowScreen::display(string str){
     
     cout<<"-------------------------------"<<endl;
@@ -23,12 +25,12 @@ void ShowScreen::returnToFirstScreen(){
 }
 
 
-
+//화면에 음료 재고 출력, s 입력하면 나올 화면
 void ShowScreen::displayCurrentStock(std::list<Beverage> beverages) {
     std::string str;
 
     for (int i = 0; i < static_cast<int>(BeverageType::COUNT); i++) {
-        auto it = beverages.begin();
+        auto it = beverages.begin();  
         std::advance(it, i);  // i번째 요소
 
         int code = it->getBevId();
@@ -50,7 +52,7 @@ void ShowScreen::displayCurrentStock(std::list<Beverage> beverages) {
 void ShowScreen::displayFirstScreen(){
     string str;
     str += std::string("어서오세요.") + "\n";
-    str += std::string("시작하려면 0을 눌러주세요.") + "\n";
+    str += std::string("시작하려면 's'를 입력하세요.") + "\n";
     str += std::string("(선결제 인증코드 입력을 원하시면 인증코드를 입력하세요...)");
 
     display(str);
@@ -69,6 +71,13 @@ void ShowScreen::displayEnterCardNum(){
     display(str);
 }
 
+
+
+void ShowScreen::displayPaymentResultScreen(bool paymentSuccess){
+    if(paymentSuccess) displayPaymentSuccess();
+    else displayPaymentFailed();
+}
+
 void  ShowScreen::displayPaymentSuccess(){
     string str = "결제에 성공했습니다";
 }
@@ -78,6 +87,17 @@ void ShowScreen::displayPaymentFailed(){
     str+= "카드번호나 잔액을 확인해주세요";
     
 }
+
+
+
+void ShowScreen::displayBeverage(int item_id, int item_num){
+    BeverageType type = static_cast<BeverageType>(item_id-1);
+    std::ostringstream oss;
+    oss <<"음료수 명 : "<<toString(type)<<", 갯수: "<<item_num<<"\n안녕히가십시오.";
+    string str = oss.str();
+    display(str);
+}
+
 
 void ShowScreen::displayCertCodeEnter(){
     string str = "인증코드를 입력하세요";
