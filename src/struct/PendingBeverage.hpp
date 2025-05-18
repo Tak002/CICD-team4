@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "enum/BeverageType.hpp"
+#include "../enum/BeverageType.hpp"
 
 
 struct PendingBeverage {
