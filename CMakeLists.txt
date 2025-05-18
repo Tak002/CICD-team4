@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.0)# 최소 cmake 버전 명시
+cmake_minimum_required(VERSION 3.30)# 최소 cmake 버전 명시
 project(sonar_scanner_example)# 프로젝트 이름 명시
 
 set(CMAKE_CXX_STANDARD 17)# 사용할 C++ 표준(여기선 17)
