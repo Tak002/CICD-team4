@@ -14,6 +14,7 @@ class ShowScreen {
 
     public:
         void displayCurrentStock(list<Beverage> beverages);
+        
         void displayFirstScreen();
         void displayPrepayLocation(int, int);
 
@@ -27,4 +28,5 @@ class ShowScreen {
         void displayCertCodeEnter();
         void displayCertCodeFailed();
 
+        void displayInvalidIdRange();
 };

@@ -13,7 +13,8 @@ class Input {
     string command;
     CurrentState currentState;
     std::string getFirstScreenAnswer();
-
+    std::pair<int, int> getItemIDandNum();
+    
     public: 
     Input(Controller *ctrl);
     void run();

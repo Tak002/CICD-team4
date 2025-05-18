@@ -34,6 +34,9 @@ void Controller:: runShowScreenCommand(CommandType cmd){
         case CommandType::DISPLAY_CERT_CODE_FAILED:
             showScreen.displayCertCodeFailed();
             break;
+        case CommandType::DISPLAY_INVALID_ID_RANGE:
+            showScreen.displayInvalidIdRange();
+            break;
     }
 }
 
