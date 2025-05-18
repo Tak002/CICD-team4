@@ -7,8 +7,8 @@
 
 
 
-#include "Position.hpp"
-#include "InMemoryDB.hpp"
+#include "struct/Position.hpp"
+#include "database/InMemoryDB.hpp"
 
 
 
