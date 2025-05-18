@@ -6,5 +6,5 @@
 
 bool CertCodeManager::isValidateCertCode(std::string code){
     PendingBeverage& pending = PendingBeverage::instance();
-
+    
 }

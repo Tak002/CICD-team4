@@ -13,9 +13,8 @@ TEST(CertCodeTest, CreateCertCodeGeneratesFiveCharString) {
     // 비어 있으면 안 됨
     EXPECT_FALSE(code.empty());
 
-    // 문자들이 유효한 charset 내에 있는지 확인 (선택사항)
     for (char c : code) {
-        EXPECT_TRUE(std::isalnum(c));  // 알파벳 또는 숫자여야 함
+        EXPECT_TRUE(std::isalnum(c)); 
     }
 }
 
@@ -27,7 +26,7 @@ TEST(CertCodeTest, CreateCertCodeGeneratesNewValueEachTime) {
     cert.createCertCode();
     std::string second = cert.toString();
     
-    EXPECT_NE(first, second);  // 랜덤이므로 값이 달라야 정상
+    EXPECT_NE(first, second);  // 랜덤이므로 값 다름
 }
 
 // 호출 이전에는 빈 값인지 테스트

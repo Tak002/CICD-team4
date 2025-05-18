@@ -88,3 +88,24 @@ target_link_libraries(BeverageTest
 
 gtest_discover_tests(BeverageTest)
 
+
+# 테스트 타겟 4: CalcTest.cpp
+add_executable(CalcTest
+    test/CalcTest.cpp
+    src/Calc.cpp
+    src/database/InMemoryDB.cpp
+    src/database/PositionTable.cpp
+    src/struct/Position.hpp
+    src/database/BeverageTable.cpp
+    src/Beverage.cpp
+)
+
+target_include_directories(CalcTest PRIVATE ${PROJECT_SOURCE_DIR}/src)
+
+target_link_libraries(CalcTest
+    gtest
+    gtest_main
+    pthread
+)
+
+gtest_discover_tests(CalcTest)
