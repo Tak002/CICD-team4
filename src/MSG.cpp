@@ -402,9 +402,14 @@ void broadMessage(const json &msg)
 }
 
 // 인증번호를 전송하는 함수 선결제 영역
-void Send(const std::string &authenticationNum)
+void sendCertCode(const std::string &dst_id, const std::string &item_code, const std::string &item_num, const std::string &cert_code)
 {
-    std::cout << "[Send] Authentication Number: " << authenticationNum << std::endl;
+    std::cout << "[Send] Authentication Number" << std::endl;
+    json DVMMessageOutOfStock_MessageFormat = {
+        {"msg_type", "req_prepay"},
+        {"src_id", "T4"},
+        {"dst_id", dst_id},
+        {"msg_content", {{"item_code", item_code}, {"item_num", item_num}, {"coor_x", ""}, {"coor_y", ""}, {"cert_code", cert_code}, {"availability", ""}}}};
 }
 
 // 클라이언트 소켓을 생성하고 타 서버에 연결하는 함수를 구현
@@ -435,9 +440,46 @@ void AskStockMessage(json msg)
 
 // json 형식의 메시지를 읽고 그에 따라 적절한 메시지를 보내는 함수 즉 재고가 부족하다고 문자가 올 경우 현재 재고 상황을 보내주는 함수 및 req_prepay에 대한 ACK를 보내는 함수
 void sendMessagge(const std::string &msg)
+{
+    enum class MessageType
     {
-        std::cout << "[Send Message] " << msg << std::endl;
+        req_stock,
+        req_prepay
+    };
+    MessageType msg_type;
+    // msg를 파싱해서 msg_type 값을 확인
+    json parsedMsg = json::parse(msg);
+    std::string msgTypeStr = parsedMsg["msg_type"];
+
+    // 문자열을 enum으로 매핑
+    if (msgTypeStr == "req_stock")
+        msg_type = MessageType::req_stock;
+    else if (msgTypeStr == "req_prepay")
+        msg_type = MessageType::req_prepay;
+    else
+        return; // 알 수 없는 타입이면 함수 종료
+
+    switch (msg_type)
+    {
+    case MessageType::req_stock:
+        // req_stock 처리 코드
+        /* code */
+        break;
+    case MessageType::req_prepay:
+        // req_prepay 처리 코드
+        /* code */
+        break;
+    default:
+        break;
     }
+        /* code */
+        break;
+    
+    default:
+        break;
+    }
+    clientMessageOpen()
+}
 
 
 int main()

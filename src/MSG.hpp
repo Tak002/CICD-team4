@@ -10,8 +10,7 @@ class MSG {
         void bindSocket(); // 서버가 클라이언트의 요청을 수신할 주소와 포트를 지정하는 함수
         std::string messageFormat(const std::string &msg);
         void broadMessage(const std::string &msg);
-        void Send(const std::string &authenticationNum);
-        void serverMessageOpen();
+        void sendCertCode(const std::string &dst_id, const std::string &item_code, const std::string &item_num, const std::string &cert_code);
         void clientMessageOpen();
     public : 
         void DVMMessageOutofStock();
