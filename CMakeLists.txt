@@ -17,5 +17,4 @@ add_executable(sonar_scanner_example
     src/MSG.cpp
     src/ShowScreen.cpp
     src/Stock.cpp
-    enum/BeverageType.cpp
 )# 빌드할 실행파일 및 소스 목록
