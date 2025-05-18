@@ -47,7 +47,7 @@ std::string Input::getFirstScreenAnswer(){
 
 
 
-std::pair<int, int> getItemIDandNum() {
+std::pair<int, int> Input::getItemIDandNum() {
     int itemID, itemNum;
     std::cin >> itemID >> itemNum;
     return std::make_pair(itemID,itemNum);

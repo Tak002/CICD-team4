@@ -466,27 +466,27 @@ void sendMessagge(const std::string &msg)
     }
 
 
-int main()
-{
-    json msg = {
-        {"msg_type", "ack"},
-        {"src_id", "T0"},
-        {"dst_id", "T1"},
-        {"msg_content", {{"item_code", 1}, {"item_num", 1}, {"coor_x", 0}, {"coor_y", 0}, {"cert_code", "ABC"}, {"availability", "Y"}}}};
-    // 이 부분은 테스트용으로 작성된 코드입니다.
-    // 실제로 서버가 먼저 실행되어야 합니다.
-    std::thread serverThread([msg]()
-    {
-        serverMessageOpen("resp_stock", "2", "7", "5", "10", "", "", ""); // 또는 acceptAndRespond(server_fd, msg);
-    });
+// int main()
+// {
+//     json msg = {
+//         {"msg_type", "ack"},
+//         {"src_id", "T0"},
+//         {"dst_id", "T1"},
+//         {"msg_content", {{"item_code", 1}, {"item_num", 1}, {"coor_x", 0}, {"coor_y", 0}, {"cert_code", "ABC"}, {"availability", "Y"}}}};
+//     // 이 부분은 테스트용으로 작성된 코드입니다.
+//     // 실제로 서버가 먼저 실행되어야 합니다.
+//     std::thread serverThread([msg]()
+//     {
+//         serverMessageOpen("resp_stock", "2", "7", "5", "10", "", "", ""); // 또는 acceptAndRespond(server_fd, msg);
+//     });
 
-    // 서버가 포트 바인딩 및 listen까지 준비될 시간을 주기
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+//     // 서버가 포트 바인딩 및 listen까지 준비될 시간을 주기
+//     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    DVMMessageOutofStock(1, 10); // 재고 부족 메시지 전송
+//     DVMMessageOutofStock(1, 10); // 재고 부족 메시지 전송
 
-    serverThread.join();
-    // clientThread.join();
+//     serverThread.join();
+//     // clientThread.join();
 
-    return 0;
-}
+//     return 0;
+// }
