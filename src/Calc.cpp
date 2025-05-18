@@ -19,7 +19,7 @@ std::map<int, int> Calc::nearestPosition(){
 
 
     // 여기서 화면을 어떻게 출력해아할지...
-    return {std::get<1>(rslt),std::get<2>(rslt)};
+    return {{std::get<1>(rslt),std::get<2>(rslt)}};
 } 
 
 

@@ -87,9 +87,6 @@ void ShowScreen::displayPaymentFailed(){
     str+= "카드번호나 잔액을 확인해주세요";
     
 }
-void  ShowScreen::displayPaymentSuccess(){
-    string str = "결제에 성공했습니다";
-}
 
 void ShowScreen::displayInvalidIdRange(){
     string str = "id는 1~20 사이여야 합니다. 다시 입력하세요.\n";
