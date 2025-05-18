@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.30)# 최소 cmake 버전 명시
-project(sonar_scanner_example)# 프로젝트 이름 명시
+cmake_minimum_required(VERSION 3.40)
+project(sonar_scanner_example)
 
-set(CMAKE_CXX_STANDARD 17)# 사용할 C++ 표준(여기선 17)
+set(CMAKE_CXX_STANDARD 17)
 
-
+# 메인 실행 파일
 add_executable(sonar_scanner_example
     src/main.cpp
     src/Auth.cpp
@@ -19,7 +19,40 @@ add_executable(sonar_scanner_example
     src/ShowScreen.cpp
     src/Stock.cpp
     src/enum/BeverageType.cpp
-    src/database/InMemoryDB.cpp           
-    src/database/BeverageTable.cpp         
-    src/database/PositionTable.cpp         
+    src/database/InMemoryDB.cpp
+    src/database/BeverageTable.cpp
+    src/database/PositionTable.cpp
 )
+
+# ------------------------
+#  GTest FetchContent 방식
+# ------------------------
+include(FetchContent)
+
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/release-1.12.1.zip
+)
+
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+include(GoogleTest)
+
+# 테스트 타겟 1: SampleTest.cpp (기존 테스트)
+add_executable(unit_tests
+    test/SampleTest.cpp
+    src/CertCode.cpp        
+
+)
+
+target_link_libraries(unit_tests
+    gtest
+    gtest_main
+)
+
+
+gtest_discover_tests(unit_tests)
+

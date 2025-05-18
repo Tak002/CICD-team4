@@ -14,7 +14,7 @@ std::string CertCode::generateRandomString(size_t length) {
     std::string result;
     result.reserve(length);
 
-    std::mt19937 engine(static_cast<unsigned long>(std::time(nullptr)));
+    std::mt19937 engine(std::random_device{}());
     std::uniform_int_distribution<> dist(0, charset.size() - 1);
 
     for (size_t i = 0; i < length; ++i) {

@@ -1,4 +1,6 @@
 {
+     "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
+
     "files.associations": {
         "xstring": "cpp",
         "atomic": "cpp",
@@ -76,6 +78,9 @@
         "xlocbuf": "cpp",
         "xlocmes": "cpp",
         "xlocmon": "cpp",
-        "xloctime": "cpp"
+        "xloctime": "cpp",
     }
+
+    
+    
 }
