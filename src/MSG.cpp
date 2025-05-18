@@ -14,6 +14,7 @@
 #include <arpa/inet.h>  //IP 주소 변환을 위한 헤더 파일
 #include <unistd.h>    //POSIX 운영 체제 API를 위한 헤더 파일
 #include <fstream>      //파일 저장을 위한 헤더 파일
+#include <sys/stat.h> //파일 상태를 확인하기 위한 헤더 파일
 
 #include <fstream>
 #include "../include/nlohmann/json.hpp"
@@ -163,7 +164,8 @@ std::string msgFormat(
 
 void clientMessageOpen(const std::string &quest_type, const std::string &dst_id, const std::string &item_code, const std::string &item_num, const std::string &coor_x, const std::string &coor_y, const std::string &cert_code, const std::string &availability)
 {
-    std::cout << "[Client] Start sending message to server\n" << std::endl;
+    std::string ip_address; // IP 주소를 저장할 변수
+    std::cout << "[Client] Start sending message to server" << std::endl;
     /*
         1. socket()        // 소켓 생성
         2. connect()       // 서버에 연결 요청
@@ -179,14 +181,45 @@ void clientMessageOpen(const std::string &quest_type, const std::string &dst_id,
         std::cerr << "Socket creation failed" << std::endl;
         return;
     }
-    std::cout << "[" << dst_id << "] Socket created\n" << std::endl;
+    std::cout << "[" << dst_id << "] Socket created" << std::endl;
 
+    // JSON 파일에서 dst_id에 따른 IP주소 가져오기
+    #pragma region jsonFileReadToGetIpAddress
+    std::ifstream file("../msgdata/ip_address.json");
+    if (!file.is_open())
+    {
+        std::cerr << "[ERROR] ip_address.json 파일을 열 수 없습니다." << std::endl;
+        return;
+    }
 
+    nlohmann::json j;
+    try
+    {
+        file >> j;
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "[ERROR] JSON 파싱 실패: " << e.what() << std::endl;
+        return ;
+    }
+
+    if (j.contains(dst_id))
+    {
+        ip_address = j[dst_id].get<std::string>();
+    }
+    else
+    {
+        std::cerr << "[ERROR] 해당 key가 존재하지 않습니다: " << dst_id << std::endl;
+        return;
+    }
+    #pragma endregion
+
+    
     struct sockaddr_in server_addr;  // 서버 주소 구조체 선언
     server_addr.sin_family = AF_INET;   // 주소 체계 (IPv4)
     server_addr.sin_port = htons(PORT_NUM); // 9000 포트로 설정
-    inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr); // IP 주소 설정 (문자열 IP 주소를 이진 IP 주소로 변환)
-    std::cout << "[" << dst_id << "] Server address set\n" << std::endl;
+    inet_pton(AF_INET, ip_address.c_str(), &server_addr.sin_addr); // IP 주소 설정 (문자열 IP 주소를 이진 IP 주소로 변환)
+    std::cout << "[" << dst_id << "] Server address set" << std::endl;
 
     if (connect(client_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
@@ -242,18 +275,24 @@ void serverMessageOpen(const std::string &quest_type, const std::string &dst_id,
         7. close()         // 소켓 닫기
     */
     char buffer[BUFSIZ]; // 버퍼 선언
+
+    #pragma region socketcreate
     int server_fd = socket(AF_INET, SOCK_STREAM, 0); // 서버 소켓 생성
     if (server_fd < 0) // 소켓 생성 실패 시 에러 메시지 출력
     {
         std::cerr << "Socket creation failed" << std::endl;
         return;
     }
+    #pragma endregion
 
+    #pragma region socketOption
     struct sockaddr_in address; // 서버 주소 구조체 선언
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT_NUM); // 9000 포트로 설정
+    #pragma endregion
 
+    #pragma region bind
     // bind 함수 호출 및 오류 처리
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) // bind 실패 시 에러 메시지 출력
     {
@@ -269,41 +308,10 @@ void serverMessageOpen(const std::string &quest_type, const std::string &dst_id,
     std::cout << "Listening on port 9000" << std::endl; // 연결 요청 대기 상태 출력
     #pragma endregion
 
-    socklen_t addrlen = sizeof(address); // addrlen 선언 및 초기화
-    int client_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen); // 클라이언트 연결 수락
-    if (client_socket < 0) // 클라이언트 연결 수락 실패 시 에러 메시지 출력
-    {
-        std::cerr << "Accept failed" << std::endl;
-        return;
-    }
-    std::cout << "Client connected" << std::endl; // 클라이언트 연결 성공 시 출력
-
-    // 클라이언트 메시지 수신
-
-    // read(client_socket, buffer, BUFSIZ); // 클라이언트로부터 데이터 수신
-    int valread = read(client_socket, buffer, BUFSIZ);
-    if (valread > 0)
-    {
-        buffer[valread] = '\0';
-        std::cout << "Received: " << buffer << std::endl;
-    }
-
-    // json params = {
-    //     {"msg_type", "Server"},
-    //     {"dst_id", "T1"},
-    //     {"msg_content", {{"item_code", "00"}, {"item_num", 10}, {"coor_x", 5}, {"coor_y", 8}, {"cert_code", "ABCDE"}, {"availability", "Y"}}}};
-
-    // JSON 메시지 생성 및 전송
-    std::string jsonStrServer = msgFormat("resp_stock", "T2", "2", "7", "5", "8", "", "");
-    send(client_socket, jsonStrServer.c_str(), jsonStrServer.length(), 0);
-    std::cout << "Sent JSON From Server\n" << std::endl;
-
-    // ...existing code...
-    listen(server_fd, 8);
-    std::cout << "Listening on port 9000" << std::endl;
-
     for (int i = 0; i < 8; ++i)
     { // 8번 반복해서 8개의 클라이언트 처리
+        std::string dst_id = "T" + std::to_string(i);
+
         socklen_t addrlen = sizeof(address);
         int client_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen);
         if (client_socket < 0)
@@ -317,12 +325,41 @@ void serverMessageOpen(const std::string &quest_type, const std::string &dst_id,
         if (valread > 0)
         {
             buffer[valread] = '\0';
-            std::cout << "Received: " << buffer << std::endl;
+
+            // 현재 날짜와 시간을 기반으로 파일명 생성
+            auto now = std::chrono::system_clock::now();
+            std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+            std::tm* now_tm = std::localtime(&now_time);
+
+            char tmpfilename[128];
+            std::strftime(tmpfilename, sizeof(tmpfilename), "../msgdata/msg_%Y%m%d_%H%M%S", now_tm);
+            if (mkdir(tmpfilename, 0755) == 0)
+            {
+                std::cout << "디렉토리 생성 성공" << std::endl;
+            }
+            else
+            {
+                perror("mkdir 실패");
+            }
+
+            std::string filename = std::string(tmpfilename) + "/_" + dst_id + ".json";
+
+            // JSON 파싱 및 파일 저장
+            json msg = json::parse(buffer);
+            std::ofstream file(filename);
+            if (file.is_open()) {
+                file << msg.dump(2);
+                file.close();
+                std::cout << "Saved JSON to: " << filename << std::endl;
+            } else {
+                std::cerr << "Failed to open file: " << filename << std::endl;
+            }
+
         }
 
-        std::string jsonStrServer = msgFormat("resp_stock", "T2", "2", "7", "5", "8", "", "");
+        std::string jsonStrServer = msgFormat("resp_stock", dst_id, "2", "7", "5", "8", "", "");
         send(client_socket, jsonStrServer.c_str(), jsonStrServer.length(), 0);
-        std::cout << "Sent JSON From Server\n" << std::endl;
+        std::cout << "Sent JSON From Server" << std::endl;
 
         close(client_socket);
     }
@@ -335,87 +372,19 @@ void serverMessageOpen(const std::string &quest_type, const std::string &dst_id,
     // send(client_socket, "Hello", strlen("Hello"), 0);
 }
 
-// 서버 포트 오픈 및 바인드() 함수
-// int startServerSocket()
-// {
-//     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-//     if (server_fd < 0)
-//     {
-//         std::cerr << "Socket creation failed" << std::endl;
-//         return -1;
-//     }
-//     std::cout << "Server Socket created successfully" << std::endl;
-
-//     struct sockaddr_in address{};
-//     address.sin_family = AF_INET;
-//     address.sin_addr.s_addr = INADDR_ANY;
-//     address.sin_port = htons(PORT_NUM);
-
-//     bind(server_fd, (struct sockaddr *)&address, sizeof(address));
-
-//     // if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
-//     // {
-//     //     std::cerr << "Bind failed" << std::endl;
-//     //     close(server_fd);
-//     //     return -1;
-//     // }
-//     std::cout << "Bind successful" << std::endl;
-
-//     if (listen(server_fd, 8) < 0)
-//     {
-//         std::cerr << "Listen failed" << std::endl;
-//         close(server_fd);
-//         return -1;
-//     }
-
-//     std::cout << "Listening on port " << PORT_NUM << std::endl;
-    
-//     return server_fd;
-// }
-
-// // 서버 메시지 수신 및 응답 함수
-// void acceptAndRespond(int server_fd, json msg)
-// {
-//     char buffer[BUFSIZ];
-//     struct sockaddr_in client_addr;
-//     socklen_t addrlen = sizeof(client_addr);
-
-//     int client_socket = accept(server_fd, (struct sockaddr *)&client_addr, &addrlen);
-//     if (client_socket < 0)
-//     {
-//         std::cerr << "Accept failed" << std::endl;
-//         return;
-//     }
-
-//     std::cout << "Client connected from " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl;
-
-//     int valread = read(client_socket, buffer, BUFSIZ);
-//     if (valread > 0)
-//     {
-//         buffer[valread] = '\0';
-//         std::cout << "Received: " << buffer << std::endl;
-//     }
-
-//     std::string jsonStrServer = msgFormat(msg);
-//     send(client_socket, jsonStrServer.c_str(), jsonStrServer.length(), 0);
-//     std::cout << "Sent JSON ACK From Server\n" << std::endl;
-
-//     close(client_socket);
-// }
-
 // TCP에서는 브로드캐스트가 안되기에 broadcast를 사용하지 않으므로 TCP 프로토콜을 사용해 그냥 모든 클라이언트에게 메시지를 전송하는 것으로 대체
 
 void broadMessage(const json &msg)
 {
     std::vector<std::thread> threads;
-    for (int i = 0; i < 8; ++i)
+    for (int i = 1; i < 9; ++i)
     {
         std::string dst_id = "T" + std::to_string(i);
         threads.emplace_back([msg, dst_id]()
         {
             try {
                 std::cout << "[Broadcast] Sending message to client" << std::endl;
-                clientMessageOpen("resp_stock", dst_id, "7", "5", "10", "", "", "");
+                clientMessageOpen("resp_stock", dst_id, msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], "", "");
             } catch (const std::exception& e) {
                 std::cerr << "[Exception] " << e.what() << std::endl;
             } });
@@ -428,6 +397,8 @@ void broadMessage(const json &msg)
     }
 
     std::cout << "[Broadcast] 모든 메시지 전송 완료" << std::endl;
+
+    return;
 }
 
 // 인증번호를 전송하는 함수 선결제 영역
@@ -446,6 +417,8 @@ void DVMMessageOutofStock(int beverageId, int quantity)
         {"msg_content", {{"item_code", std::to_string(beverageId)}, {"item_num", std::to_string(quantity)}, {"coor_x", ""}, {"coor_y", ""}, {"cert_code", ""}, {"availability", ""}}}};
 
     broadMessage(DVMMessageOutOfStock_MessageFormat); // 재고 부족 메시지 전송
+
+    return;
 }
 
 // 다른 DVM에서 재고 확인 요청을 받았을 때 호출되는 함수
@@ -460,6 +433,7 @@ void AskStockMessage(json msg)
     
 }
 
+// json 형식의 메시지를 읽고 그에 따라 적절한 메시지를 보내는 함수 즉 재고가 부족하다고 문자가 올 경우 현재 재고 상황을 보내주는 함수 및 req_prepay에 대한 ACK를 보내는 함수
 void sendMessagge(const std::string &msg)
     {
         std::cout << "[Send Message] " << msg << std::endl;
@@ -483,7 +457,7 @@ int main()
     // 서버가 포트 바인딩 및 listen까지 준비될 시간을 주기
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    DVMMessageOutofStock(1, 10); // 재고 부족 메시지 전송
+    DVMMessageOutofStock(20, 99); // 재고 부족 메시지 전송
 
     serverThread.join();
     // clientThread.join();

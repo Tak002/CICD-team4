@@ -13,7 +13,8 @@ class MSG {
         void Send(const std::string &authenticationNum);
         void serverMessageOpen();
         void clientMessageOpen();
-    public : void DVMMessageOutofStock();
+    public : 
+        void DVMMessageOutofStock();
         void AskStockMessage(const std::string &msg);
         void sendMessage(const std::string &msg);
 };
