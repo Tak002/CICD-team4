@@ -1,5 +1,5 @@
 #include "BeverageTable.hpp"
-#include "Beverage.hpp"
+#include "../Beverage.hpp"
 #include <unordered_map>
 #include <list>
 
