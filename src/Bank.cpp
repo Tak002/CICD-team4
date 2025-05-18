@@ -1,6 +1,7 @@
 // Bank.cpp
 #include "Bank.hpp"
-
+#include <cstdlib> 
+#include <ctime>    
 
 Bank::Bank() {
     // todo 
