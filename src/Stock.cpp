@@ -6,11 +6,14 @@
 
 void Stock::updateStock(int item_code, int item_num){
 
+    InMemoryDB& db = InMemoryDB::instance();
     list<Beverage> beverages = getCurrentStock();
     // db 업데이트
     for(Beverage beverage : beverages){
         if(beverage.isSameId(item_code)){
             beverage.reduceBeverage(item_num);
+            db.beverageTable.updateStock(item_code, beverage);
+            break;
         }
     }
 

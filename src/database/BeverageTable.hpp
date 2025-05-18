@@ -12,4 +12,5 @@ class BeverageTable{
         Beverage* find(const int item_code);
         void init();
         std::list<Beverage> findAll();
+        void updateStock(int, Beverage);
 };

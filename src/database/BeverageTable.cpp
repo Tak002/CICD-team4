@@ -1,6 +1,8 @@
 #include "BeverageTable.hpp"
 #include "Beverage.hpp"
 #include <unordered_map>
+#include <list>
+
 
 void BeverageTable::insert(const Beverage& bev) {
     beverages[bev.getBevId()] = bev;
@@ -17,6 +19,11 @@ std::list<Beverage> BeverageTable::findAll() {
         result.push_back(pair.second);
     }
     return result;
+}
+
+void BeverageTable::updateStock(int item_code, Beverage item ){
+    
+    beverages[item_code] = item;
 }
 
 void BeverageTable::init(){
