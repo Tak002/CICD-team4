@@ -1,5 +1,5 @@
 #pragma once
-#include "Position.hpp"
+#include "struct/Position.hpp"
 #include <unordered_map>
 #include <string>
 
