@@ -1,5 +1,5 @@
 #include "PositionTable.hpp"
-#include "Position.hpp"
+#include "struct/Position.hpp"
 #include <unordered_map>
 
 void PositionTable::insert(const Position& pos) {
