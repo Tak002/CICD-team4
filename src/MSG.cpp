@@ -1,6 +1,6 @@
 // MSG.cpp
 #include "MSG.hpp"
-#include "Stock.hpp"
+// #include "Stock.hpp"
 /*
     1. JSON 파일 생성 메시지 형식대로
     2. broadcast 또는 ACK 메시지 전송
@@ -89,6 +89,9 @@ std::string msgFormat(
 
     msg["msg_content"]["cert_code"] = cert_code;
     msg["msg_content"]["availability"] = availability;
+
+    // std::cout << "[MSG] JSON Message: " << msg.dump(2) << std::endl; // 2칸 들여쓰기로 예쁘게 출력
+    // std::ofstream file("../data/msg.json"); // JSON 파일 저장
 
     return msg.dump(2); // JSON string with pretty-print
 }
@@ -251,14 +254,13 @@ void serverMessageOpen(const std::string &quest_type, const std::string &dst_id,
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT_NUM); // 9000 포트로 설정
 
-    bind(server_fd, (struct sockaddr *)&address, sizeof(address));
-    #pragma region bind
-    // if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
-    // {
-    //     std::cerr << "Bind failed" << std::endl;
-    //     close(server_fd);
-    //     return;
-    // }
+    // bind 함수 호출 및 오류 처리
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) // bind 실패 시 에러 메시지 출력
+    {
+        std::cerr << "Bind failed. errno=" << errno << " : " << strerror(errno) << std::endl;
+        close(server_fd);
+        return;
+    }
     std::cout << "Bind successful" << std::endl; // 바인드 성공 시 출력
     #pragma endregion
 
@@ -296,7 +298,36 @@ void serverMessageOpen(const std::string &quest_type, const std::string &dst_id,
     send(client_socket, jsonStrServer.c_str(), jsonStrServer.length(), 0);
     std::cout << "Sent JSON From Server\n" << std::endl;
 
-    close(client_socket);
+    // ...existing code...
+    listen(server_fd, 8);
+    std::cout << "Listening on port 9000" << std::endl;
+
+    for (int i = 0; i < 8; ++i)
+    { // 8번 반복해서 8개의 클라이언트 처리
+        socklen_t addrlen = sizeof(address);
+        int client_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen);
+        if (client_socket < 0)
+        {
+            std::cerr << "Accept failed" << std::endl;
+            continue;
+        }
+        std::cout << "Client connected" << std::endl;
+
+        int valread = read(client_socket, buffer, BUFSIZ);
+        if (valread > 0)
+        {
+            buffer[valread] = '\0';
+            std::cout << "Received: " << buffer << std::endl;
+        }
+
+        std::string jsonStrServer = msgFormat("resp_stock", "T2", "2", "7", "5", "8", "", "");
+        send(client_socket, jsonStrServer.c_str(), jsonStrServer.length(), 0);
+        std::cout << "Sent JSON From Server\n" << std::endl;
+
+        close(client_socket);
+    }
+
+    close(server_fd);
     // close(server_fd); // 서버 소켓 닫기 일시 정지
 
     // // std::cout << "Client IP: " << inet_ntoa(address.sin_addr) << ", Port: " << ntohs(address.sin_port) << std::endl; // 클라이언트 IP 주소 및 포트 번호 출력
@@ -377,34 +408,19 @@ void serverMessageOpen(const std::string &quest_type, const std::string &dst_id,
 void broadMessage(const json &msg)
 {
     std::vector<std::thread> threads;
-
-    // 안전한 값 추출 (예외 방지)
-    // int item_code = msg["msg_content"].value("item_code", 0);
-    // int item_num = msg["msg_content"].value("item_num", 0);
-
-    for (int i = 0; i < 1; ++i)
+    for (int i = 0; i < 8; ++i)
     {
-        // 각 메시지 구성
-        // json broad_Msg = {
-        //     {"msg_type", "req_stock"},
-        //     {"src_id", "T4"},
-        //     {"dst_id", "T" + std::to_string(i)},
-        //     {"msg_content", {{"item_code", item_code}, {"item_num", item_num}, {"coor_x", ""}, {"coor_y", ""}, {"cert_code", ""}, {"availability", ""}}}};
-        
-        // std::string msgStr = broad_Msg.dump(2); // 2칸 들여쓰기로 예쁘게 출력
-        // 스레드 생성 및 실행 (move로 복사 최소화)
-        std::thread serverThread([msg]()
+        std::string dst_id = "T" + std::to_string(i);
+        threads.emplace_back([msg, dst_id]()
         {
             try {
                 std::cout << "[Broadcast] Sending message to client" << std::endl;
-                clientMessageOpen("resp_stock", "T2", "7", "5", "10", "", "", ""); // 또는 acceptAndRespond(server_fd, msg);
+                clientMessageOpen("resp_stock", dst_id, "7", "5", "10", "", "", "");
             } catch (const std::exception& e) {
                 std::cerr << "[Exception] " << e.what() << std::endl;
-            }
-        });
+            } });
     }
 
-    // 모든 스레드가 종료될 때까지 대기
     for (auto &t : threads)
     {
         if (t.joinable())
