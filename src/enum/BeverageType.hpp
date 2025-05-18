@@ -27,3 +27,4 @@ enum class BeverageType {
 
 // 문자열 변환 함수 선언
 std::string toString(BeverageType type);
+int toPrice(BeverageType type);
