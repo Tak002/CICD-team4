@@ -1,8 +1,8 @@
 // Stock.cpp
 #include "Stock.hpp"
-#include "InMemoryDB.hpp"
+#include "database/InMemoryDB.hpp"
 #include "MSG.hpp"
-#include "PendingBeverage.hpp"
+#include "struct/PendingBeverage.hpp"
 
 void Stock::updateStock(int item_code, int item_num){
 
