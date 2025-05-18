@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.30)
-project(sonar_scanner_example)
+project(dvm)
 
 set(CMAKE_CXX_STANDARD 17)
 
 # 메인 실행 파일
-add_executable(sonar_scanner_example
+add_executable(dvm
     src/main.cpp
     src/Auth.cpp
     src/Bank.cpp
