@@ -80,15 +80,14 @@ void ShowScreen::displayPaymentResultScreen(bool paymentSuccess){
 
 void  ShowScreen::displayPaymentSuccess(){
     string str = "결제에 성공했습니다";
+    display(str);
 }
 
 void ShowScreen::displayPaymentFailed(){
     string str = "결제에 실패했습니다.\n";
     str+= "카드번호나 잔액을 확인해주세요";
-    
-}
-void  ShowScreen::displayPaymentSuccess(){
-    string str = "결제에 성공했습니다";
+    display(str);
+
 }
 
 void ShowScreen::displayInvalidIdRange(){
