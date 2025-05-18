@@ -77,7 +77,10 @@ void Stock::editStock(int item_code, int item_num){
 }
 
 Beverage Stock::getBevToBuy(){
-    return bev_to_buy;
+    PendingBeverage& pending = PendingBeverage::instance();
+
+    Beverage beverage(pending.getId(), pending.getNum());
+    return beverage;
 }
 
 void Stock::cancleBuying(){

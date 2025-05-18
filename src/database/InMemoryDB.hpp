@@ -1,6 +1,7 @@
 #pragma once
 #include "PositionTable.hpp"
 #include "BeverageTable.hpp"
+#include "CertCodeTable.hpp"
 
 class InMemoryDB {
 private:
@@ -12,6 +13,7 @@ public:
     static InMemoryDB& instance();
     PositionTable positionTable;
     BeverageTable beverageTable;
+    CertCodeTable certcodeTable;
 
     void initPosition();
     void initBeverage();
