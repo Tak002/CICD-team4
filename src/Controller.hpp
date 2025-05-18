@@ -6,6 +6,7 @@
 #include "MSG.hpp"
 #include "ShowScreen.hpp"
 #include "Stock.hpp"
+#include "enum/CommandType.hpp"
 
 #include <string>
 
@@ -19,10 +20,15 @@ private:
     ShowScreen showScreen;
 
 public:
+    // 처음 시작시 설정
+    void setController();
+    
+    // showScreen 실행
+    void runShowScreenCommand(CommandType  cmd);
+
     // 재고를 출력하는 함수
     void printStock();
 
-    // 음료의 재고를 확인하는 함수
     bool checkBeverage(int item_code, int item_num);
 
 

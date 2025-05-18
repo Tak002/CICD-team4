@@ -2,6 +2,9 @@
 #include "CurrentState_enum.hpp"
 #include <string>
 #include "Controller.hpp"
+#include <iostream>
+#include "enum/CommandType.hpp"
+
 using std::string;
 
 class Input {
@@ -9,12 +12,9 @@ class Input {
     Controller* controller;
     string command;
     CurrentState currentState;
+    std::string getFirstScreenAnswer();
 
     public: 
     Input(Controller *ctrl);
     void run();
-    void sendOperation(CurrentState, string);
-    void printStock();
-    void selectBeverage(int, int);
-    void enterCardNum(int);
 };
