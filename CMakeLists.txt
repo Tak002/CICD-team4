@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.30)
-project(sonar_scanner_example)
+project(dvm)
 
 set(CMAKE_CXX_STANDARD 17)
 
 # 메인 실행 파일
-add_executable(sonar_scanner_example
+add_executable(dvm
     src/main.cpp
     src/Auth.cpp
     src/Bank.cpp
@@ -56,3 +56,56 @@ target_link_libraries(unit_tests
 
 gtest_discover_tests(unit_tests)
 
+# 테스트 타겟 2: BankTest.cpp
+add_executable(BankTest
+    test/BankTest.cpp
+    src/Bank.cpp
+)
+
+target_include_directories(BankTest PRIVATE ${PROJECT_SOURCE_DIR}/src)
+
+target_link_libraries(BankTest
+    gtest
+    gtest_main
+    pthread
+)
+
+gtest_discover_tests(BankTest)
+
+# 테스트 타겟 3: BeverageTest.cpp
+add_executable(BeverageTest
+    test/BeverageTest.cpp
+    src/Beverage.cpp
+)
+
+target_include_directories(BeverageTest PRIVATE ${PROJECT_SOURCE_DIR}/src)
+
+target_link_libraries(BeverageTest
+    gtest
+    gtest_main
+    pthread
+)
+
+gtest_discover_tests(BeverageTest)
+
+
+# 테스트 타겟 4: CalcTest.cpp
+add_executable(CalcTest
+    test/CalcTest.cpp
+    src/Calc.cpp
+    src/database/InMemoryDB.cpp
+    src/database/PositionTable.cpp
+    src/struct/Position.hpp
+    src/database/BeverageTable.cpp
+    src/Beverage.cpp
+)
+
+target_include_directories(CalcTest PRIVATE ${PROJECT_SOURCE_DIR}/src)
+
+target_link_libraries(CalcTest
+    gtest
+    gtest_main
+    pthread
+)
+
+gtest_discover_tests(CalcTest)
