@@ -9,7 +9,6 @@ using std::string;
 
 class Input {
     private:
-    Controller* controller;
     string command;
     CurrentState currentState;
     
