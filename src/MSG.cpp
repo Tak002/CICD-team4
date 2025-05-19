@@ -373,7 +373,7 @@ void serverMessageOpen()
         std::cout << "Client connected" << std::endl;
 
         // 클라이언트 처리 스레드 생성
-        std::thread clientThread(handleClient, client_socket);
+        std::thread clientThread(&MSG::handleClient, this, client_socket);        
         clientThread.detach(); // 클라이언트별로 비동기 처리
     }
 
