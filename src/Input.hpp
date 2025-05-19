@@ -3,7 +3,6 @@
 #include <string>
 #include "Controller.hpp"
 #include <iostream>
-#include "enum/CommandType.hpp"
 
 using std::string;
 

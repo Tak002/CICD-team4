@@ -69,8 +69,7 @@ void Controller:: run(){
         else if (firstScreenAnswer==1){ 
             showScreen.displayCertCodeEnter();
             std::string certCode = input.getCertCode();
-            // bool isValid = certCodeManager.isValidCertCode(certCode); //CertCodeManager 미구현
-            bool isValid;
+            bool isValid = certCodeManager.isValidateCertCode(certCode); //CertCodeManager 미구현
             //인증번호가 유효할 경우
             if(isValid){
                 // itemID, itemNum from certCodeManager
