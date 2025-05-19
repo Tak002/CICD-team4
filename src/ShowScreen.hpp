@@ -29,4 +29,8 @@ class ShowScreen {
         void displayCertCodeFailed();
 
         void displayInvalidIdRange();
+
+        void displayNearestPosition(int, int);
+        void displayPrePayCancle();
+        void displayPositionAndCertCode(int, int ,string);
 };
