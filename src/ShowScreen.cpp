@@ -57,8 +57,9 @@ void ShowScreen::displayFirstScreen(){
 
 void ShowScreen::displayPrepayLocation(int coor_x, int coor_y){
     string str;
-    str +=string("목표 위치 x: %d / y: %d",coor_x,coor_y);
-
+    str +=string("목표 위치 x: %d / y: %d\n",coor_x,coor_y);
+    str +=string("결제를 원하시면 'y', 원하지 않으시면 'n'를 입력해주세요\n");
+    str +=string("결제 여부: ");
     display(str);
 }
 

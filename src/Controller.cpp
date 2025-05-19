@@ -25,7 +25,7 @@ void Controller:: run(){
                 // 가장 가까운 주소 확인 및 출력
                 
                 //coor_x = ?, coor_y = ?
-
+                showScreen.displayPrepayLocation(coor_x,coor_y);
                 // 구매 여부 확인
                 if(!input.getBoolAnswer())continue; //구매 거절시 초기화면으로
                 isPrepayment = true;
