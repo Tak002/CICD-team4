@@ -467,23 +467,22 @@ json MSG::AskStockMessage(json msg)
 
 
     Stock stock;
-    // wrong code. return 값도 사용 안함
-    stock.isPrepayment(msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인
-    
-    // 수정 필요. 이 정보들을 json으로 가져오는 작업 있어야할듯?
-    // std::string resp_stock_msg = msgFormat("resp_stock", msg["src_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], "", ""); // 재고 확인 메시지 포맷
-    json resp_stock_msg;                                                                                                                                                                                       // 파싱된 JSON 메시지 저장 변수
+    bool canBuy = stock.isPrepayment(msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인
+    if(!canBuy){ return json() }
+
+    std::string resp_stock_msg = msgFormat("resp_stock", msg["src_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], "", ""); // 재고 확인 메시지 포맷
+    json parsed_resp_stock_msg;                                                                                                                                                                                       // 파싱된 JSON 메시지 저장 변수
     try
     {
-        resp_stock_msg = json::parse(resp_stock_msg); // JSON 메시지 파싱
+        parsed_resp_stock_msg = json::parse(resp_stock_msg); // JSON 메시지 파싱
     }
     catch (const std::exception &e)
     {
         std::cerr << "[ERROR] JSON 파싱 실패: " << e.what() << std::endl;
         return json(); // 빈 JSON 반환
     }
-    std::cout << "[Ask Stock] Parsed message: " << resp_stock_msg << std::endl; // 파싱된 메시지 출력
-    return resp_stock_msg;
+    std::cout << "[Ask Stock] Parsed message: " << resp_stock_msg s<< std::endl;
+    return parsed_resp_stock_msg;
 }
 
 void SocketOpenInit(MSG *msg)
