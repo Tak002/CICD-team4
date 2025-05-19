@@ -467,8 +467,11 @@ json MSG::AskStockMessage(json msg)
 
 
     Stock stock;
+    // wrong code. return 값도 사용 안함
     stock.isPrepayment(msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인
-    std::string resp_stock_msg = msgFormat("resp_stock", msg["src_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], "", ""); // 재고 확인 메시지 포맷
+    
+    // 수정 필요. 이 정보들을 json으로 가져오는 작업 있어야할듯?
+    // std::string resp_stock_msg = msgFormat("resp_stock", msg["src_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], "", ""); // 재고 확인 메시지 포맷
     json resp_stock_msg;                                                                                                                                                                                       // 파싱된 JSON 메시지 저장 변수
     try
     {
