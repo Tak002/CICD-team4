@@ -483,7 +483,6 @@ bool sendMessage(const std::string msg_type, const std::string &msg)
     return true;
 }
 
-<<<<<<< HEAD
 // int main()
 // {
 //     json msg = {
@@ -505,13 +504,6 @@ bool sendMessage(const std::string msg_type, const std::string &msg)
 
 //     serverThread.join();
 //     // clientThread.join();
-=======
-int main()
-{
-    SocketOpenInit(); // 소켓 초기화
-
-    DVMMessageOutofStock(20, 99); // 재고 부족 메시지 전송
->>>>>>> dev/msg
 
 //     return 0;
 // }
