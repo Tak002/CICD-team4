@@ -414,7 +414,7 @@ void clientSendMessage(int sockfd, const std::string &msg)
     }
 }
 
-void broadMessage(const json &msg)
+void MSG::broadMessage(const json &msg)
 {
     std::vector<std::thread> threads;
     std::cout << "[Broadcast] Sending message to all" << std::endl;
@@ -460,7 +460,7 @@ void sendCertCode(const std::string &dst_id, const std::string &item_code, const
 }
 
 // 클라이언트 소켓을 생성하고 타 서버에 연결하는 함수를 구현
-std::tuple<int,int, std::string> DVMMessageOutofStock(int beverageId, int quantity)
+std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int quantity)
 {
     // 1. 브로드 캐스트를 이용해서 json 메시지를 받아온다.
     std::cout << "[Out of Stock] Beverage ID: " << beverageId << ", Quantity: " << quantity << std::endl; // 재고 부족 메시지 출력
@@ -544,13 +544,13 @@ json AskStockMessage(json msg)
     return parsed_resp_stock_msg;
 }
 
-void SocketOpenInit(MSG *msg)
+void MSG::SocketOpenInIt(MSG *msg)
 {
     std::thread serverThread = std::thread(&MSG::serverMessageOpen, msg); // 서버 수신 함수 백그라운드 실행
     serverThread.detach();                                     // 또는 joinable일 때 main에서 join (비차단 운영이면 detach)
 }
 
-bool sendMessage(const std::tuple<std::string, int, int, std::string>& msgData)
+bool MSG::sendMessage(const std::tuple<std::string, int, int, std::string>& msgData)
 {
 
     const auto& [dst_id, itemID, itemNum, newCertCode] = msgData;
@@ -570,6 +570,7 @@ bool sendMessage(const std::tuple<std::string, int, int, std::string>& msgData)
     clientMessage(dst_id, msg);
 
 
+    // 선결제 무조건 가능하다고 가정
     return true;
 }
 
