@@ -117,8 +117,3 @@ void ShowScreen::displayGetCardNum(){
     string str = "카드번호를 입력해주세요";
     display(str); 
 }
-
-void ShowScreen::displayGetCertCode(){
-    string str = "인증번호를 입력해주세요";
-    display(str); 
-}

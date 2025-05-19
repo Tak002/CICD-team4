@@ -31,6 +31,7 @@ void Controller:: run(){
             // 결제
             showScreen.displayGetCardNum();
             int cardNum= input.getCardNum();
+            //카드 정보 유효한지확인도 넣어야할수도 있음.
             bool isPaymentSuccess = requestPayment(cardNum,123);//123은 예시 결제 금액. stock에서 가격확인하는 메서드 구현 필요.
             showScreen.displayPaymentResultScreen(isPaymentSuccess);
             if(!isPaymentSuccess)continue; //결제 실패시 초기화면으로
