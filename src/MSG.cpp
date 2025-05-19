@@ -552,9 +552,24 @@ void SocketOpenInit(MSG *msg)
 
 bool sendMessage(const std::tuple<std::string, int, int, std::string>& msgData)
 {
+
+    const auto& [dst_id, itemID, itemNum, newCertCode] = msgData;
+
     // 클라이언트 소켓을 생성하고 타 서버에 연결하는 함수를 구현
+    string path = directoryPath+"ip_address.json";
+    std::ifstream file(path);
+    json ipjson;
+    file >> ipjson;
+    string ipaddress = ipjson[dst_id];
+
+    string msg_type = "req_prepay";
+
+    string jsonstr = msgFormat(msg_type,dst_id, std::to_string(itemID), std::to_string(itemNum), "","",newCertCode,"");
     std::cout << "[Send Message] " << msg_type << std::endl;
-    clientMessage(msg_type, msg);
+    json msg = json(jsonstr);
+    clientMessage(dst_id, msg);
+
+
     return true;
 }
 
