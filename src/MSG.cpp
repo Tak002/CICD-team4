@@ -1,6 +1,7 @@
 // MSG.cpp
 #include "MSG.hpp"
-// #include "Stock.hpp"
+#include "Stock.hpp"
+#include "Position.hpp"
 /*
     1. JSON 파일 생성 메시지 형식대로
     2. broadcast 또는 ACK 메시지 전송
@@ -12,11 +13,10 @@
 #include <sys/socket.h> //소켓 프로그래밍을 위한 헤더 파일
 #include <netinet/in.h> //인터넷 주소 체계에 대한 정의
 #include <arpa/inet.h>  //IP 주소 변환을 위한 헤더 파일
-#include <unistd.h>    //POSIX 운영 체제 API를 위한 헤더 파일
+#include <unistd.h>     //POSIX 운영 체제 API를 위한 헤더 파일
 #include <fstream>      //파일 저장을 위한 헤더 파일
-#include <sys/stat.h> //파일 상태를 확인하기 위한 헤더 파일
-#include "Calc.hpp"
-#include <filesystem>
+#include <sys/stat.h>   //파일 상태를 확인하기 위한 헤더 파일
+#include <filesystem>   // C++17 파일 시스템 라이브러리
 #include <vector>
 #include <algorithm>
 #include <regex>
@@ -31,16 +31,17 @@
 using json = nlohmann::json; // JSON 라이브러리 사용
 
 #define PORT_NUM 9000 // 서버 포트 번호
-#define BUFSIZE 1024 // 버퍼 사이즈
+#define BUFSIZE 1024  // 버퍼 사이즈
 
 // #define tmp_ip_address "127.0.0.1" // 임시 ip 주소
 
 // #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 namespace fs = std::filesystem;
+using namespace std;
 
-std::string directoryPath = "../msgdata"; // JSON 파일이 있는 디렉토리 경로
 std::vector<fs::path> jsonFiles;
+std::string directoryPath = "../msgdata"; // JSON 파일이 있는 디렉토리 경로
 
 std::string msgFormat(
     const std::string &quest_type,
@@ -112,9 +113,9 @@ void clientMessage(const std::string &dst_id, const json &msg)
 {
     std::string ip_address;
 
-    char buffer[BUFSIZE]; // 버퍼 선언
+    char buffer[BUFSIZE];              // 버퍼 선언
     memset(buffer, 0, sizeof(buffer)); // 버퍼 초기화
-    int clientSocketfd; // 클라이언트 소켓 파일 디스크립터
+    int clientSocketfd;                // 클라이언트 소켓 파일 디스크립터
 
     /*
         1. socket()        // 소켓 생성  --> 클라이언트로 다른 서버에게 알리는 일 braodcast 때와 req_prepay 때만 생성하면 된다.
@@ -125,18 +126,20 @@ void clientMessage(const std::string &dst_id, const json &msg)
     */
 
     // 1. socket() --> 클라이언트 소켓 생성
-    try {
+    try
+    {
         clientSocketfd = socket(AF_INET, SOCK_STREAM, 0);
         if (clientSocketfd < 0)
             throw clientSocketfd;
         std::cout << "Client Socket created" << std::endl;
     }
-    catch (int clientsocketfd) {
+    catch (int clientsocketfd)
+    {
         std::cerr << "Socket creation failed" << std::endl;
         return;
     }
-    
-    #pragma region socketconnect
+
+#pragma region socketconnect
     // JSON 파일에서 dst_id에 따른 IP주소 가져오기
     std::ifstream file("../msgdata/ip_address.json");
     if (!file.is_open())
@@ -167,8 +170,8 @@ void clientMessage(const std::string &dst_id, const json &msg)
     }
 
     struct sockaddr_in server_addr;
-    server_addr.sin_family = AF_INET; // IPv4
-    server_addr.sin_port = htons(PORT_NUM); // 포트 번호 설정
+    server_addr.sin_family = AF_INET;                              // IPv4
+    server_addr.sin_port = htons(PORT_NUM);                        // 포트 번호 설정
     inet_pton(AF_INET, ip_address.c_str(), &server_addr.sin_addr); // IP 주소 변환
 
     std::cout << "[" << dst_id << "] Server address set" << std::endl;
@@ -176,18 +179,19 @@ void clientMessage(const std::string &dst_id, const json &msg)
     if (connect(clientSocketfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
         std::cerr << "connect failed. errno=" << errno << " : " << strerror(errno) << std::endl;
-        if (errno == ECONNREFUSED) {
+        if (errno == ECONNREFUSED)
+        {
             std::cerr << " 서버가 연결을 거부했습니다 (ECONNREFUSED)" << std::endl;
         }
         close(clientSocketfd);
         return;
     }
-    #pragma endregion
+#pragma endregion
 
     std::cout << "[" << dst_id << "] Connected to server" << std::endl;
 
     std::string jsonStrServer = msgFormat(msg["msg_type"], dst_id, msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], msg["msg_content"]["cert_code"], msg["msg_content"]["availability"]);
-    
+
     if (msg["msg_type"] == "req_stock")
     {
         std::cout << "[" << dst_id << "] Sending stock request" << std::endl;
@@ -203,7 +207,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
         return;
     }
     send(clientSocketfd, jsonStrServer.c_str(), jsonStrServer.length(), 0);
-    std::cout << "[" << dst_id << "] Sent JSON: "<< std::endl;
+    std::cout << "[" << dst_id << "] Sent JSON: " << std::endl;
 
     int valread = recv(clientSocketfd, buffer, BUFSIZE, 0);
     if (valread > 0)
@@ -248,7 +252,6 @@ void clientMessage(const std::string &dst_id, const json &msg)
     close(clientSocketfd); // 클라이언트 소켓 닫기
     std::cout << "[" << dst_id << "] Client socket closed" << std::endl;
     return;
-
 }
 
 void handleClient(int client_socket)
@@ -300,23 +303,23 @@ void serverMessageOpen()
     */
     char buffer[BUFSIZ]; // 버퍼 선언
 
-    #pragma region socketcreate
+#pragma region socketcreate
     serverSocketfd = socket(AF_INET, SOCK_STREAM, 0); // 서버 소켓 생성
-    if (serverSocketfd < 0) // 소켓 생성 실패 시 에러 메시지 출력
+    if (serverSocketfd < 0)                           // 소켓 생성 실패 시 에러 메시지 출력
     {
         std::cerr << "Socket creation failed" << std::endl;
         return;
     }
-    #pragma endregion
+#pragma endregion
 
-    #pragma region socketOption
+#pragma region socketOption
     struct sockaddr_in address; // 서버 주소 구조체 선언
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT_NUM); // 9000 포트로 설정
-    #pragma endregion
+#pragma endregion
 
-    #pragma region bind
+#pragma region bind
     // bind 함수 호출 및 오류 처리
     if (bind(serverSocketfd, (struct sockaddr *)&address, sizeof(address)) < 0) // bind 실패 시 에러 메시지 출력
     {
@@ -325,12 +328,12 @@ void serverMessageOpen()
         return;
     }
     std::cout << "Bind successful" << std::endl; // 바인드 성공 시 출력
-    #pragma endregion
+#pragma endregion
 
-    #pragma region listen
-    listen(serverSocketfd, 8); // 연결 요청 대기 상태
+#pragma region listen
+    listen(serverSocketfd, 8);                          // 연결 요청 대기 상태
     std::cout << "Listening on port 9000" << std::endl; // 연결 요청 대기 상태 출력
-    #pragma endregion
+#pragma endregion
 
     while (true)
     {
@@ -392,8 +395,9 @@ void broadMessage(const json &msg)
     for (int i = 1; i < 9; ++i)
     {
         std::string dst_id = "T" + std::to_string(i);
-        
-        if (dst_id == "T4") {
+
+        if (dst_id == "T4")
+        {
             continue; // T4는 자기 자신에게 보내지 않도록
         }
         threads.emplace_back([msg, dst_id]()
@@ -402,8 +406,7 @@ void broadMessage(const json &msg)
                 clientMessage(dst_id, msg);
             } catch (const std::exception& e) {
                 std::cerr << "[Exception] " << e.what() << std::endl;
-            } 
-            });
+            } });
     }
 
     for (auto &t : threads)
@@ -431,7 +434,6 @@ void sendCertCode(const std::string &dst_id, const std::string &item_code, const
 // 클라이언트 소켓을 생성하고 타 서버에 연결하는 함수를 구현
 std::vector<std::string> DVMMessageOutofStock(int beverageId, int quantity)
 {
-    Calc calc;
     // 1. 브로드 캐스트를 이용해서 json 메시지를 받아온다.
     std::cout << "[Out of Stock] Beverage ID: " << beverageId << ", Quantity: " << quantity << std::endl; // 재고 부족 메시지 출력
     json DVMMessageOutofStock_MessageFormat = {
@@ -458,7 +460,7 @@ std::vector<std::string> DVMMessageOutofStock(int beverageId, int quantity)
 }
 
 // 다른 DVM에서 재고 확인 요청을 받았을 때 호출되는 함수
-void AskStockMessage(json msg)
+json AskStockMessage(json msg)
 {
     std::cout << "[Ask Stock] Stock으로부터 확인 중" << msg << std::endl;
 
@@ -466,13 +468,25 @@ void AskStockMessage(json msg)
     // 일단 동작은 막아놓았다.
     // Stock stock;
     // stock.isBuyable(msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인
-    
+    std::string resp_stock_msg = msgFormat("resp_stock", msg["src_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], "", ""); // 재고 확인 메시지 포맷
+    json resp_stock_msg                                                                                                                                                                                       // 파싱된 JSON 메시지 저장 변수
+    try
+    {
+        resp_msg = json::parse(resp_stock_msg); // JSON 메시지 파싱
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "[ERROR] JSON 파싱 실패: " << e.what() << std::endl;
+        return json(); // 빈 JSON 반환
+    }
+    std::cout << "[Ask Stock] Parsed message: " << resp_msg.dump(2) << std::endl; // 파싱된 메시지 출력
+    return resp_stock_msg;
 }
 
 void SocketOpenInit()
 {
     std::thread serverThread = std::thread(serverMessageOpen); // 서버 수신 함수 백그라운드 실행
-    serverThread.detach();                         // 또는 joinable일 때 main에서 join (비차단 운영이면 detach)
+    serverThread.detach();                                     // 또는 joinable일 때 main에서 join (비차단 운영이면 detach)
 }
 
 bool sendMessage(const std::string msg_type, const std::string &msg)
@@ -483,27 +497,11 @@ bool sendMessage(const std::string msg_type, const std::string &msg)
     return true;
 }
 
-// int main()
-// {
-//     json msg = {
-//         {"msg_type", "ack"},
-//         {"src_id", "T0"},
-//         {"dst_id", "T1"},
-//         {"msg_content", {{"item_code", 1}, {"item_num", 1}, {"coor_x", 0}, {"coor_y", 0}, {"cert_code", "ABC"}, {"availability", "Y"}}}};
-//     // 이 부분은 테스트용으로 작성된 코드입니다.
-//     // 실제로 서버가 먼저 실행되어야 합니다.
-//     std::thread serverThread([msg]()
-//     {
-//         serverMessageOpen("resp_stock", "2", "7", "5", "10", "", "", ""); // 또는 acceptAndRespond(server_fd, msg);
-//     });
+int main()
+{
+    SocketOpenInit(); // 소켓 초기화
 
-//     // 서버가 포트 바인딩 및 listen까지 준비될 시간을 주기
-//     std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    DVMMessageOutofStock(20, 99); // 재고 부족 메시지 전송
 
-//     DVMMessageOutofStock(1, 10); // 재고 부족 메시지 전송
-
-//     serverThread.join();
-//     // clientThread.join();
-
-//     return 0;
-// }
+    return 0;
+}
