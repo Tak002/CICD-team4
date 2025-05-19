@@ -468,7 +468,7 @@ json MSG::AskStockMessage(json msg)
 
     Stock stock;
     bool canBuy = stock.isPrepayment(msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인
-    if(!canBuy){ return json() }
+    if(!canBuy){ return json(); }
 
     std::string resp_stock_msg = msgFormat("resp_stock", msg["src_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], "", ""); // 재고 확인 메시지 포맷
     json parsed_resp_stock_msg;                                                                                                                                                                                       // 파싱된 JSON 메시지 저장 변수
