@@ -28,5 +28,8 @@ void BeverageTable::updateStock(int item_code, Beverage item ){
 
 void BeverageTable::init(){
     beverages.clear();
+    for(int i = 0; i<20; i++){
+        
+    }
 }
 
