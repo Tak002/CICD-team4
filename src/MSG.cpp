@@ -1,7 +1,6 @@
 // MSG.cpp
 #include "MSG.hpp"
-#include "Stock.hpp"
-#include "Position.hpp"
+// #include "Stock.hpp"
 /*
     1. JSON 파일 생성 메시지 형식대로
     2. broadcast 또는 ACK 메시지 전송
@@ -15,14 +14,9 @@
 #include <arpa/inet.h>  //IP 주소 변환을 위한 헤더 파일
 #include <unistd.h>     //POSIX 운영 체제 API를 위한 헤더 파일
 #include <fstream>      //파일 저장을 위한 헤더 파일
-<<<<<<< HEAD
 #include <sys/stat.h>   //파일 상태를 확인하기 위한 헤더 파일
-#include <filesystem>   // C++17 파일 시스템 라이브러리
-=======
-#include <sys/stat.h> //파일 상태를 확인하기 위한 헤더 파일
 #include "Position.hpp"
 #include <filesystem>
->>>>>>> c52bc14f3adde401cb74ba82453821651b366d3b
 #include <vector>
 #include <algorithm>
 #include <regex>
@@ -44,10 +38,9 @@ using json = nlohmann::json; // JSON 라이브러리 사용
 // #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 namespace fs = std::filesystem;
-using namespace std;
 
-std::vector<fs::path> jsonFiles;
 std::string directoryPath = "../msgdata"; // JSON 파일이 있는 디렉토리 경로
+std::vector<fs::path> jsonFiles;
 
 std::string msgFormat(
     const std::string &quest_type,
@@ -440,6 +433,7 @@ void sendCertCode(const std::string &dst_id, const std::string &item_code, const
 // 클라이언트 소켓을 생성하고 타 서버에 연결하는 함수를 구현
 std::vector<std::string> DVMMessageOutofStock(int beverageId, int quantity)
 {
+    Position position;
     // 1. 브로드 캐스트를 이용해서 json 메시지를 받아온다.
     std::cout << "[Out of Stock] Beverage ID: " << beverageId << ", Quantity: " << quantity << std::endl; // 재고 부족 메시지 출력
     json DVMMessageOutofStock_MessageFormat = {
@@ -465,7 +459,7 @@ std::vector<std::string> DVMMessageOutofStock(int beverageId, int quantity)
     return {msgFormat("req_prepay", "T4", std::to_string(beverageId), std::to_string(quantity), std::to_string(0), std::to_string(0), "", "")}; // 인증번호 전송
 }
 
-// 다른 DVM에서 재고 확인 요청을 받았을 때 호출되는 함수
+// 재고 확인 요청 메시지 처리 Server에서 다른 클라이언트부터 요청을 받았을 때
 json AskStockMessage(json msg)
 {
     std::cout << "[Ask Stock] Stock으로부터 확인 중" << msg << std::endl;
@@ -475,17 +469,17 @@ json AskStockMessage(json msg)
     // Stock stock;
     // stock.isBuyable(msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인
     std::string resp_stock_msg = msgFormat("resp_stock", msg["src_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], "", ""); // 재고 확인 메시지 포맷
-    json resp_stock_msg                                                                                                                                                                                       // 파싱된 JSON 메시지 저장 변수
+    json resp_stock_msg;                                                                                                                                                                                      // 파싱된 JSON 메시지 저장 변수
     try
     {
-        resp_msg = json::parse(resp_stock_msg); // JSON 메시지 파싱
+        json resp_stock_msg = json::parse(resp_stock_msg); // JSON 메시지 파싱
     }
     catch (const std::exception &e)
     {
         std::cerr << "[ERROR] JSON 파싱 실패: " << e.what() << std::endl;
         return json(); // 빈 JSON 반환
     }
-    std::cout << "[Ask Stock] Parsed message: " << resp_msg.dump(2) << std::endl; // 파싱된 메시지 출력
+    std::cout << "[Ask Stock] Parsed message: " << resp_stock_msg << std::endl; // 파싱된 메시지 출력
     return resp_stock_msg;
 }
 
@@ -503,11 +497,27 @@ bool sendMessage(const std::string msg_type, const std::string &msg)
     return true;
 }
 
-int main()
-{
-    SocketOpenInit(); // 소켓 초기화
+// int main()
+// {
+//     json msg = {
+//         {"msg_type", "ack"},
+//         {"src_id", "T0"},
+//         {"dst_id", "T1"},
+//         {"msg_content", {{"item_code", 1}, {"item_num", 1}, {"coor_x", 0}, {"coor_y", 0}, {"cert_code", "ABC"}, {"availability", "Y"}}}};
+//     // 이 부분은 테스트용으로 작성된 코드입니다.
+//     // 실제로 서버가 먼저 실행되어야 합니다.
+//     std::thread serverThread([msg]()
+//     {
+//         serverMessageOpen("resp_stock", "2", "7", "5", "10", "", "", ""); // 또는 acceptAndRespond(server_fd, msg);
+//     });
 
-    DVMMessageOutofStock(20, 99); // 재고 부족 메시지 전송
+//     // 서버가 포트 바인딩 및 listen까지 준비될 시간을 주기
+//     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    return 0;
-}
+//     DVMMessageOutofStock(1, 10); // 재고 부족 메시지 전송
+
+//     serverThread.join();
+//     // clientThread.join();
+
+//     return 0;
+// }
