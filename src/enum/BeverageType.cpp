@@ -35,9 +35,10 @@ int toPrice(BeverageType type) {
         case BeverageType::BarleyTea: return 1300;
         case BeverageType::CanCoffee: return 1500;
         case BeverageType::Water: return 1000;
-        case BeverageType::CitronTea: return 1800;
         case BeverageType::EnergyDrink: return 2200;
+        case BeverageType::CitronTea: return 1800;
         case BeverageType::Sikhye: return 1600;
+        case BeverageType::IcedTea: return 1000;
         case BeverageType::StrawberryJuice: return 2000;
         case BeverageType::OrangeJuice: return 2000;
         case BeverageType::GrapeJuice: return 2000;

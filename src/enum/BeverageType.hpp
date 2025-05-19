@@ -12,9 +12,10 @@ enum class BeverageType {
     BarleyTea,          // 보리차
     CanCoffee,          // 캔커피
     Water,              // 물
-    CitronTea,          // 유자차
     EnergyDrink,        // 에너지 드링크
+    CitronTea,          // 유자차
     Sikhye,             // 식혜
+    IcedTea,            // 아이스티
     StrawberryJuice,    // 딸기주스
     OrangeJuice,        // 오렌지 주스
     GrapeJuice,         // 포도 주스
