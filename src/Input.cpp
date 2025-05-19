@@ -1,6 +1,8 @@
 // Input.cpp
 #include "Input.hpp"
+#include <iostream>
 
+using namespace std;
 int Input::getFirstScreenAnswer(){
 
     while(true){
@@ -13,7 +15,7 @@ int Input::getFirstScreenAnswer(){
 
 
 //오류 검출 과정 추가 필요
-std::pair<int, int> getItemIDandNum() {
+std::pair<int, int> Input::getItemIDandNum() {
     int itemID, itemNum;
     std::cin >> itemID >> itemNum; 
     return std::make_pair(itemID,itemNum);
