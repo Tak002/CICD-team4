@@ -69,11 +69,11 @@ void Controller:: run(){
         else if (firstScreenAnswer==1){ 
             showScreen.displayCertCodeEnter();
             std::string certCode = input.getCertCode();
-            bool isValid = certCodeManager.isValidateCertCode(certCode); //CertCodeManager 미구현
+            int itemID, itemNum;
+            bool isValid = certCodeManager.isValidCertCode(certCode,itemID,itemNum); //CertCodeManager 미구현
             //인증번호가 유효할 경우
             if(isValid){
-                // itemID, itemNum from certCodeManager
-                // showScreen.displayBeverage(itemID,itemNum);
+                showScreen.displayBeverage(itemID,itemNum);
                 continue;
             }
             //인증번호가 유효하지 않을 경우
@@ -91,7 +91,3 @@ void Controller:: setController(){
     isPrepayment = false;
 };
 
-
-void Controller::saveCertCode(string newCertCode,int item_id, int item_num){
-    certCodeManager.saveCertCode(newCertCode,item_id,item_num);
-}

@@ -16,7 +16,7 @@ using json = nlohmann::json;
 using namespace std;
 
 //controller 주석 존재
-bool CertCodeManager::isValidCertCode(std::string cert_code){
+bool CertCodeManager::isValidCertCode(std::string cert_code,int& itemID, int & itemNum){
     string flnm = "certCode";
     flnm+=cert_code;
     flnm+=".json";
@@ -31,9 +31,8 @@ bool CertCodeManager::isValidCertCode(std::string cert_code){
             return false;
         }
         
-        int item_code = js["item_code"];
-        int item_num = js["item_num"];
-
+        itemID = js["item_code"];
+        itemNum = js["item_num"];
 
 
           // 파일 삭제
