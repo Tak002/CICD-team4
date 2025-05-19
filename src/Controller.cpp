@@ -74,7 +74,7 @@ void Controller:: run(){
             if(isPrepayment = true){
                 std::string newCertCode = certCode.createCertCode();  
                 //선결제 메시지 송신 및 결과 수신
-                bool availability =msg.sendMessage({{src_id,itemID,itemNum,newCertCode}});
+                bool availability =msg.sendMessage(std::make_tuple(src_id,itemID,itemNum,newCertCode));
                 if(availability){
                     showScreen.displayPositionAndCertCode(coor_x, coor_y, newCertCode);
                 }

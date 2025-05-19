@@ -20,5 +20,5 @@ class MSG {
         void serverMessageOpen();
         std::tuple<int,int,std::string> DVMMessageOutofStock(int beverageId, int quantity); // 재고 부족시 메시지 전송 -> 1. broadcast로 클라이언트가 스레드를 만들어서 총 7개의 json 메시지를 받아온 후 2. 7개의 메시지를 바탕으로 Calc에서 거리를 계산 후 3. Nearest Position을 호출하면 된다.
         json AskStockMessage(const json); // 1. 다른 DVM에서 제고 확인 요청을 받았을 때 서버가 스레드를 하나 만들어서 2. Stock에서 재고를 호출한 후 
-        bool sendMessage(const std::string msg_type, const std::string &msg); // 고민 중 private으로 바꿔도 될지 모르겠음 일단 clientMessage를 보내는 부분임 스레드로 만들 때 이 함수를 호출할 예정
+        bool sendMessage(const std::tuple<std::string, int, int, std::string>& msgData);
 };

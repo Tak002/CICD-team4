@@ -550,7 +550,7 @@ void SocketOpenInit(MSG *msg)
     serverThread.detach();                                     // 또는 joinable일 때 main에서 join (비차단 운영이면 detach)
 }
 
-bool sendMessage(const std::string msg_type, const std::string &msg)
+bool sendMessage(const std::tuple<std::string, int, int, std::string>& msgData)
 {
     // 클라이언트 소켓을 생성하고 타 서버에 연결하는 함수를 구현
     std::cout << "[Send Message] " << msg_type << std::endl;
