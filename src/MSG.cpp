@@ -500,7 +500,7 @@ bool sendMessage(const std::string msg_type, const std::string &msg)
 int main()
 {
     MSG msg;
-    SocketOpenInit(msg); // 소켓 초기화
+    SocketOpenInit(&msg); // 소켓 초기화
 
     DVMMessageOutofStock(20, 99); // 재고 부족 메시지 전송
 
