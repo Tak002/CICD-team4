@@ -108,10 +108,10 @@ std::string msgFormat(
     return msg.dump(2); // JSON string with pretty-print
 }
 
-int serverSocketfd;
 
 void clientMessage(const std::string &dst_id, const json &msg)
 {
+
     std::string ip_address;
 
     char buffer[BUFSIZE];              // 버퍼 선언
@@ -255,7 +255,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
     return;
 }
 
-void handleClient(int client_socket)
+void MSG::handleClient(int client_socket)
 {
     char buffer[BUFSIZ] = {0};
     int valread = recv(client_socket, buffer, BUFSIZ, 0);
@@ -289,72 +289,72 @@ void handleClient(int client_socket)
     close(client_socket);
 }
 
-void serverMessageOpen()
+void MSG::serverMessageOpen()
 {
-    /*
-        1. socket()        // 소켓 생성 --> 서버 소켓 생성 main 앞 부분에서 실행해야 하는 부분
-        2. bind()          // IP주소와 포트번호를 소켓에 할당
-        3. listen()        // 연결 요청 대기 상태
+        /*
+            1. socket()        // 소켓 생성 --> 서버 소켓 생성 main 앞 부분에서 실행해야 하는 부분
+            2. bind()          // IP주소와 포트번호를 소켓에 할당
+            3. listen()        // 연결 요청 대기 상태
 
-        이후 부분은 while문 안에서 반복적으로 실행되어야 한다.
-        4. accept()        // 클라이언트 연결 수락
-        5. read()/recv()   // 클라이언트로부터 데이터 수신
-        6. write()/send()  // 클라이언트로 데이터 송신
-        7. close()         // 소켓 닫기
-    */
-    char buffer[BUFSIZ]; // 버퍼 선언
+            이후 부분은 while문 안에서 반복적으로 실행되어야 한다.
+            4. accept()        // 클라이언트 연결 수락
+            5. read()/recv()   // 클라이언트로부터 데이터 수신
+            6. write()/send()  // 클라이언트로 데이터 송신
+            7. close()         // 소켓 닫기
+        */
+        char buffer[BUFSIZ]; // 버퍼 선언
 
-#pragma region socketcreate
-    serverSocketfd = socket(AF_INET, SOCK_STREAM, 0); // 서버 소켓 생성
-    if (serverSocketfd < 0)                           // 소켓 생성 실패 시 에러 메시지 출력
-    {
-        std::cerr << "Socket creation failed" << std::endl;
-        return;
-    }
-#pragma endregion
-
-#pragma region socketOption
-    struct sockaddr_in address; // 서버 주소 구조체 선언
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT_NUM); // 9000 포트로 설정
-#pragma endregion
-
-#pragma region bind
-    // bind 함수 호출 및 오류 처리
-    if (bind(serverSocketfd, (struct sockaddr *)&address, sizeof(address)) < 0) // bind 실패 시 에러 메시지 출력
-    {
-        std::cerr << "Bind failed. errno=" << errno << " : " << strerror(errno) << std::endl;
-        close(serverSocketfd); // 소켓 닫기
-        return;
-    }
-    std::cout << "Bind successful" << std::endl; // 바인드 성공 시 출력
-#pragma endregion
-
-#pragma region listen
-    listen(serverSocketfd, 8);                          // 연결 요청 대기 상태
-    std::cout << "Listening on port 9000" << std::endl; // 연결 요청 대기 상태 출력
-#pragma endregion
-
-    while (true)
-    {
-        socklen_t addrlen = sizeof(struct sockaddr_in);
-        int client_socket = accept(serverSocketfd, nullptr, nullptr);
-        if (client_socket < 0)
+    #pragma region socketcreate
+        serverSocketfd = socket(AF_INET, SOCK_STREAM, 0); // 서버 소켓 생성
+        if (serverSocketfd < 0)                           // 소켓 생성 실패 시 에러 메시지 출력
         {
-            std::cerr << "Accept failed" << std::endl;
-            continue;
+            std::cerr << "Socket creation failed" << std::endl;
+            return;
+        }
+    #pragma endregion
+
+    #pragma region socketOption
+        struct sockaddr_in address; // 서버 주소 구조체 선언
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = INADDR_ANY;
+        address.sin_port = htons(PORT_NUM); // 9000 포트로 설정
+    #pragma endregion
+
+    #pragma region bind
+        // bind 함수 호출 및 오류 처리
+        if (::bind(serverSocketfd, (struct sockaddr *)&address, sizeof(address)) < 0) // bind 실패 시 에러 메시지 출력
+        {
+            std::cerr << "Bind failed. errno=" << errno << " : " << strerror(errno) << std::endl;
+            close(serverSocketfd); // 소켓 닫기
+            return;
+        }
+        std::cout << "Bind successful" << std::endl; // 바인드 성공 시 출력
+    #pragma endregion
+
+    #pragma region listen
+        listen(serverSocketfd, 8);                          // 연결 요청 대기 상태
+        std::cout << "Listening on port 9000" << std::endl; // 연결 요청 대기 상태 출력
+    #pragma endregion
+
+        while (true)
+        {
+            socklen_t addrlen = sizeof(struct sockaddr_in);
+            int client_socket = accept(serverSocketfd, nullptr, nullptr);
+            if (client_socket < 0)
+            {
+                std::cerr << "Accept failed" << std::endl;
+                continue;
+            }
+
+            std::cout << "Client connected" << std::endl;
+
+            // 클라이언트 처리 스레드 생성
+            std::thread clientThread(handleClient, client_socket);
+            clientThread.detach(); // 클라이언트별로 비동기 처리
         }
 
-        std::cout << "Client connected" << std::endl;
-
-        // 클라이언트 처리 스레드 생성
-        std::thread clientThread(handleClient, client_socket);
-        clientThread.detach(); // 클라이언트별로 비동기 처리
-    }
-
-    close(serverSocketfd); // 서버 소켓 닫기
-    std::cout << "Server socket closed" << std::endl;
+        close(serverSocketfd); // 서버 소켓 닫기
+        std::cout << "Server socket closed" << std::endl;
 }
 
 void clientSendMessage(int sockfd, const std::string &msg)
@@ -461,14 +461,13 @@ std::vector<std::string> DVMMessageOutofStock(int beverageId, int quantity)
 }
 
 // 다른 DVM에서 재고 확인 요청을 받았을 때 호출되는 함수
-json AskStockMessage(json msg)
+json MSG::AskStockMessage(json msg)
 {
     std::cout << "[Ask Stock] Stock으로부터 확인 중" << msg << std::endl;
 
-    // 재고 확인 요청 메시지 처리
-    // 일단 동작은 막아놓았다.
-    // Stock stock;
-    // stock.isBuyable(msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인
+
+    Stock stock;
+    stock.isBuyable(msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인
     std::string resp_stock_msg = msgFormat("resp_stock", msg["src_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], "", ""); // 재고 확인 메시지 포맷
     json resp_stock_msg;                                                                                                                                                                                       // 파싱된 JSON 메시지 저장 변수
     try
