@@ -33,9 +33,4 @@ public:
     // return이 false시 rollback
     bool sendPrePaymentMSG(const std::string& cert_code);
 
-    // 인증 코드의 유효성 검사
-    bool isValidCertCode(const std::string& cert_code);
-
-    // bank에 결제 요청 전달
-    bool requestPayment(int card_num, int price);
 };
