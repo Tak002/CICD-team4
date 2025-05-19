@@ -313,7 +313,7 @@ void MSG::handleClient(int client_socket)
     close(client_socket);
 }
 
-void serverMessageOpen()
+void MSG::serverMessageOpen()
 {
     /*
         1. socket()        // 소켓 생성 --> 서버 소켓 생성 main 앞 부분에서 실행해야 하는 부분
