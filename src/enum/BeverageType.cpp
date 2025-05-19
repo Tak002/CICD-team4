@@ -48,3 +48,7 @@ int toPrice(BeverageType type) {
         default: return 0;
     }
 }
+int getPrice(int bev_id){
+    BeverageType bevType =  static_cast<BeverageType>(bev_id-1);
+    return toPrice(bevType);
+}

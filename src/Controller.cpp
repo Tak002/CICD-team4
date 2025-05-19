@@ -30,12 +30,12 @@ void Controller:: run(){
                 if(!input.getBoolAnswer())continue; //구매 거절시 초기화면으로
                 isPrepayment = true;
             }
-            int price; //price 계산 구현 필요
+            int price = getPrice(itemID) * itemNum; //price 계산 구현 필요
             // 결제
             showScreen.displayGetCardNum();
             int cardNum= input.getCardNum();
             //카드 정보 유효한지확인도 넣어야할수도 있음.
-            bool isPaymentSuccess = bank.reqeustPayment(cardNum,price);//123은 예시 결제 금액. stock에서 가격확인하는 메서드 구현 필요.
+            bool isPaymentSuccess = bank.reqeustPayment(cardNum,price);
             showScreen.displayPaymentResultScreen(isPaymentSuccess);
             if(!isPaymentSuccess)continue; //결제 실패시 초기화면으로
 
