@@ -483,9 +483,9 @@ json MSG::AskStockMessage(json msg)
     return resp_stock_msg;
 }
 
-void SocketOpenInit()
+void SocketOpenInit(MSG *msg)
 {
-    std::thread serverThread = std::thread(serverMessageOpen); // 서버 수신 함수 백그라운드 실행
+    std::thread serverThread = std::thread(msg.serverMessageOpen); // 서버 수신 함수 백그라운드 실행
     serverThread.detach();                                     // 또는 joinable일 때 main에서 join (비차단 운영이면 detach)
 }
 
@@ -499,7 +499,8 @@ bool sendMessage(const std::string msg_type, const std::string &msg)
 
 int main()
 {
-    SocketOpenInit(); // 소켓 초기화
+    MSG msg;
+    SocketOpenInit(msg); // 소켓 초기화
 
     DVMMessageOutofStock(20, 99); // 재고 부족 메시지 전송
 
