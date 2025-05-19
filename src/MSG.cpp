@@ -209,7 +209,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
     if (valread > 0)
     {
         buffer[valread] = '\0';
-        std::cout << "[" << dst_id << "] Received message: " << buffer << std::endl;
+        std::cout << "[" << dst_id << "] Received message" << std::endl;
 
         // JSON 파싱
         json msg = json::parse(buffer);
@@ -218,6 +218,32 @@ void clientMessage(const std::string &dst_id, const json &msg)
     else
     {
         std::cerr << "[" << dst_id << "] Failed to receive message" << std::endl;
+    }
+
+    if (msg["msg_type"] == "resp_stock")
+    {
+        std::cout << "[" << dst_id << "] Stock request ACK received" << std::endl;
+        // 각각의 재고 확인 메시지를 json 파일 형식으로 저장
+        std::string fileName = "../msgdata/" + dst_id + "_stock.json";
+        std::ofstream outFile(fileName);
+        if (outFile.is_open())
+        {
+            outFile << msg.dump(2); // 2칸 들여쓰기로 예쁘게 출력
+            outFile.close();
+            std::cout << "[" << dst_id << "] Stock data saved to " << fileName << std::endl;
+        }
+        else
+        {
+            std::cerr << "[" << dst_id << "] Failed to open file for writing" << std::endl;
+        }
+    }
+    else if (msg["msg_type"] == "req_prepay")
+    {
+        std::cout << "[" << dst_id << "] Prepay request ACK received" << std::endl;
+    }
+    else
+    {
+        std::cerr << "[" << dst_id << "] Unknown message type" << std::endl;
     }
     close(clientSocketfd); // 클라이언트 소켓 닫기
     std::cout << "[" << dst_id << "] Client socket closed" << std::endl;
@@ -418,7 +444,7 @@ std::vector<std::string> DVMMessageOutofStock(int beverageId, int quantity)
 
     // 2. 재고 메시지를 하나하나 calc에 보내준다.
 
-    // 1. 디렉토리 내 모든 .json 파일 수집
+    // 2.1 디렉토리 내 모든 .json 파일 수집
     for (const auto &entry : fs::recursive_directory_iterator(directoryPath))
     {
         if (std::filesystem::is_regular_file(entry) && entry.path().extension() == ".json")
