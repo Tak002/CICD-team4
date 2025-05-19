@@ -20,9 +20,6 @@ void ShowScreen::display(string str){
     cout<<"-------------------------------"<<endl;
 }
 
-void ShowScreen::returnToFirstScreen(){
-    displayFirstScreen();
-}
 
 
 //화면에 음료 재고 출력, s 입력하면 나올 화면

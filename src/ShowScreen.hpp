@@ -8,7 +8,6 @@ using namespace std;
 class ShowScreen {
     private:
         void display(string str);
-        void returnToFirstScreen();
         void displayPaymentSuccess();
         void displayPaymentFailed();
 
