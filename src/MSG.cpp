@@ -277,7 +277,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
     return;
 }
 
-void handleClient(int client_socket)
+void MSG::handleClient(int client_socket)
 {
     char buffer[BUFSIZ] = {0};
     int valread = recv(client_socket, buffer, BUFSIZ, 0);
@@ -520,7 +520,7 @@ std::tuple<int,int, std::string> DVMMessageOutofStock(int beverageId, int quanti
 
 
 // 다른 DVM에서 재고 확인 요청을 받았을 때 호출되는 함수 --> 서버가 받은 메시지에서 다시 ACK로 보내는 메시지를 반환하는 함수
-void AskStockMessage(json msg)
+json AskStockMessage(json msg)
 {
     std::cout << "[Ask Stock] Stock으로부터 확인 중" << msg << std::endl;
 
@@ -544,9 +544,9 @@ void AskStockMessage(json msg)
     return parsed_resp_stock_msg;
 }
 
-void SocketOpenInit()
+void SocketOpenInit(MSG *msg)
 {
-    std::thread serverThread = std::thread(serverMessageOpen); // 서버 수신 함수 백그라운드 실행
+    std::thread serverThread = std::thread(&MSG::serverMessageOpen, msg); // 서버 수신 함수 백그라운드 실행
     serverThread.detach();                                     // 또는 joinable일 때 main에서 join (비차단 운영이면 detach)
 }
 
