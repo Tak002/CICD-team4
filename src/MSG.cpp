@@ -349,7 +349,7 @@ void MSG::serverMessageOpen()
             std::cout << "Client connected" << std::endl;
 
             // 클라이언트 처리 스레드 생성
-            std::thread clientThread(handleClient, client_socket);
+            std::thread clientThread(&MSG::handleClient, this, client_socket);
             clientThread.detach(); // 클라이언트별로 비동기 처리
         }
 
@@ -485,7 +485,7 @@ json MSG::AskStockMessage(json msg)
 
 void SocketOpenInit(MSG *msg)
 {
-    std::thread serverThread = std::thread(msg.serverMessageOpen); // 서버 수신 함수 백그라운드 실행
+    std::thread serverThread = std::thread(&MSG::serverMessageOpen, msg); // 서버 수신 함수 백그라운드 실행
     serverThread.detach();                                     // 또는 joinable일 때 main에서 join (비차단 운영이면 detach)
 }
 
