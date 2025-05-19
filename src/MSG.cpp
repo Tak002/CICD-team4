@@ -15,7 +15,7 @@
 #include <arpa/inet.h>  //IP 주소 변환을 위한 헤더 파일
 #include <unistd.h>     //POSIX 운영 체제 API를 위한 헤더 파일
 #include <fstream>      //파일 저장을 위한 헤더 파일
-#include <sys/stat.h> //파일 상태를 확인하기 위한 헤더 파일
+#include <sys/stat.h>   //파일 상태를 확인하기 위한 헤더 파일
 #include "Position.hpp"
 #include <filesystem>
 #include <vector>
@@ -108,11 +108,12 @@ std::string msgFormat(
     return msg.dump(2); // JSON string with pretty-print
 }
 
+int serverSocketfd;
 
 void clientMessage(const std::string &dst_id, const json &msg)
 {
-
     std::string ip_address;
+
 
     char buffer[BUFSIZE];              // 버퍼 선언
     memset(buffer, 0, sizeof(buffer)); // 버퍼 초기화
@@ -192,14 +193,33 @@ void clientMessage(const std::string &dst_id, const json &msg)
     std::cout << "[" << dst_id << "] Connected to server" << std::endl;
 
     std::string jsonStrServer = msgFormat(msg["msg_type"], dst_id, msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], msg["msg_content"]["cert_code"], msg["msg_content"]["availability"]);
+    json send_msg = json::parse(jsonStrServer);
 
     if (msg["msg_type"] == "req_stock")
     {
         std::cout << "[" << dst_id << "] Sending stock request" << std::endl;
+        send_msg["msg_type"] = "req_stock";
+        send_msg["src_id"] = "T4";
+        send_msg["dst_id"] = dst_id;
+        send_msg["msg_content"]["item_code"] = msg["msg_content"]["item_code"];
+        send_msg["msg_content"]["item_num"] = msg["msg_content"]["item_num"];
+        send_msg["msg_content"]["coor_x"] = msg["msg_content"]["coor_x"];
+        send_msg["msg_content"]["coor_y"] = msg["msg_content"]["coor_y"];
+        send_msg["msg_content"]["cert_code"] = msg["msg_content"]["cert_code"];
+        send_msg["msg_content"]["availability"] = msg["msg_content"]["availability"];
     }
     else if (msg["msg_type"] == "req_prepay")
     {
         std::cout << "[" << dst_id << "] Sending prepay request" << std::endl;
+        send_msg["msg_type"] = "req_prepay";
+        send_msg["src_id"] = "T4";
+        send_msg["dst_id"] = dst_id;
+        send_msg["msg_content"]["item_code"] = msg["msg_content"]["item_code"];
+        send_msg["msg_content"]["item_num"] = msg["msg_content"]["item_num"];
+        send_msg["msg_content"]["coor_x"] = msg["msg_content"]["coor_x"];
+        send_msg["msg_content"]["coor_y"] = msg["msg_content"]["coor_y"];
+        send_msg["msg_content"]["cert_code"] = msg["msg_content"]["cert_code"];
+        send_msg["msg_content"]["availability"] = msg["msg_content"]["availability"];
     }
     else
     {
@@ -207,7 +227,9 @@ void clientMessage(const std::string &dst_id, const json &msg)
         close(clientSocketfd);
         return;
     }
-    send(clientSocketfd, jsonStrServer.c_str(), jsonStrServer.length(), 0);
+
+    std::string sendStr = send_msg.dump(2); // JSON 문자열로 변환
+    send(clientSocketfd, sendStr.c_str(), jsonStrServer.length(), 0);
     std::cout << "[" << dst_id << "] Sent JSON: " << std::endl;
 
     int valread = recv(clientSocketfd, buffer, BUFSIZE, 0);
@@ -255,7 +277,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
     return;
 }
 
-void MSG::handleClient(int client_socket)
+void handleClient(int client_socket)
 {
     char buffer[BUFSIZ] = {0};
     int valread = recv(client_socket, buffer, BUFSIZ, 0);
@@ -271,14 +293,16 @@ void MSG::handleClient(int client_socket)
         if (msg["msg_type"] == "req_stock")
         {
             std::cout << "[Server] Stock request received" << std::endl;
-            // 재고 확인 요청 처리
-            AskStockMessage(msg);
+            // 재고 확인 요청 처리 
+            // json read_ = AskStockMessage(msg);
+
+            
         }
         else if (msg["msg_type"] == "req_prepay")
         {
             std::cout << "[Server] Prepay request received" << std::endl;
             // 인증번호 전송 처리
-            sendCertCode(msg["dst_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["cert_code"]);
+            // sendCertCode(msg["dst_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["cert_code"]);
         }
         else
         {
@@ -289,78 +313,79 @@ void MSG::handleClient(int client_socket)
     close(client_socket);
 }
 
-void MSG::serverMessageOpen()
+void serverMessageOpen()
 {
-        /*
-            1. socket()        // 소켓 생성 --> 서버 소켓 생성 main 앞 부분에서 실행해야 하는 부분
-            2. bind()          // IP주소와 포트번호를 소켓에 할당
-            3. listen()        // 연결 요청 대기 상태
+    /*
+        1. socket()        // 소켓 생성 --> 서버 소켓 생성 main 앞 부분에서 실행해야 하는 부분
+        2. bind()          // IP주소와 포트번호를 소켓에 할당
+        3. listen()        // 연결 요청 대기 상태
 
-            이후 부분은 while문 안에서 반복적으로 실행되어야 한다.
-            4. accept()        // 클라이언트 연결 수락
-            5. read()/recv()   // 클라이언트로부터 데이터 수신
-            6. write()/send()  // 클라이언트로 데이터 송신
-            7. close()         // 소켓 닫기
-        */
-        char buffer[BUFSIZ]; // 버퍼 선언
+        이후 부분은 while문 안에서 반복적으로 실행되어야 한다.
+        4. accept()        // 클라이언트 연결 수락
+        5. read()/recv()   // 클라이언트로부터 데이터 수신
+        6. write()/send()  // 클라이언트로 데이터 송신
+        7. close()         // 소켓 닫기
+    */
+    char buffer[BUFSIZ]; // 버퍼 선언
 
-    #pragma region socketcreate
-        serverSocketfd = socket(AF_INET, SOCK_STREAM, 0); // 서버 소켓 생성
-        if (serverSocketfd < 0)                           // 소켓 생성 실패 시 에러 메시지 출력
+#pragma region socketcreate
+    serverSocketfd = socket(AF_INET, SOCK_STREAM, 0); // 서버 소켓 생성
+    if (serverSocketfd < 0)                           // 소켓 생성 실패 시 에러 메시지 출력
+    {
+        std::cerr << "Socket creation failed" << std::endl;
+        return;
+    }
+#pragma endregion
+
+#pragma region socketOption
+    struct sockaddr_in address; // 서버 주소 구조체 선언
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT_NUM); // 9000 포트로 설정
+#pragma endregion
+
+#pragma region bind
+    // bind 함수 호출 및 오류 처리
+    if (::bind(serverSocketfd, (struct sockaddr *)&address, sizeof(address)) < 0) // bind 실패 시 에러 메시지 출력
+    {
+        std::cerr << "Bind failed. errno=" << errno << " : " << strerror(errno) << std::endl;
+        close(serverSocketfd); // 소켓 닫기
+        return;
+    }
+    std::cout << "Bind successful" << std::endl; // 바인드 성공 시 출력
+#pragma endregion
+
+#pragma region listen
+    listen(serverSocketfd, 8);                          // 연결 요청 대기 상태
+    std::cout << "Listening on port 9000" << std::endl; // 연결 요청 대기 상태 출력
+#pragma endregion
+
+    while (true)
+    {
+        socklen_t addrlen = sizeof(struct sockaddr_in);
+        int client_socket = accept(serverSocketfd, nullptr, nullptr);
+        if (client_socket < 0)
         {
-            std::cerr << "Socket creation failed" << std::endl;
-            return;
-        }
-    #pragma endregion
-
-    #pragma region socketOption
-        struct sockaddr_in address; // 서버 주소 구조체 선언
-        address.sin_family = AF_INET;
-        address.sin_addr.s_addr = INADDR_ANY;
-        address.sin_port = htons(PORT_NUM); // 9000 포트로 설정
-    #pragma endregion
-
-    #pragma region bind
-        // bind 함수 호출 및 오류 처리
-        if (::bind(serverSocketfd, (struct sockaddr *)&address, sizeof(address)) < 0) // bind 실패 시 에러 메시지 출력
-        {
-            std::cerr << "Bind failed. errno=" << errno << " : " << strerror(errno) << std::endl;
-            close(serverSocketfd); // 소켓 닫기
-            return;
-        }
-        std::cout << "Bind successful" << std::endl; // 바인드 성공 시 출력
-    #pragma endregion
-
-    #pragma region listen
-        listen(serverSocketfd, 8);                          // 연결 요청 대기 상태
-        std::cout << "Listening on port 9000" << std::endl; // 연결 요청 대기 상태 출력
-    #pragma endregion
-
-        while (true)
-        {
-            socklen_t addrlen = sizeof(struct sockaddr_in);
-            int client_socket = accept(serverSocketfd, nullptr, nullptr);
-            if (client_socket < 0)
-            {
-                std::cerr << "Accept failed" << std::endl;
-                continue;
-            }
-
-            std::cout << "Client connected" << std::endl;
-
-            // 클라이언트 처리 스레드 생성
-            std::thread clientThread(&MSG::handleClient, this, client_socket);
-            clientThread.detach(); // 클라이언트별로 비동기 처리
+            std::cerr << "Accept failed" << std::endl;
+            continue;
         }
 
-        close(serverSocketfd); // 서버 소켓 닫기
-        std::cout << "Server socket closed" << std::endl;
+        std::cout << "Client connected" << std::endl;
+
+        // 클라이언트 처리 스레드 생성
+        std::thread clientThread(handleClient, client_socket);
+        clientThread.detach(); // 클라이언트별로 비동기 처리
+    }
+
+    close(serverSocketfd); // 서버 소켓 닫기
+    std::cout << "Server socket closed" << std::endl;
 }
 
 void clientSendMessage(int sockfd, const std::string &msg)
 {
     // 메시지를 send 했어
     try
+    
     {
         if (::send(sockfd, msg.c_str(), msg.length(), 0) < 0)
         {
@@ -430,11 +455,14 @@ void sendCertCode(const std::string &dst_id, const std::string &item_code, const
         {"src_id", "T4"},
         {"dst_id", dst_id},
         {"msg_content", {{"item_code", item_code}, {"item_num", item_num}, {"coor_x", ""}, {"coor_y", ""}, {"cert_code", cert_code}, {"availability", ""}}}};
+
+    // std::cout << "[]"
 }
 
 // 클라이언트 소켓을 생성하고 타 서버에 연결하는 함수를 구현
 std::tuple<int,int, std::string> DVMMessageOutofStock(int beverageId, int quantity)
 {
+    Position position;
     // 1. 브로드 캐스트를 이용해서 json 메시지를 받아온다.
     std::cout << "[Out of Stock] Beverage ID: " << beverageId << ", Quantity: " << quantity << std::endl; // 재고 부족 메시지 출력
     json DVMMessageOutofStock_MessageFormat = {
@@ -445,10 +473,8 @@ std::tuple<int,int, std::string> DVMMessageOutofStock(int beverageId, int quanti
 
     broadMessage(DVMMessageOutofStock_MessageFormat); // 재고 부족 메시지 전송
 
-    // 2. 재고 메시지를 하나하나 Position에 보내준다.
+    // 2. 재고 메시지를 하나하나 calc에 보내준다.
 
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-    
     // 2.1 디렉토리 내 모든 .json 파일 수집
     for (const auto &entry : fs::recursive_directory_iterator(directoryPath))
     {
@@ -457,42 +483,13 @@ std::tuple<int,int, std::string> DVMMessageOutofStock(int beverageId, int quanti
             jsonFiles.push_back(entry.path());
         }
     }
-    float shortest_distance = std::numeric_limits<float>::max();
-    std::string shortest_id;
-    int nearest_x = 0;
-    int nearest_y = 0;
-    
-    Position pos;
-    for (const auto& path : jsonFiles)
-    {
-        
-        try {
-            std::ifstream file(path);
-            json j;
-            file >> j;
+    // calc.nearestPosition(); // 거리 계산
 
-            int x = j["msg_content"]["coor_x"];
-            int y = j["msg_content"]["coor_y"];
-            std::string src_id = j["src_id"];
-
-            float distance = pos.calcDistance(x, y);
-            if(distance<shortest_distance){
-                shortest_distance =distance;
-                shortest_id = src_id;
-                nearest_x = x;
-                nearest_y = y;
-            }
-        }catch (const std::exception& e) {
-        std::cerr << "[ERROR] Failed to process file " << path << ": " << e.what() << std::endl;
-        continue;
-        }
-    } 
-
-    return {nearest_x, nearest_y, shortest_id};
+    return {msgFormat("req_prepay", "T4", std::to_string(beverageId), std::to_string(quantity), std::to_string(0), std::to_string(0), "", "")}; // 인증번호 전송
 }
 
-// 다른 DVM에서 재고 확인 요청을 받았을 때 호출되는 함수
-json MSG::AskStockMessage(json msg)
+// 다른 DVM에서 재고 확인 요청을 받았을 때 호출되는 함수 --> 서버가 받은 메시지에서 다시 ACK로 보내는 메시지를 반환하는 함수
+void AskStockMessage(json msg)
 {
     std::cout << "[Ask Stock] Stock으로부터 확인 중" << msg << std::endl;
 
@@ -516,9 +513,9 @@ json MSG::AskStockMessage(json msg)
     return parsed_resp_stock_msg;
 }
 
-void SocketOpenInit(MSG *msg)
+void SocketOpenInit()
 {
-    std::thread serverThread = std::thread(&MSG::serverMessageOpen, msg); // 서버 수신 함수 백그라운드 실행
+    std::thread serverThread = std::thread(serverMessageOpen); // 서버 수신 함수 백그라운드 실행
     serverThread.detach();                                     // 또는 joinable일 때 main에서 join (비차단 운영이면 detach)
 }
 
