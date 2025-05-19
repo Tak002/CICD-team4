@@ -86,16 +86,6 @@ void Controller:: setController(){
 // return이 false시 rollback
 bool Controller::sendPrePaymentMSG(const std::string& cert_code){
     // Require cert_code to MESSAGE method
-    // return msg.sendMessage(SENDING MESSAGE);  
-}
-
-// 인증 코드의 유효성 검사
-bool Controller::isValidCertCode(const std::string& cert_code){
-    // Require CertCode Manager Class interface
-    // return certCodeManager.isValidCertCode(cert_code);
-}
-
-// bank에 결제 요청 전달
-bool Controller::requestPayment(int card_num, int price){
-    return bank.reqeustPayment(card_num,price);
+    // return msg.sendMessage(SENDING MESSAGE);
+    return true;  
 }
