@@ -29,4 +29,5 @@ class ShowScreen {
         void displayCertCodeFailed();
 
         void displayInvalidIdRange();
+        void displayGetCardNum();
 };

@@ -12,10 +12,11 @@ class Input {
     Controller* controller;
     string command;
     CurrentState currentState;
-    std::string getFirstScreenAnswer();
-    std::pair<int, int> getItemIDandNum();
     
     public: 
-    Input(Controller *ctrl);
-    void run();
+    int getFirstScreenAnswer(); // 0: 구매, 1: 선결제 음료 수령 2. 관리자 모드
+    std::pair<int, int> getItemIDandNum();
+    bool getBoolAnswer();
+    int getCardNum();
+    std::string getCertCode();
 };

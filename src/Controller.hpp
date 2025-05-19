@@ -7,7 +7,7 @@
 #include "ShowScreen.hpp"
 #include "Stock.hpp"
 #include "enum/CommandType.hpp"
-
+#include "Input.hpp"
 #include <string>
 
 class Controller {
@@ -18,18 +18,15 @@ private:
     MSG msg;
     Stock stock;
     ShowScreen showScreen;
+    Input input;
+    bool isPrepayment;
 
 public:
+    void run();
+
     // 처음 시작시 설정
     void setController();
     
-    // showScreen 실행
-    void runShowScreenCommand(CommandType  cmd);
-
-    // 재고를 출력하는 함수
-    void printStock();
-
-    bool checkBeverage(int item_code, int item_num);
 
 
     // 선결제 과정에서 결제가 이뤄진 후 제공 자판기에 메시지 전송
