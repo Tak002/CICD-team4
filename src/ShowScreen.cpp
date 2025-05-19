@@ -20,9 +20,6 @@ void ShowScreen::display(string str){
     cout<<"-------------------------------"<<endl;
 }
 
-void ShowScreen::returnToFirstScreen(){
-    displayFirstScreen();
-}
 
 
 //화면에 음료 재고 출력, s 입력하면 나올 화면
@@ -110,5 +107,20 @@ void ShowScreen::displayCertCodeEnter(){
 }
 void ShowScreen::displayCertCodeFailed(){
     string str = "유효하지 않은 인증코드 입니다.";
+    display(str);
+}
+
+void ShowScreen::displayGetCardNum(){
+    string str = "카드번호를 입력해주세요";
+    display(str); 
+}
+
+void ShowScreen::displayPositionAndCertCode(int x, int y, std::string cert_code){
+    std::string str = "x좌표: " + std::to_string(x) + ", y좌표: " + std::to_string(y) + ", 인증번호: " + cert_code;
+    display(str);
+}
+
+void ShowScreen::displayPrePayCancel(){
+    std::string str = "선결제 자판기에서 요청이 거부되었습니다. 금액을 환불합니다.";
     display(str);
 }
