@@ -15,6 +15,11 @@
 #include <unistd.h>    //POSIX 운영 체제 API를 위한 헤더 파일
 #include <fstream>      //파일 저장을 위한 헤더 파일
 #include <sys/stat.h> //파일 상태를 확인하기 위한 헤더 파일
+#include "Calc.hpp"
+#include <filesystem>
+#include <vector>
+#include <algorithm>
+#include <regex>
 
 #include <fstream>
 #include "../include/nlohmann/json.hpp"
@@ -32,6 +37,10 @@ using json = nlohmann::json; // JSON 라이브러리 사용
 
 // #include <nlohmann/json.hpp>
 using json = nlohmann::json;
+namespace fs = std::filesystem;
+
+std::string directoryPath = "../msgdata"; // JSON 파일이 있는 디렉토리 경로
+std::vector<fs::path> jsonFiles;
 
 std::string msgFormat(
     const std::string &quest_type,
@@ -102,6 +111,9 @@ int serverSocketfd;
 void clientMessage(const std::string &dst_id, const json &msg)
 {
     std::string ip_address;
+
+    char buffer[BUFSIZE]; // 버퍼 선언
+    memset(buffer, 0, sizeof(buffer)); // 버퍼 초기화
     int clientSocketfd; // 클라이언트 소켓 파일 디스크립터
 
     /*
@@ -175,8 +187,42 @@ void clientMessage(const std::string &dst_id, const json &msg)
     std::cout << "[" << dst_id << "] Connected to server" << std::endl;
 
     std::string jsonStrServer = msgFormat(msg["msg_type"], dst_id, msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], msg["msg_content"]["cert_code"], msg["msg_content"]["availability"]);
+    
+    if (msg["msg_type"] == "req_stock")
+    {
+        std::cout << "[" << dst_id << "] Sending stock request" << std::endl;
+    }
+    else if (msg["msg_type"] == "req_prepay")
+    {
+        std::cout << "[" << dst_id << "] Sending prepay request" << std::endl;
+    }
+    else
+    {
+        std::cerr << "[" << dst_id << "] Unknown message type" << std::endl;
+        close(clientSocketfd);
+        return;
+    }
     send(clientSocketfd, jsonStrServer.c_str(), jsonStrServer.length(), 0);
     std::cout << "[" << dst_id << "] Sent JSON: "<< std::endl;
+
+    int valread = recv(clientSocketfd, buffer, BUFSIZE, 0);
+    if (valread > 0)
+    {
+        buffer[valread] = '\0';
+        std::cout << "[" << dst_id << "] Received message: " << buffer << std::endl;
+
+        // JSON 파싱
+        json msg = json::parse(buffer);
+        std::cout << "[" << dst_id << "] Parsed message: " << msg.dump(2) << std::endl;
+    }
+    else
+    {
+        std::cerr << "[" << dst_id << "] Failed to receive message" << std::endl;
+    }
+    close(clientSocketfd); // 클라이언트 소켓 닫기
+    std::cout << "[" << dst_id << "] Client socket closed" << std::endl;
+    return;
+
 }
 
 void handleClient(int client_socket)
@@ -191,9 +237,23 @@ void handleClient(int client_socket)
         json msg = json::parse(buffer);
         std::cout << "[Server] Parsed message: " << msg.dump(2) << std::endl;
 
-        // 예시: ACK 응답
-        std::string ack = "ACK";
-        send(client_socket, ack.c_str(), ack.size(), 0);
+        // 클라이언트 메시지에 따라 ACK를 다르게
+        if (msg["msg_type"] == "req_stock")
+        {
+            std::cout << "[Server] Stock request received" << std::endl;
+            // 재고 확인 요청 처리
+            AskStockMessage(msg);
+        }
+        else if (msg["msg_type"] == "req_prepay")
+        {
+            std::cout << "[Server] Prepay request received" << std::endl;
+            // 인증번호 전송 처리
+            sendCertCode(msg["dst_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["cert_code"]);
+        }
+        else
+        {
+            std::cerr << "[Server] Unknown message type" << std::endl;
+        }
     }
 
     close(client_socket);
@@ -246,60 +306,6 @@ void serverMessageOpen()
     std::cout << "Listening on port 9000" << std::endl; // 연결 요청 대기 상태 출력
     #pragma endregion
 
-    // while (true) // 클라이언트 연결 요청 대기
-    // {
-    //     socklen_t addrlen = sizeof(address);
-    //     int client_socket = accept(serverSocketfd, (struct sockaddr *)&address, &addrlen);
-    //     if (client_socket < 0)
-    //     {
-    //         std::cerr << "Accept failed" << std::endl;
-    //         continue;
-    //     }
-    //     std::cout << "Client connected" << std::endl;
-
-    //     int valread = recv(client_socket, buffer, BUFSIZ, 0);
-    //     if (valread > 0)
-    //     {
-    //         buffer[valread] = '\0';
-    //         std::cout << "Received message: " << buffer << std::endl;
-
-    //         // 현재 날짜와 시간을 기반으로 파일명 생성
-    //         auto now = std::chrono::system_clock::now();
-    //         std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-    //         std::tm* now_tm = std::localtime(&now_time);
-
-    //         char tmpfilename[128];
-    //         std::strftime(tmpfilename, sizeof(tmpfilename), "../msgdata/msg_%Y%m%d_%H%M%S", now_tm);
-    //         if (mkdir(tmpfilename, 0755) == 0)
-    //         {
-    //             std::cout << "디렉토리 생성 성공" << std::endl;
-    //         }
-    //         else
-    //         {
-    //             perror("mkdir 실패");
-    //         }
-
-    //         // std::string filename = std::string(tmpfilename) + "/_" + dst_id + ".json";
-
-    //         // JSON 파싱 및 파일 저장
-    //         json msg = json::parse(buffer);
-    //         // std::ofstream file(filename);
-    //         // if (file.is_open()) {
-    //         //     file << msg.dump(2);
-    //         //     file.close();
-    //         //     std::cout << "Saved JSON to: " << filename << std::endl;
-    //         // } else {
-    //         //     std::cerr << "Failed to open file: " << filename << std::endl;
-    //         // }
-
-    //         // std::string jsonStrServer = msgFormat("resp_stock", dst_id, "2", "7", "5", "8", "", "");
-    //         // send(client_socket, jsonStrServer.c_str(), jsonStrServer.length(), 0);
-    //         std::cout << "Sent JSON From Server" << std::endl;
-    //     }
-
-    //     close(client_socket);
-    // }
-
     while (true)
     {
         socklen_t addrlen = sizeof(struct sockaddr_in);
@@ -320,26 +326,6 @@ void serverMessageOpen()
     close(serverSocketfd); // 서버 소켓 닫기
     std::cout << "Server socket closed" << std::endl;
 }
-
-// void handleClient(int client_socket)
-// {
-//     char buffer[BUFSIZ] = {0};
-//     int valread = recv(client_socket, buffer, BUFSIZ, 0);
-//     if (valread > 0)
-//     {
-//         buffer[valread] = '\0';
-//         std::cout << "Received message: " << buffer << std::endl;
-
-//         json msg = json::parse(buffer);
-//         std::cout << "[Server] Parsed message: " << msg.dump(2) << std::endl;
-
-//         // 예시: ACK 응답
-//         std::string ack = "ACK";
-//         send(client_socket, ack.c_str(), ack.size(), 0);
-//     }
-
-//     close(client_socket);
-// }
 
 void clientSendMessage(int sockfd, const std::string &msg)
 {
@@ -417,8 +403,9 @@ void sendCertCode(const std::string &dst_id, const std::string &item_code, const
 }
 
 // 클라이언트 소켓을 생성하고 타 서버에 연결하는 함수를 구현
-void DVMMessageOutofStock(int beverageId, int quantity)
+std::vector<std::string> DVMMessageOutofStock(int beverageId, int quantity)
 {
+    Calc calc;
     // 1. 브로드 캐스트를 이용해서 json 메시지를 받아온다.
     std::cout << "[Out of Stock] Beverage ID: " << beverageId << ", Quantity: " << quantity << std::endl; // 재고 부족 메시지 출력
     json DVMMessageOutofStock_MessageFormat = {
@@ -431,16 +418,23 @@ void DVMMessageOutofStock(int beverageId, int quantity)
 
     // 2. 재고 메시지를 하나하나 calc에 보내준다.
 
+    // 1. 디렉토리 내 모든 .json 파일 수집
+    for (const auto &entry : fs::recursive_directory_iterator(directoryPath))
+    {
+        if (std::filesystem::is_regular_file(entry) && entry.path().extension() == ".json")
+        {
+            jsonFiles.push_back(entry.path());
+        }
+    }
+    // calc.nearestPosition(); // 거리 계산
 
-    return;
+    return {msgFormat("req_prepay", "T4", std::to_string(beverageId), std::to_string(quantity), std::to_string(0), std::to_string(0), "", "")}; // 인증번호 전송
 }
 
 // 다른 DVM에서 재고 확인 요청을 받았을 때 호출되는 함수
 void AskStockMessage(json msg)
 {
     std::cout << "[Ask Stock] Stock으로부터 확인 중" << msg << std::endl;
-
-    
 
     // 재고 확인 요청 메시지 처리
     // 일단 동작은 막아놓았다.
