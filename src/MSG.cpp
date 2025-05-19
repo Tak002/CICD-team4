@@ -499,12 +499,12 @@ bool sendMessage(const std::string msg_type, const std::string &msg)
     return true;
 }
 
-int main()
-{
-    MSG msg;
-    SocketOpenInit(&msg); // 소켓 초기화
+// int main()
+// {
+//     MSG msg;
+//     SocketOpenInit(&msg); // 소켓 초기화
 
-    DVMMessageOutofStock(20, 99); // 재고 부족 메시지 전송
+//     DVMMessageOutofStock(20, 99); // 재고 부족 메시지 전송
 
-    return 0;
-}
+//     return 0;
+// }

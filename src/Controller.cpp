@@ -41,7 +41,9 @@ void Controller:: run(){
         if(firstScreenAnswer==0){ 
             //구매하고자 하는 음료수 id, 갯수 입력
             showScreen.displayCurrentStock(stock.getCurrentStock());
-            auto [itemID, itemNum] = input.getItemIDandNum();
+            auto [_itemID, _itemNum] = input.getItemIDandNum();
+            itemID = _itemID;
+            itemNum = _itemNum;
             //범위를 벗어난 id입력시 초기화면으로 이동
             if (itemID < 1 || itemID > 20) { 
                 showScreen.displayInvalidIdRange();
@@ -50,14 +52,16 @@ void Controller:: run(){
             //재고 부족시 선결제 여부 확인
             if(stock.isPrepayment(itemID,itemNum)){
                 // 가장 가까운 주소 확인 및 출력
-                
-                //coor_x = ?, coor_y = ?
+                auto [_coor_x, _coor_y, _src_id] = msg.DVMMessageOutofStock(itemID, itemNum);
+                coor_x = _coor_x;
+                coor_y = _coor_y;
+                src_id = _src_id;
                 showScreen.displayPrepayLocation(coor_x,coor_y);
                 // 구매 여부 확인
                 if(!input.getBoolAnswer())continue; //구매 거절시 초기화면으로
                 isPrepayment = true;
             }
-            int price = getPrice(itemID) * itemNum; //price 계산 구현 필요
+            int price = getPrice(itemID) * itemNum;
             // 결제
             showScreen.displayGetCardNum();
             int cardNum= input.getCardNum();
@@ -70,10 +74,7 @@ void Controller:: run(){
             if(isPrepayment = true){
                 std::string newCertCode = certCode.createCertCode();  
                 //선결제 메시지 송신 및 결과 수신
-
-
-
-                bool availability; // = 선결제 메시지 결과 수신. From MSG
+                bool availability =msg.sendMessage({{src_id,itemID,itemNum,newCertCode}});
                 if(availability){
                     showScreen.displayPositionAndCertCode(coor_x, coor_y, newCertCode);
                 }
