@@ -1,6 +1,7 @@
 #pragma once
 #include <list>
 #include "Beverage.hpp"
+#include <string>
 
 using namespace std;
 
