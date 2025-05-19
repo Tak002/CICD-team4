@@ -8,7 +8,7 @@ add_executable(dvm
     src/main.cpp
     src/Auth.cpp
     src/Bank.cpp
-    src/Beverage.cpp
+    src/Beverage.cpp 
     src/Position.cpp
     src/CertCode.cpp
     src/CertCodeManager.cpp
@@ -19,6 +19,7 @@ add_executable(dvm
     src/ShowScreen.cpp
     src/Stock.cpp
     src/enum/BeverageType.cpp
+
  
 )
 

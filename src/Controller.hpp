@@ -24,6 +24,7 @@ private:
     int coor_y;
 
 public:
+    Controller();
     void run();
 
     // 처음 시작시 설정

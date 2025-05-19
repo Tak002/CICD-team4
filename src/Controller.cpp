@@ -1,7 +1,34 @@
 // Controller.cpp
 #include "Controller.hpp"
-#include <list>
+#include "enum/BeverageType.hpp"
 
+#include <fstream>
+#include <sstream>
+#include <list>
+#include <iostream>
+
+using json = nlohmann::json;
+
+Controller::Controller(){
+    for(int i = 0 ; i<20; i++){
+        BeverageType type = static_cast<BeverageType>(i);
+        json js;
+        js["item_code"] = i+1;
+        if(i<7) js["item_num"] = 99;
+        else js["item_num"] = 0;
+        js["item_price"] = toPrice(type);
+
+        std::ostringstream oss;
+        oss<<"item"<<i<<".json";
+        std::ofstream ofile(oss.str());
+        if(ofile.is_open()){
+            ofile<<js.dump(4);
+            ofile.close();
+        }else{
+             std::cerr << "Failed to open file: " << oss.str() << std::endl;
+        }
+    }
+}
 
 
 
