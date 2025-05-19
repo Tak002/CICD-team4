@@ -60,12 +60,6 @@ void Stock::requestBeverage(int item_code, int item_num){
 }
 
 
-void Stock::DVMMessageOutofStock(int item_code, int item_num){
-    // todo
-    MSG message;
-    // message.DVMMessageOutofStock(item_code, item_num);
-}
-
 void Stock::blockSale(){
     // todo
     // 관리자 모드

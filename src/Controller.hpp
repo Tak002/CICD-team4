@@ -6,7 +6,6 @@
 #include "MSG.hpp"
 #include "ShowScreen.hpp"
 #include "Stock.hpp"
-#include "enum/CommandType.hpp"
 #include "Input.hpp"
 #include <string>
 
@@ -20,6 +19,8 @@ private:
     ShowScreen showScreen;
     Input input;
     bool isPrepayment;
+    int coor_x;
+    int coor_y;
 
 public:
     void run();

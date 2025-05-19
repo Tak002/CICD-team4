@@ -24,23 +24,36 @@ void Controller:: run(){
             if(stock.isPrepayment(itemID,itemNum)){
                 // 가장 가까운 주소 확인 및 출력
                 
+                //coor_x = ?, coor_y = ?
+
                 // 구매 여부 확인
                 if(!input.getBoolAnswer())continue; //구매 거절시 초기화면으로
                 isPrepayment = true;
             }
+            int price; //price 계산 구현 필요
             // 결제
             showScreen.displayGetCardNum();
             int cardNum= input.getCardNum();
             //카드 정보 유효한지확인도 넣어야할수도 있음.
-            bool isPaymentSuccess = bank.reqeustPayment(cardNum,123);//123은 예시 결제 금액. stock에서 가격확인하는 메서드 구현 필요.
+            bool isPaymentSuccess = bank.reqeustPayment(cardNum,price);//123은 예시 결제 금액. stock에서 가격확인하는 메서드 구현 필요.
             showScreen.displayPaymentResultScreen(isPaymentSuccess);
             if(!isPaymentSuccess)continue; //결제 실패시 초기화면으로
 
             // 선결제 후 다른 자판기에 메시지 송신
-            if(isPrepayment = true){  
-                
+            if(isPrepayment = true){
+                std::string newCertCode = certCode.createCertCode();  
+                //선결제 메시지 송신 및 결과 수신
 
 
+
+                bool availability; // = 선결제 메시지 결과 수신. From MSG
+                if(availability){
+                    showScreen.displayPositionAndCertCode(coor_x, coor_y, newCertCode);
+                }
+                else{
+                    showScreen.displayPrePayCancel();
+                    bank.rollback(cardNum,price);
+                }
                 isPrepayment = false;
             }else{ // 일반 결제 후 음료 수령
                 stock.requestBeverage(itemID,itemNum);

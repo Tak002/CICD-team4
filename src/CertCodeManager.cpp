@@ -4,7 +4,10 @@
 #include "struct/PendingBeverage.hpp"
 
 
-bool CertCodeManager::isValidateCertCode(std::string code){
+bool CertCodeManager::isValidateCertCode(std::string cert_code){
     PendingBeverage& pending = PendingBeverage::instance();
     
 }
+
+//구현 필요
+bool CertCodeManager:: saveCertCode(std::string cert_code){return true;}
