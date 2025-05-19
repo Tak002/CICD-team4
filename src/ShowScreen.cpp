@@ -36,7 +36,7 @@ void ShowScreen::displayCurrentStock(std::list<Beverage> beverages) {
         BeverageType type = static_cast<BeverageType>(i);
 
         // 항목 출력 형식
-        str += "(" + std::to_string(code+1) + ") " + toString(type) + " : " + std::to_string(quantity) + "개 ";
+        str += "(" + std::to_string(code) + ") " + toString(type) + " : " + std::to_string(quantity) + "개 ";
 
         // 10개마다 줄바꿈
         if ((i + 1) % 5 == 0) {
