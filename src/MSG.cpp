@@ -462,7 +462,6 @@ void sendCertCode(const std::string &dst_id, const std::string &item_code, const
 // 클라이언트 소켓을 생성하고 타 서버에 연결하는 함수를 구현
 std::tuple<int,int, std::string> DVMMessageOutofStock(int beverageId, int quantity)
 {
-    Position position;
     // 1. 브로드 캐스트를 이용해서 json 메시지를 받아온다.
     std::cout << "[Out of Stock] Beverage ID: " << beverageId << ", Quantity: " << quantity << std::endl; // 재고 부족 메시지 출력
     json DVMMessageOutofStock_MessageFormat = {
@@ -473,8 +472,10 @@ std::tuple<int,int, std::string> DVMMessageOutofStock(int beverageId, int quanti
 
     broadMessage(DVMMessageOutofStock_MessageFormat); // 재고 부족 메시지 전송
 
-    // 2. 재고 메시지를 하나하나 calc에 보내준다.
+    // 2. 재고 메시지를 하나하나 Position에 보내준다.
 
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    
     // 2.1 디렉토리 내 모든 .json 파일 수집
     for (const auto &entry : fs::recursive_directory_iterator(directoryPath))
     {
@@ -483,10 +484,40 @@ std::tuple<int,int, std::string> DVMMessageOutofStock(int beverageId, int quanti
             jsonFiles.push_back(entry.path());
         }
     }
-    // calc.nearestPosition(); // 거리 계산
+    float shortest_distance = std::numeric_limits<float>::max();
+    std::string shortest_id;
+    int nearest_x = 0;
+    int nearest_y = 0;
+    
+    Position pos;
+    for (const auto& path : jsonFiles)
+    {
+        
+        try {
+            std::ifstream file(path);
+            json j;
+            file >> j;
 
-    return {msgFormat("req_prepay", "T4", std::to_string(beverageId), std::to_string(quantity), std::to_string(0), std::to_string(0), "", "")}; // 인증번호 전송
+            int x = j["msg_content"]["coor_x"];
+            int y = j["msg_content"]["coor_y"];
+            std::string src_id = j["src_id"];
+
+            float distance = pos.calcDistance(x, y);
+            if(distance<shortest_distance){
+                shortest_distance =distance;
+                shortest_id = src_id;
+                nearest_x = x;
+                nearest_y = y;
+            }
+        }catch (const std::exception& e) {
+        std::cerr << "[ERROR] Failed to process file " << path << ": " << e.what() << std::endl;
+        continue;
+        }
+    } 
+
+    return {nearest_x, nearest_y, shortest_id};
 }
+
 
 // 다른 DVM에서 재고 확인 요청을 받았을 때 호출되는 함수 --> 서버가 받은 메시지에서 다시 ACK로 보내는 메시지를 반환하는 함수
 void AskStockMessage(json msg)
