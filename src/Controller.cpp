@@ -33,6 +33,9 @@ Controller::Controller(){
 
 
 void Controller:: run(){
+    MSG msg;
+    MSG::SocketOpenInIt(&msg);
+    
     Controller::setController();
     while(true){
         showScreen.displayFirstScreen();
