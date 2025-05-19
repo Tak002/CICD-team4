@@ -7,6 +7,7 @@
 #include "ShowScreen.hpp"
 #include "Stock.hpp"
 #include "Input.hpp"
+#include "enum/BeverageType.hpp"
 #include <string>
 
 class Controller {
@@ -28,5 +29,4 @@ public:
     // 처음 시작시 설정
     void setController();
     
-    void saveCertCode(string newCertCode,int item_id, int item_num);
 };
