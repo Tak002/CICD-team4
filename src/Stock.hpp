@@ -10,7 +10,6 @@ class Stock {
         
         Beverage bev_to_buy; // 현재 구매 시도중인 음료
         void updateStock(int, int);
-        void DVMMessageOutofStock(int item_id, int item_num);
         
 
     public:
