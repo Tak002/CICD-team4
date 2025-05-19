@@ -1,13 +1,50 @@
 // CertCodeManager.cpp
 #include "CertCodeManager.hpp"
+#include "Controller.hpp"
+
 #include <string>
-#include "struct/PendingBeverage.hpp"
+#include <cstdlib> 
+#include <ctime>    
+#include <sstream>
+#include <fstream>
+#include <iostream>
 
+#include "../include/nlohmann/json.hpp"
+using namespace std;
+using json = nlohmann::json;
 
-bool CertCodeManager::isValidateCertCode(std::string cert_code){
-    PendingBeverage& pending = PendingBeverage::instance();
+using namespace std;
+
+//controller 주석 존재
+bool CertCodeManager::isValidCertCode(std::string cert_code){
+    string flnm = "certCode";
+    flnm+=cert_code;
+    flnm+=".json";
+    std::ifstream ifle(flnm);
     
-}
+    json js;
 
-//구현 필요
-bool CertCodeManager:: saveCertCode(std::string cert_code, int item_id, int item_num){return true;}
+    try{
+        ifle >> js;
+        
+        if(js==nullptr){
+            return false;
+        }
+        
+        int item_code = js["item_code"];
+        int item_num = js["item_num"];
+
+
+
+          // 파일 삭제
+        if (std::remove(flnm.c_str()) != 0) {
+            cerr << "Failed to delete file: " << flnm << endl;
+        }
+
+        return true;
+
+    }catch(const std::exception& e){
+            cerr << "Error parsing " << "certCode.json" << ": " << e.what() << std::endl;
+            return false;
+    }
+}

@@ -1,84 +1,159 @@
 // Stock.cpp
 #include "Stock.hpp"
-#include "database/InMemoryDB.hpp"
+#include <list>
+#include <string>
+#include <sstream>
+#include <fstream>
+#include <iostream>
+#include <filesystem>
+
+
+#include "Beverage.hpp"
 #include "MSG.hpp"
-#include "struct/PendingBeverage.hpp"
 
-void Stock::updateStock(int item_code, int item_num){
 
-    InMemoryDB& db = InMemoryDB::instance();
-    list<Beverage> beverages = getCurrentStock();
-    // db 업데이트
-    for(Beverage beverage : beverages){
-        if(beverage.isSameId(item_code)){
-            beverage.reduceBeverage(item_num);
-            db.beverageTable.updateStock(item_code, beverage);
-            break;
+#include "../include/nlohmann/json.hpp"
+using namespace std;
+using json = nlohmann::json;
+
+//확정
+void Stock::updateStock(int item_code, int item_num)
+{
+    ostringstream oss;
+    oss << "item" << item_code << ".json";
+    string filename = oss.str();
+
+    std::ifstream ifle(filename);
+    if (!ifle.is_open())
+    {
+        std::cerr << "파일 열기 실패: " << filename << std::endl;
+        return;
+    }
+
+    json js;
+    try
+    {
+        ifle >> js;
+        ifle.close();
+
+        int current_num = js["item_num"];
+
+        js["item_num"] = current_num - item_num;
+
+        std::ofstream ofle(filename);
+        if (!ofle.is_open())
+        {
+            std::cerr << "파일 열기 실패 (쓰기): " << filename << std::endl;
+            return;
+        }
+
+        ofle << js.dump(2);
+        ofle.close();
+        filesystem::remove("orderItem.json");
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "JSON 파싱 오류: " << e.what() << std::endl;
+    }
+}
+
+//확정
+list<Beverage> Stock::getCurrentStock()
+{
+    list<Beverage> beverages;
+    for (int i = 0; i < 20; i++)
+    {
+        string filename;
+        ostringstream oss;
+        oss << "item" << i << ".json";
+        filename.append(oss.str());
+        std::ifstream ifle(filename);
+
+        if (!ifle.is_open())
+        {
+            // 파일 존재 안함
+            continue;
+        }
+
+        json js;
+        try
+        {
+            ifle >> js;
+
+            int item_code = js["item_code"];
+            int item_num = js["item_num"];
+            int price = js["item_price"];
+
+            Beverage bev(item_code, item_num, price);
+            beverages.push_back(bev);
+        }catch(const std::exception& e){
+            cerr << "Error parsing " << filename << ": " << e.what() << std::endl;
+        }
+
+    }
+
+    return beverages;
+}
+
+
+// 확정
+bool Stock::isPrepayment(int item_code, int item_num)
+{
+    list<Beverage> beverage_list = getCurrentStock();
+    for(Beverage bev : beverage_list){
+        if(bev.isSameId(item_code)){
+            json j;
+            j["item_code"] = item_code;
+            j["item_num"] = item_num;
+            j["item_price"] = bev.getPrice();
+
+            ofstream o("orderItem.json");
+            o << j.dump(3);
+            if(bev.isEnough(item_num)){
+                return false;
+            }
         }
     }
 
-    // 구매과정 중인 음료 초기화
-    PendingBeverage& pending = PendingBeverage::instance();
-    pending.reset();
-
+    return true;
 }
 
-list<Beverage> Stock::getCurrentStock(){
-    refreshStock();
-    return beverage_list;
-}
-
-void Stock::refreshStock(){
-    auto& db = InMemoryDB::instance();
-    list<Beverage> beverages = db.beverageTable.findAll();
-    this->beverage_list = beverages;
-}
-
-bool Stock::isPrepayment(int item_code, int item_num){
+//확정
+bool Stock::isBuyable(std::string cert_code, int item_code, int item_num)
+{
+    list<Beverage> beverage_list = getCurrentStock();
     
-    PendingBeverage& pending = PendingBeverage::instance();
-    pending.setOnce(item_code, item_num);
+    for (Beverage bev : beverage_list) {
+        if (bev.isSameId(item_code)) {
+            if (bev.isEnough(item_num)) {
+                // JSON 생성
+                json j;
+                j["item_code"] = item_code;
+                j["item_num"] = item_num;
+                j["cert_code"] = cert_code;
 
-    return !isBuyable(item_code, item_num);
-}
+                // 파일명 생성
+                std::ostringstream oss;
+                oss << "certCode" << cert_code << ".json";
+                std::string filename = oss.str();
 
-bool Stock::isBuyable(int item_code, int item_num){
-    refreshStock();
-    for(Beverage beverage : beverage_list){
-        if (beverage.isSameId(item_code)){
-            if(beverage.isEnough(item_num)){
-                return true;
+                // 파일로 저장
+                std::ofstream ofile(filename);
+                if (ofile.is_open()) {
+                    ofile << j.dump(4);  // 들여쓰기 4칸
+                    ofile.close();
+                    return true;
+                } else {
+                    std::cerr << "Failed to open file: " << filename << std::endl;
+                }
             }
         }
     }
 
     return false;
 }
-
-void Stock::requestBeverage(int item_code, int item_num){
+//확정
+void Stock::requestBeverage(int item_code, int item_num)
+{
     updateStock(item_code, item_num);
-}
-
-
-void Stock::blockSale(){
-    // todo
-    // 관리자 모드
-}
-
-void Stock::editStock(int item_code, int item_num){
-    // todo
-    // 관리자 모드
-}
-
-Beverage Stock::getBevToBuy(){
-    PendingBeverage& pending = PendingBeverage::instance();
-
-    Beverage beverage(pending.getId(), pending.getNum());
-    return beverage;
-}
-
-void Stock::cancleBuying(){
-    // 구매과정 중인 음료 초기화
-    PendingBeverage& pending = PendingBeverage::instance();
-    pending.reset();
 }

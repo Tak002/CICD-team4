@@ -50,3 +50,4 @@ TEST_F(BeverageTest, GetBevIdReturnsCorrectId) {
 TEST_F(BeverageTest, GetBevQuantityReturnsCorrectQuantity) {
     EXPECT_EQ(bev.getBevQuantity(), 10);
 }
+

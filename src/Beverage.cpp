@@ -2,29 +2,33 @@
 #include "Beverage.hpp"
 
 bool Beverage::isSameId(int id){
-    if(id == bevId){
+    if(id == bev_code){
         return true;
     }
     return false;
 }
 
 bool Beverage::isEnough(int num){
-    if(num<=bevQuantity){
+    if(num<=bev_num){
         return true;
     }
     return false;
 }
 
 void Beverage::reduceBeverage(int num){
-    if(this->bevQuantity>=num){
-        bevQuantity -= num;
+    if(this->bev_num>=num){
+        bev_num -= num;
     }
 }
 
-int Beverage::getBevId() const {
-    return bevId;
+int Beverage::getBevCode() const {
+    return bev_code;
 }
 
-int Beverage::getBevQuantity() const {
-    return bevQuantity;
+int Beverage::getBevNum() const {
+    return bev_num;
+}
+
+int Beverage::getPrice() const {
+    return price;
 }

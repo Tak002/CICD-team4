@@ -2,43 +2,62 @@
 #include "Bank.hpp"
 #include <cstdlib> 
 #include <ctime>    
+#include <sstream>
+#include <fstream>
+#include <iostream>
 
-Bank::Bank() {
-    // todo 
-    // 임의의 생성자. 카드 정보를 외부의 다른 시스템이 가질 수 있도록
-    srand(static_cast<unsigned int>(time(nullptr)));
+#include "../include/nlohmann/json.hpp"
+using namespace std;
+using json = nlohmann::json;
 
-    // 임의의 카드 5개를 생성
-    for (int i = 0; i < 5; ++i) {
-        int card_num = 1000 + rand() % 9000;    // 1000~9999 범위 카드 번호
-        int balance = 1000 + rand() % 10000;    // 1000~10999 잔고
-        cards[card_num] = balance;
-    }
-}
-
+//확정
 bool Bank::checkCardValidity(int card_num, int price){
-    auto it = cards.find(card_num);
+ 
+    std::ifstream ifle("card.json");
+    
+    json js;
 
-    if (it == cards.end()) {
-        return false;
+    int c_num = -1;
+    int c_price = -1;
+    try{
+        ifle >> js;
+        
+        if(js["card_num"] == card_num){
+            if(js["balance"] >= price){
+                return true;
+            }
+        }
+        
+    }catch(const std::exception& e){
+            cerr << "Error parsing " << "card.json" << ": " << e.what() << std::endl;
     }
 
-    if (it->second < price) {
-        return false;
-    }
-
-    updateBalance(card_num, price);
-    return true;
+    return false;
 }
 
+//확정
 void Bank::updateBalance(int card_num, int price){
-    auto it = cards.find(card_num);
+    
+    int balance;
 
-    it->second = it -> second - price;
+    std::ifstream ifle("card.json");
+    json js;
+    
+    ifle>>js;
 
+    balance = js["balance"];
+
+    json j;
+    j["card_num"] = card_num;
+    j["balance"] = balance - price;
+    ofstream o("card.json");
+    o << j.dump(2);
 }
 
+
+//확정
 bool Bank::reqeustPayment(int card_num, int price){
+
     if(checkCardValidity(card_num,price)){
         updateBalance(card_num, price);
         return true;
@@ -47,11 +66,20 @@ bool Bank::reqeustPayment(int card_num, int price){
     return false;
 }
 
+//확정
 void Bank::rollback(int card_num, int price){
-    auto it = cards.find(card_num);
-    if(it == cards.end()){
-        return;
-    }
+    int balance;
 
-    it->second += price;
+    std::ifstream ifle("card.json");
+    json js;
+    
+    ifle>>js;
+
+    balance = js["balance"];
+
+    json j;
+    j["card_num"] = card_num;
+    j["balance"] = balance + price;
+    ofstream o("card.json");
+    o << j.dump(2);
 }   

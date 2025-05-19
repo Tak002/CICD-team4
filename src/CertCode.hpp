@@ -8,6 +8,6 @@ class CertCode {
         string value;
         string generateRandomString(size_t length);
     public:
-        void createCertCode();
+        string createCertCode();
         string toString();
 };
