@@ -458,9 +458,8 @@ void sendCertCode(const std::string &dst_id, const std::string &item_code, const
 }
 
 // 클라이언트 소켓을 생성하고 타 서버에 연결하는 함수를 구현
-std::vector<std::string> DVMMessageOutofStock(int beverageId, int quantity)
+std::tuple<int,int, std::string> DVMMessageOutofStock(int beverageId, int quantity)
 {
-    Position position;
     // 1. 브로드 캐스트를 이용해서 json 메시지를 받아온다.
     std::cout << "[Out of Stock] Beverage ID: " << beverageId << ", Quantity: " << quantity << std::endl; // 재고 부족 메시지 출력
     json DVMMessageOutofStock_MessageFormat = {
@@ -471,9 +470,10 @@ std::vector<std::string> DVMMessageOutofStock(int beverageId, int quantity)
 
     broadMessage(DVMMessageOutofStock_MessageFormat); // 재고 부족 메시지 전송
 
-    // 2. 재고 메시지를 하나하나 calc에 보내준다.
+    // 2. 재고 메시지를 하나하나 Position에 보내준다.
 
     std::this_thread::sleep_for(std::chrono::seconds(2));
+    
     // 2.1 디렉토리 내 모든 .json 파일 수집
     for (const auto &entry : fs::recursive_directory_iterator(directoryPath))
     {
@@ -482,60 +482,59 @@ std::vector<std::string> DVMMessageOutofStock(int beverageId, int quantity)
             jsonFiles.push_back(entry.path());
         }
     }
-
-    for (std::vector<fs::path>::iterator it = jsonFiles.begin(); it != jsonFiles.end(); ++it)
+    float shortest_distance = std::numeric_limits<float>::max();
+    std::string shortest_id;
+    int nearest_x = 0;
+    int nearest_y = 0;
+    
+    Position pos;
+    for (const auto& path : jsonFiles)
     {
-        std::ifstream file(*it);
-        if (!file.is_open())
-        {
-            std::cerr << "[ERROR] " << it->filename() << " 파일을 열 수 없습니다." << std::endl;
-            continue;
+        
+        try {
+            std::ifstream file(path);
+            json j;
+            file >> j;
+
+            int x = j["msg_content"]["coor_x"];
+            int y = j["msg_content"]["coor_y"];
+            std::string src_id = j["src_id"];
+
+            float distance = pos.calcDistance(x, y);
+            if(distance<shortest_distance){
+                shortest_distance =distance;
+                shortest_id = src_id;
+                nearest_x = x;
+                nearest_y = y;
+            }
+        }catch (const std::exception& e) {
+        std::cerr << "[ERROR] Failed to process file " << path << ": " << e.what() << std::endl;
+        continue;
         }
+    } 
 
-        json data;
-        try
-        {
-            file >> data;
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << "[ERROR] JSON 파싱 실패: " << e.what() << std::endl;
-            continue;
-        }
-
-        // 2.2 거리 계산
-        Position position;
-        // float distance = position.calcDistance(data["msg_content"]["coor_x"], data["msg_content"]["coor_y"]);
-    }
-
-    /**
-     *
-     *
-     * jsonFiles 디렉토리 순회해서 json 파일에서 id, x, y 값 돌림
-     * for 문 돌려서 거리 가장 가까운 src_id 값 저장
-     *
-     *
-     */
-
-    return {msgFormat("req_prepay", "T4", std::to_string(beverageId), std::to_string(quantity), std::to_string(0), std::to_string(0), "", "")}; // 인증번호 전송
+    return {nearest_x, nearest_y, shortest_id};
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 // 재고 확인 요청 메시지 처리 Server에서 다른 클라이언트부터 요청을 받았을 때
 json AskStockMessage(json msg)
 =======
+=======
+
+>>>>>>> main
 // 다른 DVM에서 재고 확인 요청을 받았을 때 호출되는 함수 --> 서버가 받은 메시지에서 다시 ACK로 보내는 메시지를 반환하는 함수
 void AskStockMessage(json msg)
 >>>>>>> main
 {
     std::cout << "[Ask Stock] Stock으로부터 확인 중" << msg << std::endl;
 
-<<<<<<< Updated upstream
 
     Stock stock;
     bool canBuy = stock.isPrepayment(msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인
     if(!canBuy){ return json(); }
-
+   
     std::string resp_stock_msg = msgFormat("resp_stock", msg["src_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], "", ""); // 재고 확인 메시지 포맷
 <<<<<<< HEAD
     json resp_stock_msg;                                                                                                                                                                                      // 파싱된 JSON 메시지 저장 변수
@@ -560,6 +559,7 @@ void AskStockMessage(json msg)
 =======
     std::cout << "[Ask Stock] Parsed message: " << resp_stock_msg << std::endl;
     return parsed_resp_stock_msg;
+<<<<<<< HEAD
 =======
     // 재고 확인 요청 메시지 처리
     // 일단 동작은 막아놓았다.
@@ -580,6 +580,8 @@ void AskStockMessage(json msg)
     // return resp_stock_msg;
 >>>>>>> Stashed changes
 >>>>>>> main
+=======
+>>>>>>> main
 }
 
 void SocketOpenInit()
@@ -596,6 +598,7 @@ bool sendMessage(const std::string msg_type, const std::string &msg)
     return true;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 // int main()
 // {
@@ -621,15 +624,12 @@ bool sendMessage(const std::string msg_type, const std::string &msg)
 
 =======
 <<<<<<< Updated upstream
+=======
+>>>>>>> main
 // int main()
 // {
 //     MSG msg;
 //     SocketOpenInit(&msg); // 소켓 초기화
-=======
-int main()
-{
-    SocketOpenInit(); // 소켓 초기화
->>>>>>> Stashed changes
 
 //     DVMMessageOutofStock(20, 99); // 재고 부족 메시지 전송
 
