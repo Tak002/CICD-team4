@@ -15,7 +15,7 @@
 #include <unistd.h>    //POSIX 운영 체제 API를 위한 헤더 파일
 #include <fstream>      //파일 저장을 위한 헤더 파일
 #include <sys/stat.h> //파일 상태를 확인하기 위한 헤더 파일
-#include "Calc.hpp"
+#include "Position.hpp"
 #include <filesystem>
 #include <vector>
 #include <algorithm>
