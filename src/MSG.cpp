@@ -15,14 +15,9 @@
 #include <arpa/inet.h>  //IP 주소 변환을 위한 헤더 파일
 #include <unistd.h>     //POSIX 운영 체제 API를 위한 헤더 파일
 #include <fstream>      //파일 저장을 위한 헤더 파일
-<<<<<<< HEAD
-#include <sys/stat.h>   //파일 상태를 확인하기 위한 헤더 파일
-#include <filesystem>   // C++17 파일 시스템 라이브러리
-=======
 #include <sys/stat.h> //파일 상태를 확인하기 위한 헤더 파일
 #include "Position.hpp"
 #include <filesystem>
->>>>>>> c52bc14f3adde401cb74ba82453821651b366d3b
 #include <vector>
 #include <algorithm>
 #include <regex>
