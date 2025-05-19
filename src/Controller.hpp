@@ -20,6 +20,9 @@ private:
     ShowScreen showScreen;
     Input input;
     bool isPrepayment;
+    int itemID;
+    int itemNum;
+    string src_id;
     int coor_x;
     int coor_y;
 
