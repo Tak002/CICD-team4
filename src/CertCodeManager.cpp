@@ -10,4 +10,4 @@ bool CertCodeManager::isValidateCertCode(std::string cert_code){
 }
 
 //구현 필요
-bool CertCodeManager:: saveCertCode(std::string cert_code){return true;}
+bool CertCodeManager:: saveCertCode(std::string cert_code, int item_id, int item_num){return true;}

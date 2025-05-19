@@ -89,15 +89,9 @@ void Controller:: run(){
 //  초기설정. stock 재고 기입, msg 수신 시작
 void Controller:: setController(){
     isPrepayment = false;
-
 };
 
 
-
-// 선결제 과정에서 결제가 이뤄진 후 제공 자판기에 메시지 전송
-// return이 false시 rollback
-bool Controller::sendPrePaymentMSG(const std::string& cert_code){
-    // Require cert_code to MESSAGE method
-    // return msg.sendMessage(SENDING MESSAGE);
-    return true;  
+void Controller::saveCertCode(string newCertCode,int item_id, int item_num){
+    certCodeManager.saveCertCode(newCertCode,item_id,item_num);
 }

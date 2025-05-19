@@ -28,10 +28,5 @@ public:
     // 처음 시작시 설정
     void setController();
     
-
-
-    // 선결제 과정에서 결제가 이뤄진 후 제공 자판기에 메시지 전송
-    // return이 false시 rollback
-    bool sendPrePaymentMSG(const std::string& cert_code);
-
+    void saveCertCode(string newCertCode,int item_id, int item_num);
 };
