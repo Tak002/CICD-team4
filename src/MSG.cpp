@@ -481,7 +481,7 @@ json MSG::AskStockMessage(json msg)
         std::cerr << "[ERROR] JSON 파싱 실패: " << e.what() << std::endl;
         return json(); // 빈 JSON 반환
     }
-    std::cout << "[Ask Stock] Parsed message: " << resp_stock_msg s<< std::endl;
+    std::cout << "[Ask Stock] Parsed message: " << resp_stock_msg << std::endl;
     return parsed_resp_stock_msg;
 }
 
