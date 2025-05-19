@@ -10,6 +10,14 @@ struct PendingBeverage {
         return item_num * unit_price;
     }
 
+    int getId() const {
+        return item_id;
+    }
+
+    int getNum() const {
+        return item_num;
+    }
+
     static PendingBeverage& instance(){
         static PendingBeverage singletonInstance;
         return singletonInstance;

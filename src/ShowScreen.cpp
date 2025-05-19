@@ -41,11 +41,11 @@ void ShowScreen::displayCurrentStock(std::list<Beverage> beverages) {
         str += "(" + std::to_string(code+1) + ") " + toString(type) + " : " + std::to_string(quantity) + "개 ";
 
         // 10개마다 줄바꿈
-        if ((i + 1) % 10 == 0) {
+        if ((i + 1) % 5 == 0) {
             str += "\n";
         }
     }
-    str+=  "음료 ID와 갯수를 입력해주세요. (e.g. 3 2)\n";
+    str+=  "\n음료 ID와 갯수를 입력해주세요. (e.g. 3 2)\n";
     display(str);
 }
 
@@ -86,8 +86,8 @@ void  ShowScreen::displayPaymentSuccess(){
 void ShowScreen::displayPaymentFailed(){
     string str = "결제에 실패했습니다.\n";
     str+= "카드번호나 잔액을 확인해주세요";
-    display(str);
 
+    display(str);
 }
 
 void ShowScreen::displayInvalidIdRange(){
