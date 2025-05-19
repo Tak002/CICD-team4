@@ -90,8 +90,3 @@ void Controller:: run(){
 void Controller:: setController(){
     isPrepayment = false;
 };
-
-
-void Controller::saveCertCode(string newCertCode,int item_id, int item_num){
-    certCodeManager.saveCertCode(newCertCode,item_id,item_num);
-}

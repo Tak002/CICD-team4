@@ -5,5 +5,5 @@ class CertCodeManager {
     private:
         std::string cert_code;
     public:
-        bool isValidCertCode(std::string code);
+        bool isValidateCertCode(std::string code);
 };

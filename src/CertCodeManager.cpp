@@ -16,7 +16,7 @@ using json = nlohmann::json;
 using namespace std;
 
 //controller 주석 존재
-bool CertCodeManager::isValidCertCode(std::string cert_code){
+bool CertCodeManager::isValidateCertCode(std::string cert_code){
     string flnm = "certCode";
     flnm+=cert_code;
     flnm+=".json";

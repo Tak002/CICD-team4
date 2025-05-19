@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "Beverage.hpp"
 #include "ShowScreen.hpp"
 #include "enum/BeverageType.hpp"
 
@@ -30,8 +31,8 @@ void ShowScreen::displayCurrentStock(std::list<Beverage> beverages) {
         auto it = beverages.begin();  
         std::advance(it, i);  // i번째 요소
 
-        int code = it->getBevId();
-        int quantity = it->getBevQuantity();
+        int code = it->getBevCode();
+        int quantity = it->getBevNum();
         BeverageType type = static_cast<BeverageType>(i);
 
         // 항목 출력 형식
