@@ -58,6 +58,11 @@ add_executable(beverage_tests
 
 )
 
+add_executable(stock_tests
+    test/Stock_test.cpp
+    src/Stock.cpp        
+)
+
 target_link_libraries(unit_tests
     gtest
     gtest_main
@@ -76,4 +81,8 @@ target_link_libraries(input_tests
 )
 gtest_discover_tests(input_tests)
 
-
+target_link_libraries(stock_tests
+    gtest
+    gtest_main
+)
+gtest_discover_tests(stock_tests)
