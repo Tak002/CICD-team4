@@ -1,4 +1,4 @@
-# team3
+# team4
 # SMA8-ASE_2025-1
 CI/CD + static analysis
 
@@ -20,3 +20,9 @@ Development team needs ...
 1. Public development github repository.
 2. .yml file in .github/workflows folder to trigger dispatch.
 3. V&V team's PAT (personal access token) as secret key.
+
+
+How to run
+1. cd build
+2. make
+3. ./dvm
