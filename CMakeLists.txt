@@ -42,6 +42,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 FetchContent_MakeAvailable(json)
 enable_testing()
+include_directories(${json_SOURCE_DIR}/include)
 
 include(GoogleTest)
 
