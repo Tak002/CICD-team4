@@ -64,6 +64,11 @@ add_executable(stock_tests
     src/Beverage.cpp    
 )
 
+add_executable(certCode_tests
+    test/CertCode_test.cpp
+    src/CertCode.cpp
+)
+
 target_link_libraries(unit_tests
     gtest
     gtest_main
@@ -87,3 +92,9 @@ target_link_libraries(stock_tests
     gtest_main
 )
 gtest_discover_tests(stock_tests)
+
+target_link_libraries(certCode_tests
+    gtest
+    gtest_main
+)
+gtest_discover_tests(certCode_tests)
