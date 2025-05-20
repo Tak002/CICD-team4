@@ -2,7 +2,8 @@
 #include <fstream>
 #include <cstdio>
 #include <filesystem>
-#include "Stock.hpp"
+#include "../src/Stock.hpp"
+#include "nlohmann/json.hpp"
 
 using namespace std;
 

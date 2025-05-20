@@ -60,7 +60,8 @@ add_executable(beverage_tests
 
 add_executable(stock_tests
     test/Stock_test.cpp
-    src/Stock.cpp        
+    src/Stock.cpp    
+    src/Beverage.cpp    
 )
 
 target_link_libraries(unit_tests
