@@ -6,7 +6,7 @@ using json = nlohmann::json; // JSON 라이브러리 사용
 
 class MSG {
     private:
-        int clientSocketfd; // 클라이언트 소켓 파일 디스크립터
+        // int clientSocketfd; // 클라이언트 소켓 파일 디스크립터
         int serverSocketfd; // 서버 소켓 파일 디스크립터
         void bindSocket(); // 서버가 클라이언트의 요청을 수신할 주소와 포트를 지정하는 함수
         std::string messageFormat(const std::string &msg);
