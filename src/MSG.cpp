@@ -121,7 +121,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
     int clientSocketfd;                // 클라이언트 소켓 파일 디스크립터
 
     /*
-        1. socket()        // 소켓 생성  --> 클라이언트로 다른 서버에게 알리는 일 braodcast 때와 req_prepay 때만 생성하면 된다.
+        1. socket()        // 소켓 생성  --> 클라이언트로 다른 서버에게 알리는 일 broadcast 때와 req_prepay 때만 생성하면 된다.
         2. connect()       // 서버에 연결 요청 -->
         3. write()/send()  // 서버에 데이터 전송 --> 클라이언트가 매개변수로 받은 데이터를 서버에 전송한다.
         4. read()/recv()   // 서버로부터 데이터 수신 --> 서버가 응답한 데이터를 수신한다. 즉 서버가 ACK를 보내기 전까지 닫으면 안 된다.
@@ -234,9 +234,22 @@ void clientMessage(const std::string &dst_id, const json &msg)
             std::cerr << "[" << dst_id << "] Failed to open file for writing" << std::endl;
         }
     }
-    else if (recv_parsing_msg["msg_type"] == "req_prepay")
+    else if (recv_parsing_msg["msg_type"] == "resp_prepay")
     {
         std::cout << "[" << dst_id << "] Prepay request ACK received" << std::endl;
+
+        if (recv_parsing_msg["msg_content"]["availability"] == "true")
+        {
+            std::cout << "[" << dst_id << "] Prepay request successful" << std::endl;
+            // 인증번호 전송 처리 완료
+            return;
+        }
+        else
+        {
+            std::cout << "[" << dst_id << "] Prepay request failed" << std::endl;
+            return;
+            // ROLLBACK 처리 
+        }
     }
     else
     {
@@ -274,8 +287,10 @@ void MSG::handleClient(int client_socket)
         {
             Stock stock;
             std::cout << "[Server] Prepay request received" << std::endl;
-            list<Beverage> beverage_list = stock.getCurrentStock();
-            json read_ = AskStockMessage(msg);
+            // list<Beverage> beverage_list = stock.getCurrentStock(); //..?
+            json read_ = AskStockMessage(msg); // 재고 확인 메시지 포맷
+
+            ::send(client_socket, read_.dump(2).c_str(), read_.dump(2).size(), 0); // 클라이언트에게 ACK 메시지 전송
             
             // 인증번호 전송 처리
             // sendCertCode(msg["dst_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["cert_code"]);
