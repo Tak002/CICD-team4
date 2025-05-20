@@ -16,7 +16,7 @@ bool Beverage::isEnough(int num){
 }
 
 void Beverage::reduceBeverage(int num){
-    if(this->bev_num>=num){
+    if(this->bev_num>=num && num>0){
         bev_num -= num;
     }
 }
