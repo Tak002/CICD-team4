@@ -47,12 +47,33 @@ add_executable(unit_tests
 
 )
 
+add_executable(input_tests
+    test/Input_test.cpp
+    src/Input.cpp        
+
+)
+add_executable(beverage_tests
+    test/Beverage_test.cpp
+    src/Beverage.cpp        
+
+)
+
 target_link_libraries(unit_tests
     gtest
     gtest_main
 )
-
-
 gtest_discover_tests(unit_tests)
+
+target_link_libraries(beverage_tests
+    gtest
+    gtest_main
+)
+gtest_discover_tests(beverage_tests)
+
+target_link_libraries(input_tests
+    gtest
+    gtest_main
+)
+gtest_discover_tests(input_tests)
 
 

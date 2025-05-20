@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <sstream>
 #include <iostream>
-#include "Input.hpp"
+#include "../src/Input.hpp"
 
 // 표준 입력 리디렉션을 위한 도우미 클래스
 class StdinRedirector {
