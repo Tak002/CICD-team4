@@ -19,7 +19,7 @@ Controller::Controller(){
         js["item_price"] = toPrice(type);
 
         std::ostringstream oss;
-        oss<<"item"<<i<<".json";
+        oss<<"item"<<i+1<<".json";
         std::ofstream ofile(oss.str());
         if(ofile.is_open()){
             ofile<<js.dump(4);
@@ -27,6 +27,27 @@ Controller::Controller(){
         }else{
              std::cerr << "Failed to open file: " << oss.str() << std::endl;
         }
+    }
+    // 2. 기본 카드 정보가 없거나 비어있을 경우 card.json 생성
+    const std::string cardFile = "card.json";
+    std::ifstream ifile(cardFile);
+    bool needToCreateCardFile = false;
+
+    if (!ifile.is_open()) {
+        std::cerr << "[INFO] card.json 파일이 존재하지 않아 생성합니다." << std::endl;
+        needToCreateCardFile = true;
+    } else if (ifile.peek() == std::ifstream::traits_type::eof()) {
+        std::cerr << "[INFO] card.json 파일이 비어 있어 기본값으로 초기화합니다." << std::endl;
+        needToCreateCardFile = true;
+    }
+
+    if (needToCreateCardFile) {
+    std::ofstream ofile("card.json");
+    json cardData;
+    cardData["card_num"]=11111;
+    cardData["balance"] = 1000000;
+    ofile << cardData.dump(4);
+    ofile.close();
     }
 }
 
@@ -72,9 +93,9 @@ void Controller:: run(){
             bool isPaymentSuccess = bank.reqeustPayment(cardNum,price);
             showScreen.displayPaymentResultScreen(isPaymentSuccess);
             if(!isPaymentSuccess)continue; //결제 실패시 초기화면으로
-
             // 선결제 후 다른 자판기에 메시지 송신
-            if(isPrepayment = true){
+            
+            if(isPrepayment == true){
                 std::string newCertCode = certCode.createCertCode();  
                 //선결제 메시지 송신 및 결과 수신
                 bool availability =msg.sendMessage(std::make_tuple(src_id,itemID,itemNum,newCertCode));
