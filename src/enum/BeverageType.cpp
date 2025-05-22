@@ -14,6 +14,7 @@ std::string toString(BeverageType type) {
         case BeverageType::CitronTea: return "유자차";
         case BeverageType::EnergyDrink: return "에너지 드링크";
         case BeverageType::Sikhye: return "식혜";
+        case BeverageType::IcedTea: return "아이스티";
         case BeverageType::StrawberryJuice: return "딸기주스";
         case BeverageType::OrangeJuice: return "오렌지 주스";
         case BeverageType::GrapeJuice: return "포도 주스";

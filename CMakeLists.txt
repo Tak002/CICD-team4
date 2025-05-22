@@ -32,11 +32,17 @@ FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/release-1.12.1.zip
 )
+FetchContent_Declare(
+    json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG v3.11.3
+)
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
-
+FetchContent_MakeAvailable(json)
 enable_testing()
+include_directories(${json_SOURCE_DIR}/include)
 
 include(GoogleTest)
 
@@ -47,12 +53,55 @@ add_executable(unit_tests
 
 )
 
+add_executable(input_tests
+    test/Input_test.cpp
+    src/Input.cpp        
+
+)
+add_executable(beverage_tests
+    test/Beverage_test.cpp
+    src/Beverage.cpp        
+
+)
+
+
+add_executable(stock_tests
+    test/Stock_test.cpp
+    src/Stock.cpp    
+    src/Beverage.cpp    
+)
+
+add_executable(certCode_tests
+    test/CertCode_test.cpp
+    src/CertCode.cpp
+)
+
 target_link_libraries(unit_tests
     gtest
     gtest_main
 )
-
-
 gtest_discover_tests(unit_tests)
 
+target_link_libraries(beverage_tests
+    gtest
+    gtest_main
+)
+gtest_discover_tests(beverage_tests)
 
+target_link_libraries(input_tests
+    gtest
+    gtest_main
+)
+gtest_discover_tests(input_tests)
+
+target_link_libraries(stock_tests
+    gtest
+    gtest_main
+)
+gtest_discover_tests(stock_tests)
+
+target_link_libraries(certCode_tests
+    gtest
+    gtest_main
+)
+gtest_discover_tests(certCode_tests)
