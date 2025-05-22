@@ -20,7 +20,7 @@ using json = nlohmann::json;
 void Stock::updateStock(int item_code, int item_num)
 {
     ostringstream oss;
-    oss << "item" << item_code-1 << ".json";
+    oss << "item" << item_code << ".json";
     string filename = oss.str();
 
     std::ifstream ifle(filename);
@@ -61,7 +61,7 @@ void Stock::updateStock(int item_code, int item_num)
 list<Beverage> Stock::getCurrentStock()
 {
     list<Beverage> beverages;
-    for (int i = 0; i < 20; i++)
+    for (int i = 1; i <= 20; i++)
     {
         string filename;
         ostringstream oss;
@@ -109,6 +109,8 @@ bool Stock::isPrepayment(int item_code, int item_num)
 
             ofstream o("orderItem.json");
             o << j.dump(3);
+                        cout<<"안녕"<<endl;
+
             if(bev.isEnough(item_num)){
                 return false;
             }
