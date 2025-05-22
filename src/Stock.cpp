@@ -20,7 +20,7 @@ using json = nlohmann::json;
 void Stock::updateStock(int item_code, int item_num)
 {
     ostringstream oss;
-    oss << "item" << item_code << ".json";
+    oss << "item" << item_code-1 << ".json";
     string filename = oss.str();
 
     std::ifstream ifle(filename);
@@ -29,6 +29,7 @@ void Stock::updateStock(int item_code, int item_num)
         std::cerr << "파일 열기 실패: " << filename << std::endl;
         return;
     }
+
 
     json js;
     try
@@ -39,7 +40,6 @@ void Stock::updateStock(int item_code, int item_num)
         int current_num = js["item_num"];
 
         js["item_num"] = current_num - item_num;
-
         std::ofstream ofle(filename);
         if (!ofle.is_open())
         {

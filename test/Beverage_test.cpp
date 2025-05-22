@@ -91,7 +91,6 @@ TEST(BeverageTest, Constructor_TwoArgs_PriceZero) {
 
 // 엣지: 최대 int값 요청 시 동작 확인
 TEST(BeverageTest, ReduceBeverage_MaxIntRequest_NoChange) {
-    int INT_MAX = 2147483647;
     Beverage b(5, 3, 500);
     b.reduceBeverage(INT_MAX); // 재고보다 크므로 변화 없음
     EXPECT_EQ(b.getBevNum(), 3);

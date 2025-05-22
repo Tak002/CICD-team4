@@ -72,9 +72,9 @@ void Controller:: run(){
             bool isPaymentSuccess = bank.reqeustPayment(cardNum,price);
             showScreen.displayPaymentResultScreen(isPaymentSuccess);
             if(!isPaymentSuccess)continue; //결제 실패시 초기화면으로
-
             // 선결제 후 다른 자판기에 메시지 송신
-            if(isPrepayment = true){
+            
+            if(isPrepayment == true){
                 std::string newCertCode = certCode.createCertCode();  
                 //선결제 메시지 송신 및 결과 수신
                 bool availability =msg.sendMessage(std::make_tuple(src_id,itemID,itemNum,newCertCode));

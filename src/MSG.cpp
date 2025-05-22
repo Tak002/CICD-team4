@@ -134,11 +134,11 @@ void clientMessage(const std::string &dst_id, const json &msg)
         clientSocketfd = socket(AF_INET, SOCK_STREAM, 0);
         if (clientSocketfd < 0)
             throw clientSocketfd;
-        std::cout << "Client Socket created" << std::endl;
+        // std::cout << "Client Socket created" << std::endl;
     }
     catch (int clientsocketfd)
     {
-        std::cerr << "Socket creation failed" << std::endl;
+        // std::cerr << "Socket creation failed" << std::endl;
         return;
     }
 
@@ -177,7 +177,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
     server_addr.sin_port = htons(PORT_NUM);                        // 포트 번호 설정
     inet_pton(AF_INET, ip_address.c_str(), &server_addr.sin_addr); // IP 주소 변환
 
-    std::cout << "[" << dst_id << "] Server address set" << std::endl;
+    // std::cout << "[" << dst_id << "] Server address set" << std::endl;
 
     if (connect(clientSocketfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
@@ -191,35 +191,35 @@ void clientMessage(const std::string &dst_id, const json &msg)
     }
 #pragma endregion
 
-    std::cout << "[" << dst_id << "] Connected to server" << std::endl;
+    // std::cout << "[" << dst_id << "] Connected to server" << std::endl;
 
     std::string jsonStrServer = msgFormat(msg["msg_type"], dst_id, msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], msg["msg_content"]["cert_code"], msg["msg_content"]["availability"]);
     json send_msg = json::parse(jsonStrServer);
 
     std::string sendStr = send_msg.dump(2); // JSON 문자열로 변환
     send(clientSocketfd, sendStr.c_str(), jsonStrServer.length(), 0);
-    std::cout << "[" << dst_id << "] Sent JSON: " << std::endl;
+    // std::cout << "[" << dst_id << "] Sent JSON: " << std::endl;
 
     int valread = recv(clientSocketfd, buffer, BUFSIZE, 0);
     json recv_parsing_msg;
     if (valread > 0)
     {
         buffer[valread] = '\0';
-        std::cout << "[" << dst_id << "] Received message" << std::endl;
+        // std::cout << "[" << dst_id << "] Received message" << std::endl;
 
         // JSON 파싱
         recv_parsing_msg = json::parse(buffer);
-        std::cout << "[" << dst_id << "] Parsed message: " << recv_parsing_msg.dump(2) << std::endl;
+        // std::cout << "[" << dst_id << "] Parsed message: " << recv_parsing_msg.dump(2) << std::endl;
     }
     else
     {
         std::cerr << "[" << dst_id << "] Failed to receive message" << std::endl;
     }
 
-    std::cout << "[" << dst_id << "] Received message type: " << recv_parsing_msg["msg_type"] << std::endl;
+    // std::cout << "[" << dst_id << "] Received message type: " << recv_parsing_msg["msg_type"] << std::endl;
     if (recv_parsing_msg["msg_type"] == "resp_stock")
     {
-        std::cout << "[" << dst_id << "] Stock request ACK received" << std::endl;
+        // std::cout << "[" << dst_id << "] Stock request ACK received" << std::endl;
         // 각각의 재고 확인 메시지를 json 파일 형식으로 저장
         std::string fileName = "../msgdata/" + dst_id + "_stock.json";
         std::ofstream outFile(fileName);
@@ -227,7 +227,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
         {
             outFile << msg.dump(2); // 2칸 들여쓰기로 예쁘게 출력
             outFile.close();
-            std::cout << "[" << dst_id << "] Stock data saved to " << fileName << std::endl;
+            // std::cout << "[" << dst_id << "] Stock data saved to " << fileName << std::endl;
         }
         else
         {
@@ -236,17 +236,17 @@ void clientMessage(const std::string &dst_id, const json &msg)
     }
     else if (recv_parsing_msg["msg_type"] == "resp_prepay")
     {
-        std::cout << "[" << dst_id << "] Prepay request ACK received" << std::endl;
+        // std::cout << "[" << dst_id << "] Prepay request ACK received" << std::endl;
 
         if (recv_parsing_msg["msg_content"]["availability"] == "true")
         {
-            std::cout << "[" << dst_id << "] Prepay request successful" << std::endl;
+            // std::cout << "[" << dst_id << "] Prepay request successful" << std::endl;
             // 인증번호 전송 처리 완료
             return;
         }
         else
         {
-            std::cout << "[" << dst_id << "] Prepay request failed" << std::endl;
+            // std::cout << "[" << dst_id << "] Prepay request failed" << std::endl;
             return;
             // ROLLBACK 처리 
         }
@@ -256,7 +256,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
         std::cerr << "[" << dst_id << "] Unknown message type" << std::endl;
     }
     close(clientSocketfd); // 클라이언트 소켓 닫기
-    std::cout << "[" << dst_id << "] Client socket closed" << std::endl;
+    // std::cout << "[" << dst_id << "] Client socket closed" << std::endl;
     return;
 }
 
@@ -267,14 +267,14 @@ void MSG::handleClient(int client_socket)
     if (valread > 0)
     {
         buffer[valread] = '\0';
-        std::cout << "Received message: " << buffer << std::endl;
+        // std::cout << "Received message: " << buffer << std::endl;
 
         json msg = json::parse(buffer);
 
         // 클라이언트 메시지에 따라 ACK를 다르게
         if (msg["msg_type"] == "req_stock")
         {
-            std::cout << "[Server] Stock request received" << std::endl;
+            // std::cout << "[Server] Stock request received" << std::endl;
             json read_ = MSG::AskStockMessage(msg);
             std::string ack_msg_format = msgFormat("resp_stock", msg["src_id"], read_["msg_content"]["item_code"], read_["msg_content"]["item_num"], read_["msg_content"]["coor_x"], read_["msg_content"]["coor_y"], "", ""); // 재고 확인 메시지 포맷
             ::send(client_socket, ack_msg_format.c_str(), ack_msg_format.size(), 0); // 클라이언트에게 ACK 메시지 전송
@@ -286,7 +286,7 @@ void MSG::handleClient(int client_socket)
         else if (msg["msg_type"] == "req_prepay")
         {
             Stock stock;
-            std::cout << "[Server] Prepay request received" << std::endl;
+            // std::cout << "[Server] Prepay request received" << std::endl;
             // list<Beverage> beverage_list = stock.getCurrentStock(); //..?
             json read_ = AskStockMessage(msg); // 재고 확인 메시지 포맷
 
@@ -343,12 +343,12 @@ void MSG::serverMessageOpen()
         close(serverSocketfd); // 소켓 닫기
         return;
     }
-    std::cout << "Bind successful" << std::endl; // 바인드 성공 시 출력
+    // std::cout << "Bind successful" << std::endl; // 바인드 성공 시 출력
 #pragma endregion
 
 #pragma region listen
     listen(serverSocketfd, 8);                          // 연결 요청 대기 상태
-    std::cout << "Listening on port 9000" << std::endl; // 연결 요청 대기 상태 출력
+    // std::cout << "Listening on port 9000" << std::endl; // 연결 요청 대기 상태 출력
 #pragma endregion
 
     while (true)
@@ -361,7 +361,7 @@ void MSG::serverMessageOpen()
             continue;
         }
 
-        std::cout << "Client connected" << std::endl;
+        // std::cout << "Client connected" << std::endl;
 
         // 클라이언트 처리 스레드 생성
         std::thread clientThread(&MSG::handleClient, this, client_socket);        
@@ -369,7 +369,7 @@ void MSG::serverMessageOpen()
     }
 
     close(serverSocketfd); // 서버 소켓 닫기
-    std::cout << "Server socket closed" << std::endl;
+    // std::cout << "Server socket closed" << std::endl;
 }
 
 void clientSendMessage(int sockfd, const std::string &msg)
@@ -384,7 +384,7 @@ void clientSendMessage(int sockfd, const std::string &msg)
         }
         else
         {
-            std::cout << "Message sent" << std::endl;
+            // std::cout << "Message sent" << std::endl;
         }
     }
     catch (const std::exception &e)
@@ -397,7 +397,7 @@ void clientSendMessage(int sockfd, const std::string &msg)
     int len = recv(sockfd, buffer, sizeof(buffer), 0);
     if (len > 0)
     {
-        std::cout << "[ACK Received] " << buffer << std::endl;
+        // std::cout << "[ACK Received] " << buffer << std::endl;
     }
     else
     {
@@ -408,7 +408,7 @@ void clientSendMessage(int sockfd, const std::string &msg)
 void MSG::broadMessage(const json &msg)
 {
     std::vector<std::thread> threads;
-    std::cout << "[Broadcast] Sending message to all" << std::endl;
+    // std::cout << "[Broadcast] Sending message to all" << std::endl;
     for (int i = 1; i < 2; ++i)
     {
         std::string dst_id = "T" + std::to_string(i);
@@ -432,7 +432,7 @@ void MSG::broadMessage(const json &msg)
             t.join();
     }
 
-    std::cout << "[Broadcast] 모든 메시지 전송 완료" << std::endl;
+    // std::cout << "[Broadcast] 모든 메시지 전송 완료" << std::endl;
 
     return;
 }
@@ -440,7 +440,7 @@ void MSG::broadMessage(const json &msg)
 // 인증번호를 전송하는 함수 선결제 영역
 void sendCertCode(const std::string &dst_id, const std::string &item_code, const std::string &item_num, const std::string &cert_code)
 {
-    std::cout << "[Send] Authentication Number" << std::endl;
+    // std::cout << "[Send] Authentication Number" << std::endl;
     json DVMMessageOutOfStock_MessageFormat = {
         {"msg_type", "req_prepay"},
         {"src_id", "T4"},
@@ -454,7 +454,7 @@ void sendCertCode(const std::string &dst_id, const std::string &item_code, const
 std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int quantity)
 {
     // 1. 브로드 캐스트를 이용해서 json 메시지를 받아온다.
-    std::cout << "[Out of Stock] Beverage ID: " << beverageId << ", Quantity: " << quantity << std::endl; // 재고 부족 메시지 출력
+    // std::cout << "[Out of Stock] Beverage ID: " << beverageId << ", Quantity: " << quantity << std::endl; // 재고 부족 메시지 출력
     json DVMMessageOutofStock_MessageFormat = {
         {"msg_type", "req_stock"},
         {"src_id", "T4"},
@@ -515,7 +515,7 @@ std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int q
         continue;
         }
     } 
-    std::cout << "[Out of Stock] Nearest DVM ID: " << shortest_id << ", Distance: " << shortest_distance << std::endl;
+    // std::cout << "[Out of Stock] Nearest DVM ID: " << shortest_id << ", Distance: " << shortest_distance << std::endl;
     return {nearest_x, nearest_y, shortest_id};
 }
 
@@ -523,7 +523,7 @@ std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int q
 // 다른 DVM에서 재고 확인 요청을 받았을 때 호출되는 함수 --> 서버가 받은 메시지에서 다시 ACK로 보내는 메시지를 반환하는 함수
 json MSG::AskStockMessage(json msg)
 {
-    std::cout << "[Ask Stock] Stock으로부터 확인 중" << msg << std::endl;
+    // std::cout << "[Ask Stock] Stock으로부터 확인 중" << msg << std::endl;
 
 
     Stock stock;
@@ -549,7 +549,7 @@ json MSG::AskStockMessage(json msg)
         std::cerr << "[ERROR] JSON 파싱 실패: " << e.what() << std::endl;
         return json(); // 빈 JSON 반환
     }
-    std::cout << "[Ask Stock] Parsed message: " << resp_stock_msg << std::endl;
+    // std::cout << "[Ask Stock] Parsed message: " << resp_stock_msg << std::endl;
     return parsed_resp_stock_msg;
 }
 
@@ -574,7 +574,7 @@ bool MSG::sendMessage(const std::tuple<std::string, int, int, std::string>& msgD
     string msg_type = "req_prepay";
 
     string jsonstr = msgFormat(msg_type,dst_id, std::to_string(itemID), std::to_string(itemNum), "","",newCertCode,"");
-    std::cout << "[Send Message] " << msg_type << std::endl;
+    // std::cout << "[Send Message] " << msg_type << std::endl;
     json msg = json(jsonstr);
     clientMessage(dst_id, msg);
 
