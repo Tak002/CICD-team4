@@ -126,3 +126,8 @@ void ShowScreen::displayPrePayCancel(){
     std::string str = "선결제 자판기에서 요청이 거부되었습니다. 금액을 환불합니다.";
     display(str);
 }
+
+void ShowScreen::displayPrePayDisavailable(){
+    std::string str = "선결제 가능한 자판기가 존재하지 않습니다.";
+    display(str);
+}
