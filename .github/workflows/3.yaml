@@ -37,6 +37,11 @@ jobs:
           cd build
           ctest --output-on-failure
 
+      - name: Generate coverage report
+        run: |
+          lcov --directory . --capture --output-file coverage.info
+          lcov --remove coverage.info '/usr/*' '*/test/*' --output-file coverage.info
+          lcov --list coverage.info
       ###############################
       # SonarCloud 분석 (C/C++ 기준)
       ###############################
@@ -58,7 +63,8 @@ jobs:
             -Dsonar.projectKey=Tak002_CICD-team4
             -Dsonar.organization=tak002
             -Dsonar.cfamily.compile-commands=build_wrapper_output_directory/compile_commands.json
-
+            -Dsonar.cfamily.build-wrapper-output=build_wrapper_output_directory
+            -Dsonar.coverageReportPaths=coverage.info
 
      # 빌드 성공 시 Discord 알림
       - name: Discord Success Notification
