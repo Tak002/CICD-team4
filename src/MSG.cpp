@@ -579,7 +579,6 @@ std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int q
                     shortest_id = src_id;
                     nearest_x = x;
                     nearest_y = y;
-                    cout<<"position updated!!!!!!!!!!!!!!!!"<<endl;
                 }
             }
         }catch (const std::exception& e) {
