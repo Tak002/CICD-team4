@@ -59,7 +59,8 @@ jobs:
       - name: Run Build Wrapper
         run: |
           rm -rf build   # 이전 빌드 폴더 삭제
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
           build-wrapper-linux-x86-64 --out-dir build_wrapper_output_directory cmake --build build --config Debug
 
       - name: Analyze on SonarCloud
