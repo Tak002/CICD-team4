@@ -35,7 +35,13 @@ void Controller:: run(){
                 coor_x = _coor_x;
                 coor_y = _coor_y;
                 src_id = _src_id;
-                showScreen.displayPrepayLocation(coor_x,coor_y);
+                if(coor_x == -1 && coor_y == -1){
+                    showScreen.displayPrePayDisavailable();
+                    continue; //초기화면으로
+                }
+                else{
+                    showScreen.displayPrepayLocation(coor_x,coor_y);
+                }
                 // 구매 여부 확인
                 if(!input.getBoolAnswer())continue; //구매 거절시 초기화면으로
                 isPrepayment = true;
