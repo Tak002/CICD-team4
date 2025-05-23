@@ -48,7 +48,7 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          lcov --directory build --capture --output-file coverage.info
+          lcov --directory build --capture --output-file coverage.info --ignore-errors mismatch
           lcov --remove coverage.info '/usr/*' '*/test/*' --output-file coverage.info
       ###############################
       # SonarCloud 분석 (C/C++ 기준)
