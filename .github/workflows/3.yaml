@@ -62,7 +62,7 @@ jobs:
           cmake -S . -B build 
           -DCMAKE_BUILD_TYPE=Debug 
           -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-          build-wrapper-linux-x86-64 --out-dir build_wrapper_output_directory cmake --build build --config Debug
+          build-wrapper-linux-x86-64 --out-dir build_wrapper_output_directory make -C build
 
       - name: Analyze on SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
