@@ -27,7 +27,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y cmake lcov
 
       - name: Configure CMake
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="--coverage" -DCMAKE_C_FLAGS="--coverage"
 
       - name: Build with CMake
         run: cmake --build build
