@@ -68,7 +68,7 @@ jobs:
             -Dsonar.organization=tak002
             -Dsonar.cfamily.compile-commands=build_wrapper_output_directory/compile_commands.json
             -Dsonar.cfamily.build-wrapper-output=build_wrapper_output_directory
-            -Dsonar.coverageReportPaths=coverage.info
+            -Dsonar.cfamily.coverage.reportPaths=coverage.info
 
      # 빌드 성공 시 Discord 알림
       - name: Discord Success Notification
