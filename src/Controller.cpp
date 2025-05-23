@@ -9,55 +9,10 @@
 
 using json = nlohmann::json;
 
-Controller::Controller(){
-    for(int i = 0 ; i<20; i++){
-        BeverageType type = static_cast<BeverageType>(i);
-        json js;
-        js["item_code"] = i+1;
-        if(i<7) js["item_num"] = 99;
-        else js["item_num"] = 0;
-        js["item_price"] = toPrice(type);
-
-        std::ostringstream oss;
-        oss<<"item"<<i+1<<".json";
-        std::ofstream ofile(oss.str());
-        if(ofile.is_open()){
-            ofile<<js.dump(4);
-            ofile.close();
-        }else{
-             std::cerr << "Failed to open file: " << oss.str() << std::endl;
-        }
-    }
-    // 2. 기본 카드 정보가 없거나 비어있을 경우 card.json 생성
-    const std::string cardFile = "card.json";
-    std::ifstream ifile(cardFile);
-    bool needToCreateCardFile = false;
-
-    if (!ifile.is_open()) {
-        std::cerr << "[INFO] card.json 파일이 존재하지 않아 생성합니다." << std::endl;
-        needToCreateCardFile = true;
-    } else if (ifile.peek() == std::ifstream::traits_type::eof()) {
-        std::cerr << "[INFO] card.json 파일이 비어 있어 기본값으로 초기화합니다." << std::endl;
-        needToCreateCardFile = true;
-    }
-
-    if (needToCreateCardFile) {
-    std::ofstream ofile("card.json");
-    json cardData;
-    cardData["card_num"]=11111;
-    cardData["balance"] = 1000000;
-    ofile << cardData.dump(4);
-    ofile.close();
-    }
-}
-
-
 
 void Controller:: run(){
-    MSG msg;
-    MSG::SocketOpenInIt(&msg);
-    
     Controller::setController();
+    Controller::createTestData();
     while(true){
         showScreen.displayFirstScreen();
         int firstScreenAnswer = input.getFirstScreenAnswer();
@@ -141,5 +96,49 @@ void Controller:: run(){
 //  초기설정. stock 재고 기입, msg 수신 시작
 void Controller:: setController(){
     isPrepayment = false;
+    MSG::SocketOpenInIt(&msg);
+
 };
 
+void Controller ::createTestData(){
+    // 1. 음료 정보 생성
+    for(int i = 0 ; i<20; i++){
+        BeverageType type = static_cast<BeverageType>(i);
+        json js;
+        js["item_code"] = i+1;
+        if(i<7) js["item_num"] = 99;
+        else js["item_num"] = 0;
+        js["item_price"] = toPrice(type);
+
+        std::ostringstream oss;
+        oss<<"item"<<i+1<<".json";
+        std::ofstream ofile(oss.str());
+        if(ofile.is_open()){
+            ofile<<js.dump(4);
+            ofile.close();
+        }else{
+             std::cerr << "Failed to open file: " << oss.str() << std::endl;
+        }
+    }
+    // 2. 기본 카드 정보가 없거나 비어있을 경우 card.json 생성
+    const std::string cardFile = "card.json";
+    std::ifstream ifile(cardFile);
+    bool needToCreateCardFile = false;
+
+    if (!ifile.is_open()) {
+        std::cerr << "[INFO] card.json 파일이 존재하지 않아 생성합니다." << std::endl;
+        needToCreateCardFile = true;
+    } else if (ifile.peek() == std::ifstream::traits_type::eof()) {
+        std::cerr << "[INFO] card.json 파일이 비어 있어 기본값으로 초기화합니다." << std::endl;
+        needToCreateCardFile = true;
+    }
+
+    if (needToCreateCardFile) {
+    std::ofstream ofile("card.json");
+    json cardData;
+    cardData["card_num"]=11111;
+    cardData["balance"] = 1000000;
+    ofile << cardData.dump(4);
+    ofile.close();
+    }
+}
