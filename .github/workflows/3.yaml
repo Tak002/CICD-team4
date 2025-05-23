@@ -31,7 +31,12 @@ jobs:
 
 
       - name: Configure CMake
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="--coverage" -DCMAKE_C_FLAGS="--coverage"
+        run: >
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          -DCMAKE_CXX_FLAGS="--coverage"
+          -DCMAKE_C_FLAGS="--coverage"
 
       - name: Build with CMake
         run: cmake --build build
@@ -43,9 +48,8 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          lcov --directory build --capture --output-file coverage.info --ignore-errors mismatch
+          lcov --directory build --capture --output-file coverage.info
           lcov --remove coverage.info '/usr/*' '*/test/*' --output-file coverage.info
-          lcov --list coverage.info
       ###############################
       # SonarCloud 분석 (C/C++ 기준)
       ###############################
@@ -66,7 +70,7 @@ jobs:
           args: >
             -Dsonar.projectKey=Tak002_CICD-team4
             -Dsonar.organization=tak002
-            -Dsonar.cfamily.build-wrapper-output=build_wrapper_output_directory
+            -Dsonar.cfamily.compile-commands=build/compile_commands.json
             -Dsonar.cfamily.coverage.reportPaths=coverage.info
 
      # 빌드 성공 시 Discord 알림
