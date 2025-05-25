@@ -611,52 +611,52 @@ std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int q
 // 다른 DVM에서 재고 확인 요청을 받았을 때 호출되는 함수 --> 서버가 받은 메시지에서 다시 ACK로 보내는 메시지를 반환하는 함수
 json MSG::AskStockMessage(json msg)
 {
-    // std::cout << "[Ask Stock] Stock으로부터 확인 중" << msg << std::endl;
-
-
+    // stock 객체 생성 후 현재 재고를 호출
     Stock stock;
     bool canBuy = stock.isPrepayment(msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인
-    if(!canBuy){ return json(); }
+    json parsed_resp_stock_msg; // 파싱된 JSON 메시지 저장 변수
+    if(!canBuy){
+        std::string resp_stock_msg = msgFormat(
+            "resp_stock", // 재고 요청 확인에 대한 응답 메시지
+            msg["src_id"].get<std::string>(), // 요청을 보낸 DVM의 ID를 dst_id로 설정
+            std::to_string(msg["msg_content"]["item_code"].get<int>()), // 문의한 아이템 코드
+            std::to_string(0), // 재고가 부족하면 0으로 설정
+            std::to_string(msg["msg_content"]["coor_x"].get<int>()), // 현재 x 좌표
+            std::to_string(msg["msg_content"]["coor_y"].get<int>()), // 현재 y 좌표
+            "",
+            "F");
+        parsed_resp_stock_msg = json::parse(resp_stock_msg);                                                                                                                                                                                     // 파싱된 JSON 메시지 저장 변수
+    }
+    else { // 만약 재고가 있는 경우
+        std::string resp_stock_msg = msgFormat(
+            "resp_stock",
+            msg["src_id"].get<std::string>(),
+            std::to_string(msg["msg_content"]["item_code"].get<int>()),
+            std::to_string(msg["msg_content"]["item_num"].get<int>()), // 재고가 더 있더라도 일단 요청한 아이템 수량을 그대로 반환
+            std::to_string(msg["msg_content"]["coor_x"].get<int>()),
+            std::to_string(msg["msg_content"]["coor_y"].get<int>()),
+            "",
+            "T");
+            parsed_resp_stock_msg = json::parse(resp_stock_msg); // 파싱된 JSON 메시지 저장 변수
+    }
 
-    std::string resp_stock_msg = msgFormat(
-        "resp_stock",
-        msg["src_id"].get<std::string>(),
-        std::to_string(msg["msg_content"]["item_code"].get<int>()),
-        std::to_string(msg["msg_content"]["item_num"].get<int>()),
-        std::to_string(msg["msg_content"]["coor_x"].get<int>()),
-        std::to_string(msg["msg_content"]["coor_y"].get<int>()),
-        "",
-        "");
-    json parsed_resp_stock_msg;                                                                                                                                                                                      // 파싱된 JSON 메시지 저장 변수
+    // Json 데이터가 null인지 확인
+    // 만약 null이라면 에러 메시지를 출력
     try
     {
-        parsed_resp_stock_msg = json::parse(resp_stock_msg); // JSON 메시지 파싱
+        if (parsed_resp_stock_msg.is_null())
+        {
+            std::cerr << "[ERROR] JSON 데이터가 null입니다." << std::endl;
+            return json(); // 빈 JSON 반환
+        }
     }
     catch (const std::exception &e)
     {
         std::cerr << "[ERROR] JSON 파싱 실패: " << e.what() << std::endl;
         return json(); // 빈 JSON 반환
     }
-    // std::cout << "[Ask Stock] Parsed message: " << resp_stock_msg << std::endl;
+
     return parsed_resp_stock_msg;
-
-    // 재고 확인 요청 메시지 처리
-    // 일단 동작은 막아놓았다.
-    // Stock stock;
-    // stock.isBuyable(msg["msg_content"]["cert_code"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인
-    // std::string resp_stock_msg = msgFormat("resp_stock", msg["src_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["coor_x"], msg["msg_content"]["coor_y"], "", ""); // 재고 확인 메시지 포맷
-    // json resp_stock_msg;                                                                                                                                                                                      // 파싱된 JSON 메시지 저장 변수
-    try
-    {
-        resp_stock_msg = json::parse(resp_stock_msg); // JSON 메시지 파싱
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "[ERROR] JSON 파싱 실패: " << e.what() << std::endl;
-        return json(); // 빈 JSON 반환
-    }
-    std::cout << "[Ask Stock] Parsed message: " << resp_stock_msg << std::endl; // 파싱된 메시지 출력
-    return resp_stock_msg;
 }
 
 void MSG::SocketOpenInIt(MSG *msg)
@@ -665,24 +665,39 @@ void MSG::SocketOpenInIt(MSG *msg)
     serverThread.detach();                                     // 또는 joinable일 때 main에서 join (비차단 운영이면 detach)
 }
 
-bool MSG::sendMessage(const std::tuple<std::string, int, int, std::string>& msgData)
+// sendMessage에서는 선결제 메시지 송신 및 결과 수신
+bool MSG::sendMessage(const std::tuple<std::string, int, int, std::string>& msgData) // 정확하게는 certCode만을 보내는 함수이다.
 {
+    std::thread thread;
 
     const auto& [dst_id, itemID, itemNum, newCertCode] = msgData;
 
-    // 클라이언트 소켓을 생성하고 타 서버에 연결하는 함수를 구현
-    string path = directoryPath+"ip_address.json";
-    std::ifstream file(path);
-    json ipjson;
-    file >> ipjson;
-    string ipaddress = ipjson[dst_id];
+    std::string req_prepay_msg = msgFormat(
+        "req_stock",
+        dst_id,
+        std::to_string(itemID),
+        std::to_string(itemNum),
+        "",
+        "",
+        newCertCode,
+        "");
+    json parsed_req_stock_msg;
 
-    string msg_type = "req_prepay";
+    parsed_req_stock_msg = json::parse(req_prepay_msg); // JSON 메시지 파싱
 
-    string jsonstr = msgFormat(msg_type,dst_id, std::to_string(itemID), std::to_string(itemNum), "","",newCertCode,"");
+
+    try {
+        clientMessage(dst_id, parsed_req_stock_msg);
+    } catch (const std::exception& e) {
+        std::cerr << "[Exception] " << e.what() << std::endl;
+    };
+
+    if (thread.joinable())
+        thread.join();
+
     // std::cout << "[Send Message] " << msg_type << std::endl;
-    json msg = json(jsonstr);
-    clientMessage(dst_id, msg);
+    // json msg = json(jsonstr);
+    // clientMessage(dst_id, msg);
 
 
     // 선결제 무조건 가능하다고 가정
