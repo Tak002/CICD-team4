@@ -310,10 +310,10 @@ void MSG::handleClient(int client_socket)
             std::string resp_stock_msg = msgFormat(
                 "resp_stock",
                 read_["src_id"],
-                std::to_string(msg["msg_content"]["item_code"].get<int>()),
-                std::to_string(msg["msg_content"]["item_num"].get<int>()),
-                std::to_string(msg["msg_content"]["coor_x"].get<int>()),
-                std::to_string(msg["msg_content"]["coor_y"].get<int>()),
+                std::to_string(read_["msg_content"]["item_code"].get<int>()),
+                std::to_string(read_["msg_content"]["item_num"].get<int>()),
+                std::to_string(read_["msg_content"]["coor_x"].get<int>()),
+                std::to_string(read_["msg_content"]["coor_y"].get<int>()),
                 "",
                 "");
 
