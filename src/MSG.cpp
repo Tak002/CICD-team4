@@ -331,19 +331,46 @@ void MSG::handleClient(int client_socket)
             Stock stock;
             // std::cout << "[Server] Prepay request received" << std::endl;
             // list<Beverage> beverage_list = stock.getCurrentStock(); //..? stock에서 
+
             json read_ = AskStockMessage(msg); // 재고 확인 메시지 포맷 현재 재고 상태에 대해 전송이 아닌 현재 재고 상태를 확인만 하고 T F를 보내기만 하면 된다.
 
-            ::send(client_socket, read_.dump(2).c_str(), read_.dump(2).size(), 0); // 클라이언트에게 ACK 메시지 전송
-            
-            // 인증번호 전송 처리
-            // sendCertCode(msg["dst_id"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"], msg["msg_content"]["cert_code"]);
+            std::string resp_prepay_msg = msgFormat(
+                "resp_prepay",
+                read_["src_id"],
+                std::to_string(read_["msg_content"]["item_code"].get<int>()),
+                std::to_string(read_["msg_content"]["item_num"].get<int>()),
+                "", // 필요없는 정보 x좌표
+                "", // 필요없는 정보 y좌표
+                "",
+                read_["msg_content"]["availability"]);
+
+            ::send(client_socket, resp_prepay_msg.c_str(), resp_prepay_msg.size(), 0); // 클라이언트에게 ACK 메시지 전송
+
+            // 만약 read_["msg_content"]["availability"] == "true"라면 재고를 줄인다.
+            if (read_["msg_content"]["availability"] == "true")
+            {
+                // std::cout << "[Server] Prepay request successful" << std::endl;
+                // 재고 감소 처리를 stock으로 요청한다.
+                stock.editStock(
+                    msg["msg_content"]["item_code"].get<int>(),
+                    msg["msg_content"]["item_num"].get<int>());
+                
+
+                // 받은 인증번호를 저장을 해야 하므로 저장을 한다.
+                // 또는 인증번호를 저장해야 하므로 정을 담당하는 곳으로 보낸다.
+            }
+            else
+            {
+                // std::cout << "[Server] Prepay request failed" << std::endl;
+                // ROLLBACK 처리
+            }
         }
         else
         {
             std::cerr << "[Server] Unknown message type" << std::endl;
         }
     }
-
+    // 클라이언트 종료와 함께 소켓 닫기
     close(client_socket);
 }
 
