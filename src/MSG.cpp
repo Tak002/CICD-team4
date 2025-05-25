@@ -42,7 +42,7 @@ using json = nlohmann::json; // JSON 라이브러리 사용
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 
-std::string directoryPath = "../msgdata"; // JSON 파일이 있는 디렉토리 경로
+std::string directoryPath = "../msgdata/stock"; // JSON 파일이 있는 디렉토리 경로
 std::vector<fs::path> jsonFiles;
 
 std::string msgFormat(
@@ -249,7 +249,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
     {
         // std::cout << "[" << dst_id << "] Stock request ACK received" << std::endl;
         // 각각의 재고 확인 메시지를 json 파일 형식으로 저장
-        std::string fileName = "../msgdata/" + dst_id + "_stock.json";
+        std::string fileName = "../msgdata/stock" + dst_id + "_stock.json";
         std::ofstream outFile(fileName);
         if (outFile.is_open())
         {
