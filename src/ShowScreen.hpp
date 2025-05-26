@@ -32,4 +32,5 @@ class ShowScreen {
 
         void displayPositionAndCertCode(int x, int y, std::string cert_code);
         void displayPrePayCancel();
+        void displayPrePayDisavailable();
 };
