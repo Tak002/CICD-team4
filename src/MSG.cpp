@@ -207,8 +207,6 @@ void clientMessage(const std::string &dst_id, const json &msg)
     json parsed_request_msg;
     parsed_request_msg = json::parse(request_msg); // JSON 메시지 파싱
 
-    std::cout << msg["msg_type"] << std::endl;
-
     if (parsed_request_msg["msg_type"] == "req_stock") {
         std::string send_req_stock_msg = parsed_request_msg.dump(2); // JSON 문자열로 변환
         send(clientSocketfd, send_req_stock_msg.c_str(), send_req_stock_msg.length(), 0);
@@ -242,12 +240,9 @@ void clientMessage(const std::string &dst_id, const json &msg)
         std::cerr << "[" << dst_id << "] Failed to receive message" << std::endl;
     }
 
-    std::cout << "메시지를 받는 중입니다." << std::endl;
-
     // std::cout << "[" << dst_id << "] Received message type: " << recv_parsing_msg["msg_type"] << std::endl;
     if (recv_parsing_msg["msg_type"] == "resp_stock")
     {
-        cout<<recv_parsing_msg<<endl;
         // std::cout << "[" << dst_id << "] Stock request ACK received" << std::endl;
         // 각각의 재고 확인 메시지를 json 파일 형식으로 저장
         std::string fileName = "../msgdata/stock/" + dst_id + "_stock.json";
@@ -265,7 +260,6 @@ void clientMessage(const std::string &dst_id, const json &msg)
     }
     else if (recv_parsing_msg["msg_type"] == "resp_prepay")
     {
-        std::cout << "[" << dst_id << "] Prepay request ACK received" << recv_parsing_msg << std::endl;
 
         if (recv_parsing_msg["msg_content"]["availability"] == "T")
         {
@@ -398,12 +392,10 @@ void MSG::serverMessageOpen()
         close(serverSocketfd); // 소켓 닫기
         return;
     }
-    // std::cout << "Bind successful" << std::endl; // 바인드 성공 시 출력
 #pragma endregion
 
 #pragma region listen
     listen(serverSocketfd, 8);                          // 연결 요청 대기 상태
-    // std::cout << "Listening on port 9000" << std::endl; // 연결 요청 대기 상태 출력
 #pragma endregion
 
     while (true)
@@ -416,7 +408,6 @@ void MSG::serverMessageOpen()
             continue;
         }
 
-        // std::cout << "Client connected" << std::endl;
 
         // 클라이언트 처리 스레드 생성
         std::thread clientThread(&MSG::handleClient, this, client_socket);        
@@ -424,40 +415,6 @@ void MSG::serverMessageOpen()
     }
 
     close(serverSocketfd); // 서버 소켓 닫기
-    // std::cout << "Server socket closed" << std::endl;
-}
-
-void clientSendMessage(int sockfd, const std::string &msg)
-{
-    // 메시지를 send 했어
-    try
-    
-    {
-        if (::send(sockfd, msg.c_str(), msg.length(), 0) < 0)
-        {
-            throw std::runtime_error("Send failed");
-        }
-        else
-        {
-            // std::cout << "Message sent" << std::endl;
-        }
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "[Exception] " << e.what() << std::endl;
-    }
-
-    char buffer[1024];
-    memset(buffer, 0, sizeof(buffer));
-    int len = recv(sockfd, buffer, sizeof(buffer), 0);
-    if (len > 0)
-    {
-        // std::cout << "[ACK Received] " << buffer << std::endl;
-    }
-    else
-    {
-        std::cerr << "[ACK Error or Disconnected]" << std::endl;
-    }
 }
 
 // client threads들이 다른 서버와 연결 후 recv까지 하는 함수
@@ -488,8 +445,6 @@ void MSG::broadMessage(const std::string &msg)
         if (t.joinable())
             t.join();
     }
-
-    // std::cout << "[Broadcast] 모든 메시지 전송 완료" << std::endl;
 
     return;
 }
@@ -558,8 +513,6 @@ std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int q
             } else if (j["msg_content"]["item_num"].is_number_integer()) {
                 otherDVMstock = j["msg_content"]["item_num"].get<int>();
             }
-
-            std::cout << "[Out of Stock] Checking DVM ID: " << src_id << ", Position: (" << x << ", " << y << "), Stock: " << otherDVMstock << std::endl;
             
 
             if(otherDVMstock >= quantity){
@@ -576,7 +529,6 @@ std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int q
         continue;
         }
     } 
-    std::cout << "[Out of Stock] Nearest Position: " << nearest_x << ", " << nearest_y << ", ID: " << shortest_id << std::endl;
     return {nearest_x, nearest_y, shortest_id};
 }
 // // 재고 확인 요청 메시지 처리 Server에서 다른 클라이언트부터 요청을 받았을 때
