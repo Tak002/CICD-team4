@@ -320,10 +320,6 @@ void MSG::handleClient(int client_socket)
                 std::to_string(read_["msg_content"]["item_num"].get<int>()),
                 std::to_string(read_["msg_content"]["coor_x"].get<int>()),
                 std::to_string(read_["msg_content"]["coor_y"].get<int>()),
-                std::to_string(read_["msg_content"]["item_code"].get<int>()),
-                std::to_string(read_["msg_content"]["item_num"].get<int>()),
-                std::to_string(read_["msg_content"]["coor_x"].get<int>()),
-                std::to_string(read_["msg_content"]["coor_y"].get<int>()),
                 "",
                 "");
 
