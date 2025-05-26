@@ -249,12 +249,14 @@ void clientMessage(const std::string &dst_id, const json &msg)
     // std::cout << "[" << dst_id << "] Received message type: " << recv_parsing_msg["msg_type"] << std::endl;
     if (recv_parsing_msg["msg_type"] == "resp_stock")
     {
+        cout<<recv_parsing_msg<<endl;
         // std::cout << "[" << dst_id << "] Stock request ACK received" << std::endl;
         // 각각의 재고 확인 메시지를 json 파일 형식으로 저장
         std::string fileName = "../msgdata/stock" + dst_id + "_stock.json";
         std::ofstream outFile(fileName);
         if (outFile.is_open())
         {
+            
             outFile << msg.dump(2); // 2칸 들여쓰기로 예쁘게 출력
             outFile.close();
             // std::cout << "[" << dst_id << "] Stock data saved to " << fileName << std::endl;
@@ -314,6 +316,10 @@ void MSG::handleClient(int client_socket)
             std::string resp_stock_msg = msgFormat(
                 "resp_stock",
                 read_["src_id"],
+                std::to_string(read_["msg_content"]["item_code"].get<int>()),
+                std::to_string(read_["msg_content"]["item_num"].get<int>()),
+                std::to_string(read_["msg_content"]["coor_x"].get<int>()),
+                std::to_string(read_["msg_content"]["coor_y"].get<int>()),
                 std::to_string(read_["msg_content"]["item_code"].get<int>()),
                 std::to_string(read_["msg_content"]["item_num"].get<int>()),
                 std::to_string(read_["msg_content"]["coor_x"].get<int>()),
@@ -528,9 +534,8 @@ std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int q
     }
     float shortest_distance = std::numeric_limits<float>::max();
     std::string shortest_id;
-    int nearest_x = 0;
-    int nearest_y = 0;
-    
+    int nearest_x = -1;
+    int nearest_y = -1;
     Position pos;
     for (const auto& path : jsonFiles)
     {
@@ -553,20 +558,30 @@ std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int q
                 y = j["msg_content"]["coor_y"].get<int>();
             }
             std::string src_id = j["src_id"];
+            
+            int otherDVMstock = 0;
+            if (j["msg_content"]["item_num"].is_string()) {
+                otherDVMstock = std::stoi(j["msg_content"]["coor_y"].get<std::string>());
+            } else if (j["msg_content"]["item_num"].is_number_integer()) {
+                otherDVMstock = j["msg_content"]["item_num"].get<int>();
+            }
+            
 
-            float distance = pos.calcDistance(x, y);
-            if(distance<shortest_distance){
-                shortest_distance =distance;
-                shortest_id = src_id;
-                nearest_x = x;
-                nearest_y = y;
+            if(otherDVMstock<quantity){
+                float distance = pos.calcDistance(x, y);
+                if(distance<shortest_distance){
+                    shortest_distance =distance;
+                    shortest_id = src_id;
+                    nearest_x = x;
+                    nearest_y = y;
+                }
             }
         }catch (const std::exception& e) {
         std::cerr << "[ERROR] Failed to process file " << path << ": " << e.what() << std::endl;
         continue;
         }
     } 
-    std::cout << "[Out of Stock] Nearest Position: " << nearest_x << ", " << nearest_y << ", ID: " << shortest_id << std::endl;
+    // std::cout << "[Out of Stock] Nearest Position: " << nearest_x << ", " << nearest_y << ", ID: " << shortest_id << std::endl;
     return {nearest_x, nearest_y, shortest_id};
 }
 // // 재고 확인 요청 메시지 처리 Server에서 다른 클라이언트부터 요청을 받았을 때

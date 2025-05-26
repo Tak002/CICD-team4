@@ -109,8 +109,6 @@ bool Stock::isPrepayment(int item_code, int item_num)
 
             ofstream o("orderItem.json");
             o << j.dump(3);
-                        cout<<"안녕"<<endl;
-
             if(bev.isEnough(item_num)){
                 return false;
             }
