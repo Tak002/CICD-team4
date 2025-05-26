@@ -144,6 +144,7 @@ bool Stock::isBuyable(std::string cert_code, int item_code, int item_num)
                 if (ofile.is_open()) {
                     ofile << j.dump(4);  // 들여쓰기 4칸
                     ofile.close();
+                    updateStock(item_code, item_num); // 재고 업데이트
                     return true;
                 } else {
                     std::cerr << "Failed to open file: " << filename << std::endl;
