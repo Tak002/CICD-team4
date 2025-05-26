@@ -42,7 +42,7 @@ using json = nlohmann::json; // JSON 라이브러리 사용
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 
-std::string directoryPath = "../msgdata/stock"; // JSON 파일이 있는 디렉토리 경로
+std::string directoryPath = "../msgdata/stock/"; // JSON 파일이 있는 디렉토리 경로
 std::vector<fs::path> jsonFiles;
 
 bool isPrepayValid; // 다른 서버의 메시지의 ["msg_content"]["availability"]가 true인지 false인지 확인하는 변수
@@ -59,7 +59,7 @@ std::string msgFormat(
 {
     json msg;
     msg["msg_type"] = quest_type;
-    msg["src_id"] = "T3";
+    msg["src_id"] = "T4";
     msg["dst_id"] = dst_id;
 
     try
@@ -193,8 +193,6 @@ void clientMessage(const std::string &dst_id, const json &msg)
     }
 #pragma endregion
 
-    std::cout << "소켓 생성하고 연결하고 완료" << std::endl;
-
     // 메시지 전송
     std::string request_msg = msgFormat(
         msg["msg_type"],
@@ -252,12 +250,11 @@ void clientMessage(const std::string &dst_id, const json &msg)
         cout<<recv_parsing_msg<<endl;
         // std::cout << "[" << dst_id << "] Stock request ACK received" << std::endl;
         // 각각의 재고 확인 메시지를 json 파일 형식으로 저장
-        std::string fileName = "../msgdata/stock" + dst_id + "_stock.json";
+        std::string fileName = "../msgdata/stock/" + dst_id + "_stock.json";
         std::ofstream outFile(fileName);
         if (outFile.is_open())
         {
-            
-            outFile << msg.dump(2); // 2칸 들여쓰기로 예쁘게 출력
+            outFile << recv_parsing_msg.dump(2); // 2칸 들여쓰기로 예쁘게 출력
             outFile.close();
             // std::cout << "[" << dst_id << "] Stock data saved to " << fileName << std::endl;
         }
@@ -268,11 +265,11 @@ void clientMessage(const std::string &dst_id, const json &msg)
     }
     else if (recv_parsing_msg["msg_type"] == "resp_prepay")
     {
-        // std::cout << "[" << dst_id << "] Prepay request ACK received" << std::endl;
+        std::cout << "[" << dst_id << "] Prepay request ACK received" << recv_parsing_msg << std::endl;
 
         if (recv_parsing_msg["msg_content"]["availability"] == "T")
         {
-            isPrepayValid = true; 
+            isPrepayValid = true;
             // std::cout << "[" << dst_id << "] Prepay request successful" << std::endl;
             // 인증번호 전송 처리 완료
             return;
@@ -315,7 +312,7 @@ void MSG::handleClient(int client_socket)
 
             std::string resp_stock_msg = msgFormat(
                 "resp_stock",
-                read_["src_id"],
+                read_["dst_id"],
                 std::to_string(read_["msg_content"]["item_code"].get<int>()),
                 std::to_string(read_["msg_content"]["item_num"].get<int>()),
                 std::to_string(read_["msg_content"]["coor_x"].get<int>()),
@@ -348,7 +345,7 @@ void MSG::handleClient(int client_socket)
                 "", // 필요없는 정보 x좌표
                 "", // 필요없는 정보 y좌표
                 "",
-                msg["msg_content"]["availability"]);
+                availability? "T" : "F"); // availability는 T나 F로 보내야 한다.
 
             ::send(client_socket, resp_prepay_msg.c_str(), resp_prepay_msg.size(), 0); // 클라이언트에게 ACK 메시지 전송
 
@@ -557,13 +554,15 @@ std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int q
             
             int otherDVMstock = 0;
             if (j["msg_content"]["item_num"].is_string()) {
-                otherDVMstock = std::stoi(j["msg_content"]["coor_y"].get<std::string>());
+                otherDVMstock = std::stoi(j["msg_content"]["item_num"].get<std::string>());
             } else if (j["msg_content"]["item_num"].is_number_integer()) {
                 otherDVMstock = j["msg_content"]["item_num"].get<int>();
             }
+
+            std::cout << "[Out of Stock] Checking DVM ID: " << src_id << ", Position: (" << x << ", " << y << "), Stock: " << otherDVMstock << std::endl;
             
 
-            if(otherDVMstock<quantity){
+            if(otherDVMstock >= quantity){
                 float distance = pos.calcDistance(x, y);
                 if(distance<shortest_distance){
                     shortest_distance =distance;
@@ -577,7 +576,7 @@ std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int q
         continue;
         }
     } 
-    // std::cout << "[Out of Stock] Nearest Position: " << nearest_x << ", " << nearest_y << ", ID: " << shortest_id << std::endl;
+    std::cout << "[Out of Stock] Nearest Position: " << nearest_x << ", " << nearest_y << ", ID: " << shortest_id << std::endl;
     return {nearest_x, nearest_y, shortest_id};
 }
 // // 재고 확인 요청 메시지 처리 Server에서 다른 클라이언트부터 요청을 받았을 때
@@ -590,7 +589,7 @@ json MSG::AskStockMessage(json msg)
     Stock stock;
     bool canBuy = stock.isPrepayment(msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인
     json parsed_resp_stock_msg; // 파싱된 JSON 메시지 저장 변수
-    if(!canBuy){
+    if(canBuy){
         std::string resp_stock_msg = msgFormat(
             "resp_stock", // 재고 요청 확인에 대한 응답 메시지
             msg["src_id"].get<std::string>(), // 요청을 보낸 DVM의 ID를 dst_id로 설정
