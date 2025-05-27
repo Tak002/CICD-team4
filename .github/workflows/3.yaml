@@ -54,21 +54,21 @@ jobs:
           sed -i 's|/home/runner/work/CICD-team4/CICD-team4/||g' coverage.info
           cat coverage.info | grep SF
 
-      - name: Upload coverage to SonarCloud
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
+      - name: Upload coverage to SonarCloud with log capture
+        run: |
+          sonar-scanner 
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} 
             -Dsonar.projectKey=Tak002_CICD-team4
             -Dsonar.organization=tak002
             -Dsonar.cfamily.gcov.reportsPath=build/
             -Dsonar.cxx.coverage.reportPath=coverage.info
             -Dsonar.cfamily.compile-commands=build_wrapper_output_directory/compile_commands.json
-      
+            | tee sonar_log.txt
+
       - name: Check SonarScanner logs for coverage/gcov    
         run:
-          grep -i "cover" sonar_log.txt; grep -i "gcov" sonar_log.txt
+          grep -i "cover" sonar_log.txt || echo "No 'cover' found"
+          grep -i "gcov" sonar_log.txt || echo "No 'gcov' found"
 
      # 빌드 성공 시 Discord 알림
       - name: Discord Success Notification
