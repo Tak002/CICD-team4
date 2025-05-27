@@ -45,24 +45,24 @@ jobs:
       ###############################
       # SonarCloud 분석 (C/C++ 기준)
       ###############################
-      # - name: Install Build Wrapper
-      #   uses: SonarSource/sonarcloud-github-c-cpp@v2
+      - name: Install Build Wrapper
+        uses: SonarSource/sonarcloud-github-c-cpp@v2
 
-      # - name: Run Build Wrapper
-      #   run: |
-      #     rm -rf build   # 이전 빌드 폴더 삭제
-      #     cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
-      #     build-wrapper-linux-x86-64 --out-dir build_wrapper_output_directory cmake --build build --config Debug
+      - name: Run Build Wrapper
+        run: |
+          rm -rf build   # 이전 빌드 폴더 삭제
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+          build-wrapper-linux-x86-64 --out-dir build_wrapper_output_directory cmake --build build --config Debug
 
-      # - name: Analyze on SonarCloud
-      #   uses: SonarSource/sonarcloud-github-action@master
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #   with:
-      #     args: >
-      #       -Dsonar.projectKey=Tak002_CICD-team4
-      #       -Dsonar.organization=tak002
-      #       -Dsonar.cfamily.compile-commands=build_wrapper_output_directory/compile_commands.json
+      - name: Analyze on SonarCloud
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Tak002_CICD-team4
+            -Dsonar.organization=tak002
+            -Dsonar.cfamily.compile-commands=build_wrapper_output_directory/compile_commands.json
       
       - name: Upload coverage to SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
