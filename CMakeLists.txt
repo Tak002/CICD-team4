@@ -105,3 +105,6 @@ target_link_libraries(certCode_tests
     gtest_main
 )
 gtest_discover_tests(certCode_tests)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
