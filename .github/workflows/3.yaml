@@ -27,8 +27,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y cmake lcov
 
       - name: Configure CMake, Build with CMake
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="--coverage"
-        run: cmake --build build
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="--coverage"
+          cmake --build build
 
 
       - name: Run GoogleTest
