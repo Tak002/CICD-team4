@@ -25,12 +25,21 @@ jobs:
       #########################
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y cmake lcov
+      
+      - name: Install Build Wrapper
+        uses: SonarSource/sonarcloud-github-c-cpp@v2
+
+      - name: Clean build dir
+        run: |
+          rm -rf build
 
       - name: Configure CMake, Build with CMake
         run: |
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="--coverage"
-          cmake --build build
-
+          
+      - name: Run Build Wrapper
+        run: |
+          build-wrapper-linux-x86-64 --out-dir build_wrapper_output_directory cmake --build build --config Debug
 
       - name: Run GoogleTest
         run: |
@@ -43,19 +52,6 @@ jobs:
           lcov --remove coverage.info '/usr/*' --output-file coverage.info
           sed -i 's|/home/runner/work/CICD-team4/CICD-team4/||g' coverage.info
           cat coverage.info | grep SF
-
-
-      ###############################
-      # SonarCloud 분석 (C/C++ 기준)
-      ###############################
-      - name: Install Build Wrapper
-        uses: SonarSource/sonarcloud-github-c-cpp@v2
-    
-          # rm -rf build   # 이전 빌드 폴더 삭제
-      - name: Run Build Wrapper
-        run: |
-          build-wrapper-linux-x86-64 --out-dir build_wrapper_output_directory cmake --build build --config Debug
-
 
       - name: Upload coverage to SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
