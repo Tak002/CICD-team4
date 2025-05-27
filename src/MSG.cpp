@@ -223,14 +223,13 @@ void clientMessage(const std::string &dst_id, const json &msg)
     }
 
 
-    // 메시지 수신
+    // 메시지 수신전에 버퍼 초기화
+    memset(buffer, 0, sizeof(buffer));
     int valread = recv(clientSocketfd, buffer, BUFSIZE, 0);
     json recv_parsing_msg;
     if (valread > 0)
     {
-        buffer[valread] = '\0';
         // std::cout << "[" << dst_id << "] Received message" << std::endl;
-
         // JSON 파싱
         recv_parsing_msg = json::parse(buffer);
         // std::cout << "[" << dst_id << "] Parsed message: " << recv_parsing_msg.dump(2) << std::endl;
