@@ -41,6 +41,7 @@ jobs:
         run: |
           lcov --directory build/ --capture --output-file coverage.info --ignore-errors mismatch
           lcov --remove coverage.info '/usr/*' --output-file coverage.info
+          sed -i 's|/home/runner/work/CICD-team4/CICD-team4/||g' coverage.info
 
       ###############################
       # SonarCloud 분석 (C/C++ 기준)
