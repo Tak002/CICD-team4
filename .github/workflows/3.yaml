@@ -48,6 +48,7 @@ jobs:
 
       - name: Generate coverage report
         run: |
+          
           lcov --directory build/ --capture --output-file coverage.info --ignore-errors mismatch
           lcov --remove coverage.info '/usr/*' --output-file coverage.info
           sed -i 's|/home/runner/work/CICD-team4/CICD-team4/||g' coverage.info
@@ -64,7 +65,11 @@ jobs:
             -Dsonar.cfamily.gcov.reportsPath=build/
             -Dsonar.cxx.coverage.reportPath=coverage.info
             -Dsonar.cfamily.compile-commands=build_wrapper_output_directory/compile_commands.json
-
+      
+      - name: Check SonarScanner logs for coverage/gcov    
+        run:
+          grep -i "cover" <sonar_log.txt>
+          grep -i "gcov" <sonar_log.txt>
 
      # 빌드 성공 시 Discord 알림
       - name: Discord Success Notification
