@@ -36,7 +36,6 @@ std::pair<int, int> Input::getItemIDandNum() {
 
 
 bool Input::getBoolAnswer(){
-
     while(true){
         std::string inputString;
         std::getline(std::cin,inputString);
