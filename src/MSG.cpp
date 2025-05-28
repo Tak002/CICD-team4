@@ -95,10 +95,7 @@ std::string msgFormat(
     msg["msg_content"]["cert_code"] = cert_code;
     msg["msg_content"]["availability"] = availability;
 
-    // std::cout << "[MSG] JSON Message: " << msg.dump(2) << std::endl; // 2칸 들여쓰기로 예쁘게 출력
-    // std::ofstream file("../data/msg.json"); // JSON 파일 저장
-
-    return msg.dump(2); // JSON string with pretty-print
+    return msg.dump(2);
 }
 
 int serverSocketfd;
@@ -107,8 +104,8 @@ void clientMessage(const std::string &dst_id, const json &msg)
 {
     std::string ip_address;
 
-    std::string buffer[BUFSIZE];              // 버퍼 선언
-    memset(buffer, 0, sizeof(buffer)); // 버퍼 초기화
+    std::array<char, BUFSIZE> buffer;              // 버퍼 선언
+    memset(buffer.data(), 0, sizeof(buffer)); // 버퍼 초기화
 
     int clientSocketfd;                // 클라이언트 소켓 파일 디스크립터
 
@@ -204,8 +201,8 @@ void clientMessage(const std::string &dst_id, const json &msg)
 
 
     // 메시지 수신전에 버퍼 초기화
-    memset(buffer, 0, sizeof(buffer));
-    int valread = recv(clientSocketfd, buffer, BUFSIZE, 0);
+    memset(buffer.data(), 0, sizeof(buffer));
+    int valread = recv(clientSocketfd, buffer.data(), BUFSIZE, 0);
     json recv_parsing_msg;
     if (valread > 0)
     {
