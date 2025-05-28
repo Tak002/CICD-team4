@@ -299,8 +299,7 @@ void MSG::handleClient(int client_socket)
     std::array<char, BUFSIZE> buffer;         // 버퍼 선언
     memset(buffer.data(), 0, sizeof(buffer)); // 버퍼 초기화
 
-    ssize_t valread = recv(client_socket, buffer.data(), BUFSIZ, 0);
-    if (valread > 0)
+    if (ssize_t valread = recv(client_socket, buffer.data(), BUFSIZ, 0) > 0)
     {
         buffer[valread] = '\0';
 
