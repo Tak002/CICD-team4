@@ -88,21 +88,28 @@ TEST(InputTest, GetCertCode_ReturnsCorrectString) {
 // 비정상 입력 후 정상 입력 테스트
 // =======================
 
-// GetFirstScreenAnswer: 잘못된 입력 후 정상 입력
-TEST(InputTest, GetFirstScreenAnswer_InvalidThenValidInput) {
+
+
+// GetFirstScreenAnswer: 유효하지 않은 입력 시 -1 반환
+TEST(InputTest, GetFirstScreenAnswer_InvalidInputReturnsMinusOne) {
     Input input;
-    // "qwerty"는 잘못된 입력, 그 다음 "s"는 정상 입력
-    std::stringstream fakeInput("qwerty\ns\n");
+    std::stringstream fakeInput("hello\n");
     StdinRedirector redirect(std::cin, fakeInput);
-    // 잘못된 입력은 무시되고, "s" 입력이 들어와야 0이 반환됨
+    EXPECT_EQ(input.getFirstScreenAnswer(), -1);
+}
+
+// GetFirstScreenAnswer: 's' 입력 시 0 반환
+TEST(InputTest, GetFirstScreenAnswer_ValidSInput) {
+    Input input;
+    std::stringstream fakeInput("s\n");
+    StdinRedirector redirect(std::cin, fakeInput);
     EXPECT_EQ(input.getFirstScreenAnswer(), 0);
 }
 
-// GetFirstScreenAnswer: 연속 잘못된 입력 후 정상 입력
-TEST(InputTest, GetFirstScreenAnswer_MultipleInvalidThenValidInput) {
+// GetFirstScreenAnswer: '인증번호' 입력 시 1 반환
+TEST(InputTest, GetFirstScreenAnswer_ValidCertCodeInput) {
     Input input;
-    // 두 번 잘못된 입력 후 "인증번호"로 정상 입력
-    std::stringstream fakeInput("hello\nnope\n인증번호\n");
+    std::stringstream fakeInput("인증번호\n");
     StdinRedirector redirect(std::cin, fakeInput);
     EXPECT_EQ(input.getFirstScreenAnswer(), 1);
 }
