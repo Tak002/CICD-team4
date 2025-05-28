@@ -31,15 +31,11 @@ using json = nlohmann::json; // JSON 라이브러리 사용
 const int PORT_NUM = 9000; // 서버 포트 번호
 const int BUFSIZE = 1024;
 
-// #define tmp_ip_address "127.0.0.1" // 임시 ip 주소
-
-// #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 
-std::string directoryPath = "../msgdata/stock/"; // JSON 파일이 있는 디렉토리 경로
-std::vector<fs::path> jsonFiles;
-
+const std::string directoryPath = "../msgdata/stock/"; // JSON 파일이 있는 디렉토리 경로
+const std::vector<fs::path> jsonFiles;
 bool isPrepayValid; // 다른 서버의 메시지의 ["msg_content"]["availability"]가 true인지 false인지 확인하는 변수
 
 std::string msgFormat(
