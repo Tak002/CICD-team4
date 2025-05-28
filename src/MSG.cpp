@@ -35,7 +35,6 @@ using json = nlohmann::json;
 namespace fs = std::filesystem;
 
 const std::string directoryPath = "../msgdata/stock/"; // JSON 파일이 있는 디렉토리 경로
-const std::vector<fs::path> jsonFiles;
 bool isPrepayValid; // 다른 서버의 메시지의 ["msg_content"]["availability"]가 true인지 false인지 확인하는 변수
 
 std::string msgFormat(
@@ -322,7 +321,7 @@ void MSG::handleClient(int client_socket)
 
 void MSG::serverMessageOpen()
 {
-    char buffer[BUFSIZ]; // 버퍼 선언
+    std::string buffer[BUFSIZ]; // 버퍼 선언
 
 #pragma region socketcreate
     serverSocketfd = socket(AF_INET, SOCK_STREAM, 0); // 서버 소켓 생성
@@ -407,8 +406,9 @@ void MSG::broadMessage(const std::string &msg)
 // 클라이언트 소켓을 생성하고 타 서버에 연결하는 함수를 구현
 std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int quantity)
 {
-    // 1. 브로드 캐스트를 이용해서 json 메시지를 받아온다.
+    std::vector<fs::path> jsonFiles;
 
+    // 1. 브로드 캐스트를 이용해서 json 메시지를 받아온다.
     std::string DVMMessageOutofStock_MessageFormat = msgFormat(
         "req_stock",
         "",
@@ -437,6 +437,7 @@ std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int q
     float shortest_distance = std::numeric_limits<float>::max();
     std::string shortest_id;
     int nearest_x = -1;
+
     int nearest_y = -1;
     Position pos;
     for (const auto& path : jsonFiles)
