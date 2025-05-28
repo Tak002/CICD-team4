@@ -91,11 +91,15 @@ std::string msgFormat(
     }
 
     try
-    {
-        msg["msg_content"]["coor_x"] = std::stoi(coor_x);
-        if (msg["msg_content"]["coor_x"] < 0 || msg["msg_content"]["coor_x"] > 99)
-        {
-            throw std::out_of_range("coor_x는 0 이상 100 이하의 값이어야 합니다.");
+    {   
+        if(!coor_x.empty()){
+            msg["msg_content"]["coor_x"] = std::stoi(coor_x);
+            if (msg["msg_content"]["coor_x"] < 0 || msg["msg_content"]["coor_x"] > 99)
+            {
+                throw std::out_of_range("coor_x는 0 이상 100 이하의 값이어야 합니다.");
+            }
+        }else {
+            msg["msg_content"]["coor_x"] = "";
         }
     }
     catch (const std::invalid_argument &e)
@@ -111,10 +115,14 @@ std::string msgFormat(
 
     try
     {
-        msg["msg_content"]["coor_y"] = std::stoi(coor_y);
-        if (msg["msg_content"]["coor_y"] < 0 || msg["msg_content"]["coor_y"] > 99)
-        {
-            throw std::out_of_range("coor_y는 0 이상 100 이하의 값이어야 합니다.");
+        if(!coor_x.empty()){
+            msg["msg_content"]["coor_y"] = std::stoi(coor_x);
+            if (msg["msg_content"]["coor_x"] < 0 || msg["msg_content"]["coor_y"] > 99)
+            {
+                throw std::out_of_range("coor_y는 0 이상 100 이하의 값이어야 합니다.");
+            }
+        }else {
+            msg["msg_content"]["coor_y"] = "";
         }
     }
     catch (const std::invalid_argument &e)
@@ -447,8 +455,8 @@ std::tuple<int,int, std::string> MSG::DVMMessageOutofStock(int beverageId, int q
         "",
         std::to_string(beverageId),
         std::to_string(quantity),
-        "",
-        "",
+        "0", // 우리의 자판기의 좌표가 (0,0)이라고 가정
+        "0",
         "",
         "");
     json parsed_req_stock_msg;
