@@ -558,17 +558,9 @@ json MSG::AskStockMessage(json msg)
 
     // Json 데이터가 null인지 확인
     // 만약 null이라면 에러 메시지를 출력
-    try
+    if (parsed_resp_stock_msg.is_null())
     {
-        if (parsed_resp_stock_msg.is_null())
-        {
-            std::cerr << "[ERROR] JSON 데이터가 null입니다." << std::endl;
-            return json(); // 빈 JSON 반환
-        }
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "[ERROR] JSON 파싱 실패: " << e.what() << std::endl;
+        std::cerr << "[ERROR] JSON 데이터가 null입니다." << std::endl;
         return json(); // 빈 JSON 반환
     }
 
@@ -577,7 +569,7 @@ json MSG::AskStockMessage(json msg)
 
 void MSG::SocketOpenInIt(MSG *msg)
 {
-    auto serverThread = std::thread(&MSG::serverMessageOpen, msg); // 서버 수신 함수 백그라운드 실행
+    auto  serverThread = std::thread(&MSG::serverMessageOpen, msg); // 서버 수신 함수 백그라운드 실행
     serverThread.join();                                     // 또는 joinable일 때 main에서 join (비차단 운영이면 detach)
 }
 
