@@ -131,3 +131,14 @@ void ShowScreen::displayPrePayDisavailable(){
     std::string str = "선결제 가능한 자판기가 존재하지 않습니다.";
     display(str);
 }
+
+void ShowScreen::displayInvalidItemNum(){
+    std::string str = "유효한 갯수를 입력해주세요";
+    display(str);
+
+}
+
+void ShowScreen::displayInvalidArgument(){
+    std::string str = "유효한 숫자 두개(상품 코드, 상품 수량)만 입력해주세요";
+    display(str);
+}

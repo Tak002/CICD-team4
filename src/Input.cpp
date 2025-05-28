@@ -2,6 +2,7 @@
 #include "Input.hpp"
 #include <iostream>
 #include <limits>
+#include <sstream>
 
 using namespace std;
 int Input::getFirstScreenAnswer(){
@@ -17,9 +18,19 @@ int Input::getFirstScreenAnswer(){
 
 //오류 검출 과정 추가 필요
 std::pair<int, int> Input::getItemIDandNum() {
-    int itemID, itemNum;
-    std::cin >> itemID >> itemNum; 
-    return std::make_pair(itemID,itemNum);
+    while(true){
+        std::string line;
+        std::getline(std::cin, line);
+
+        std::istringstream iss(line);
+        int itemID, itemNum;
+        std::string extra;
+        if ((iss >> itemID >> itemNum) && !(iss >> extra)) {
+            return {itemID, itemNum}; // 정상 입력
+        } else { // 해당 로직은 따로 처리할 필요 존재
+            std::cerr << "[입력 오류] 잘못된 인자가 입력되었습니다. 다시 입력해주세요\n";
+        }
+    }
 }
 
 

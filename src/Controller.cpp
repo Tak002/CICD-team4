@@ -32,6 +32,9 @@ void Controller:: run(){
                 showScreen.displayInvalidIdRange();
                 continue; 
             }
+            else if(itemNum <= 0 || itemNum>=100 ){
+                showScreen.displayInvalidItemNum();
+            }
             else{
                 break;
             }
