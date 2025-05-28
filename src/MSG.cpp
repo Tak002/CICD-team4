@@ -92,9 +92,18 @@ std::string msgFormat(
 
     try
     {
-        msg["msg_content"]["coor_x"] = !coor_x.empty() ? std::stoi(coor_x) : 0;
+        msg["msg_content"]["coor_x"] = std::stoi(coor_x);
+        if (msg["msg_content"]["coor_x"] < 0 || msg["msg_content"]["coor_x"] > 99)
+        {
+            throw std::out_of_range("coor_x는 0 이상 100 이하의 값이어야 합니다.");
+        }
     }
-    catch (const std::exception &e)
+    catch (const std::invalid_argument &e)
+    {
+        std::cerr << "[Error] coor_x 숫자가 아닌 값을 입력했습니다: " << e.what() << std::endl;
+        msg["msg_content"]["coor_x"] = 0;
+    }
+    catch (const std::out_of_range &e)
     {
         std::cerr << "[Error] coor_x 변환 실패: " << e.what() << std::endl;
         msg["msg_content"]["coor_x"] = 0;
@@ -102,9 +111,18 @@ std::string msgFormat(
 
     try
     {
-        msg["msg_content"]["coor_y"] = !coor_y.empty() ? std::stoi(coor_y) : 0;
+        msg["msg_content"]["coor_y"] = std::stoi(coor_y);
+        if (msg["msg_content"]["coor_y"] < 0 || msg["msg_content"]["coor_y"] > 99)
+        {
+            throw std::out_of_range("coor_y는 0 이상 100 이하의 값이어야 합니다.");
+        }
     }
-    catch (const std::exception &e)
+    catch (const std::invalid_argument &e)
+    {
+        std::cerr << "[Error] coor_y 숫자가 아닌 값을 입력했습니다: " << e.what() << std::endl;
+        msg["msg_content"]["coor_y"] = 0;
+    }
+    catch (const std::out_of_range &e)
     {
         std::cerr << "[Error] coor_y 변환 실패: " << e.what() << std::endl;
         msg["msg_content"]["coor_y"] = 0;
