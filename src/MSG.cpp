@@ -301,13 +301,15 @@ void clientMessage(const std::string &dst_id, const json &msg)
 
 void MSG::handleClient(int client_socket)
 {
-    std::string buffer[BUFSIZ] = {0};
-    int valread = recv(client_socket, buffer, BUFSIZ, 0);
+    std::array<char, BUFSIZE> buffer;         // 버퍼 선언
+    memset(buffer.data(), 0, sizeof(buffer)); // 버퍼 초기화
+
+    ssize_t valread = recv(client_socket, buffer.data(), BUFSIZ, 0);
     if (valread > 0)
     {
         buffer[valread] = '\0';
 
-        json msg = json::parse(buffer);
+        json msg = json::parse(buffer.begin(), buffer.begin() + valread);
 
         // 클라이언트 메시지에 따라 ACK를 다르게
         if (msg["msg_type"] == "req_stock")
