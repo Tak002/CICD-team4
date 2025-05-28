@@ -55,9 +55,9 @@ std::string msgFormat(
     try
     {
         msg["msg_content"]["item_code"] = std::stoi(item_code);
-        if (msg["msg_content"]["item_code"] > 99)
+        if (msg["msg_content"]["item_code"] > 20)
         {
-            throw std::out_of_range("item_code는 99이상일 수 없습니다.");
+            throw std::out_of_range("item_code는 21 이상일 수 없습니다.");
         }
     }
     catch (const std::invalid_argument &e)
@@ -73,9 +73,18 @@ std::string msgFormat(
 
     try
     {
-        msg["msg_content"]["item_num"] = !item_num.empty() ? std::stoi(item_num) : 0;
+        msg["msg_content"]["item_num"] = std::stoi(item_code);
+        if (msg["msg_content"]["item_num"] > 99)
+        {
+            throw std::out_of_range("item_num은 100 이상일 수 없습니다.");
+        }
     }
-    catch (const std::exception &e)
+    catch (const std::invalid_argument &e)
+    {
+        std::cerr << "[Error] 숫자가 아닌 값을 입력했습니다: " << e.what() << std::endl;
+        msg["msg_content"]["item_num"] = 0;
+    }
+    catch (const std::out_of_range &e)
     {
         std::cerr << "[Error] item_num 변환 실패: " << e.what() << std::endl;
         msg["msg_content"]["item_num"] = 0;
