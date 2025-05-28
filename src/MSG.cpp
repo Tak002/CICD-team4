@@ -73,7 +73,7 @@ std::string msgFormat(
 
     try
     {
-        msg["msg_content"]["item_num"] = std::stoi(item_code);
+        msg["msg_content"]["item_num"] = std::stoi(item_num);
         if (msg["msg_content"]["item_num"] > 99)
         {
             throw std::out_of_range("item_num은 100 이상일 수 없습니다.");
