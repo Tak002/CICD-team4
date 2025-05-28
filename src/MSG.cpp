@@ -403,7 +403,7 @@ void MSG::serverMessageOpen()
 
         // 클라이언트 처리 스레드 생성
         std::thread clientThread(&MSG::handleClient, this, client_socket);        
-        clientThread.detach(); // 클라이언트별로 비동기 처리
+        clientThread.join(); // 클라이언트별로 비동기 처리
     }
 
     close(serverSocketfd); // 서버 소켓 닫기
