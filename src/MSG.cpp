@@ -152,7 +152,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
         if (clientSocketfd < 0)
             throw clientSocketfd;
     }
-    catch (int clientsocketfd)
+    catch (int clientSocketfd)
     {
         std::cerr << "Socket creation failed" << clientSocketfd << std::endl;
         return;
