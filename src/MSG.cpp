@@ -424,11 +424,8 @@ void MSG::broadMessage(const std::string &msg)
         json req_msg = json::parse(msg);
         threads.emplace_back([dst_id, req_msg]()
         {
-            try {
-                clientMessage(dst_id, req_msg);
-            } catch (const std::exception& e) {
-                std::cerr << "[Exception] " << e.what() << std::endl;
-            } });
+            clientMessage(dst_id, req_msg);
+        });
     }
 
     for (auto &t : threads)
