@@ -603,11 +603,8 @@ bool MSG::sendMessage(const std::tuple<std::string, int, int, std::string>& msgD
     parsed_req_stock_msg = json::parse(req_prepay_msg); // JSON 메시지 파싱
 
 
-    try {
-        clientMessage(dst_id, parsed_req_stock_msg);
-    } catch (const std::exception& e) {
-        std::cerr << "[Exception] " << e.what() << std::endl;
-    };
+    clientMessage(dst_id, parsed_req_stock_msg);
+
 
     if (thread.joinable())
         thread.join();
