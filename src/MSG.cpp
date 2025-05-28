@@ -393,7 +393,6 @@ void MSG::serverMessageOpen()
 
     while (true)
     {
-        socklen_t addrlen = sizeof(struct sockaddr_in);
         int client_socket = accept(serverSocketfd, nullptr, nullptr);
         if (client_socket < 0)
         {
