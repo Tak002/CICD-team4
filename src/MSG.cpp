@@ -301,7 +301,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
 
 void MSG::handleClient(int client_socket)
 {
-    char buffer[BUFSIZ] = {0};
+    std::string buffer[BUFSIZ] = {0};
     int valread = recv(client_socket, buffer, BUFSIZ, 0);
     if (valread > 0)
     {
