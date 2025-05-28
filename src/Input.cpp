@@ -6,7 +6,7 @@
 
 using namespace std;
 int Input::getFirstScreenAnswer(){
-
+        
         std::string inputString;
         std::getline(std::cin,inputString);
         if(inputString == "s"){return 0;}
