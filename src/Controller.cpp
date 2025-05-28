@@ -21,6 +21,7 @@ void Controller:: run(){
             continue;
         }
         else if(firstScreenAnswer==0){ 
+        while(true){
             //구매하고자 하는 음료수 id, 갯수 입력
             showScreen.displayCurrentStock(stock.getCurrentStock());
             auto [_itemID, _itemNum] = input.getItemIDandNum();
@@ -31,6 +32,10 @@ void Controller:: run(){
                 showScreen.displayInvalidIdRange();
                 continue; 
             }
+            else{
+                break;
+            }
+        }
             //재고 부족시 선결제 여부 확인
             if(stock.isPrepayment(itemID,itemNum)){
                 // 가장 가까운 주소 확인 및 출력
@@ -57,8 +62,13 @@ void Controller:: run(){
             bool isPaymentSuccess = bank.reqeustPayment(cardNum,price);
             showScreen.displayPaymentResultScreen(isPaymentSuccess);
             if(!isPaymentSuccess)continue; //결제 실패시 초기화면으로
-            // 선결제 후 다른 자판기에 메시지 송신
             
+            
+            
+            
+            
+            
+            // 선결제 후 다른 자판기에 메시지 송신
             if(isPrepayment == true){
                 std::string newCertCode = certCode.createCertCode();  
                 //선결제 메시지 송신 및 결과 수신
