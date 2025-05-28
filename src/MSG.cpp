@@ -107,7 +107,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
 {
     std::string ip_address;
 
-    char buffer[BUFSIZE];              // 버퍼 선언
+    std::string buffer[BUFSIZE];              // 버퍼 선언
     memset(buffer, 0, sizeof(buffer)); // 버퍼 초기화
 
     int clientSocketfd;                // 클라이언트 소켓 파일 디스크립터
