@@ -1,12 +1,7 @@
-// MSG.cpp
 #include "MSG.hpp"
 #include "Stock.hpp"
 #include "Position.hpp"
 #include "Beverage.hpp"
-/*
-    1. JSON 파일 생성 메시지 형식대로
-    2. broadcast 또는 ACK 메시지 전송
-*/
 
 #include <iostream>     //표준 입력/출력 스트림 (예: std::cout)
 #include <string.h>     //C++ 표준 문자열 클래스 사용
