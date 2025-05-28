@@ -173,9 +173,19 @@ void clientMessage(const std::string &dst_id, const json &msg)
     {
         file >> ip_data;
     }
+    catch (const nlohmann::json::parse_error &e)
+    {
+        std::cerr << "[ERROR] JSON 파싱 오류 (구문 오류): " << e.what() << std::endl;
+        return;
+    }
+    catch (const nlohmann::json::type_error &e)
+    {
+        std::cerr << "[ERROR] JSON 타입 오류 (예상과 다른 타입): " << e.what() << std::endl;
+        return;
+    }
     catch (const std::exception &e)
     {
-        std::cerr << "[ERROR] JSON 파싱 실패: " << e.what() << std::endl;
+        std::cerr << "[ERROR] 알 수 없는 JSON 처리 오류: " << e.what() << std::endl;
         return;
     }
 
