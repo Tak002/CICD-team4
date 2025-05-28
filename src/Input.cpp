@@ -1,17 +1,17 @@
 // Input.cpp
 #include "Input.hpp"
 #include <iostream>
+#include <limits>
 
 using namespace std;
 int Input::getFirstScreenAnswer(){
 
-    while(true){
         std::string inputString;
         std::getline(std::cin,inputString);
         if(inputString == "s"){return 0;}
         else if (inputString == "인증번호"){return 1;}
         return -1;
-    }
+
 }
 
 
