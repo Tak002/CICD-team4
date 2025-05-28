@@ -361,8 +361,6 @@ void MSG::handleClient(int client_socket)
 
 void MSG::serverMessageOpen()
 {
-    std::string buffer[BUFSIZ]; // 버퍼 선언
-
 #pragma region socketcreate
     serverSocketfd = socket(AF_INET, SOCK_STREAM, 0); // 서버 소켓 생성
     if (serverSocketfd < 0)                           // 소켓 생성 실패 시 에러 메시지 출력
