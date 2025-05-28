@@ -11,24 +11,21 @@ using namespace std;
 using json = nlohmann::json;
 
 //확정
-bool Bank::checkCardValidity(int card_num, int price){
+bool Bank::checkCardValidity(int card_num, int price) const
+{
  
     std::ifstream ifle("card.json");
     
     json js;
 
-    int c_num = -1;
-    int c_price = -1;
     try{
         ifle >> js;
         
-        if(js["card_num"] == card_num){
-            if(js["balance"] >= price){
-                return true;
-            }
+        if(js["card_num"] == card_num && js["balance"]>=price){
+            true;
         }
         
-    }catch(const std::exception& e){
+    }catch(const nlohmann::json::exception& e){
             cerr << "Error parsing " << "card.json" << ": " << e.what() << std::endl;
     }
 
@@ -36,7 +33,8 @@ bool Bank::checkCardValidity(int card_num, int price){
 }
 
 //확정
-void Bank::updateBalance(int card_num, int price){
+void Bank::updateBalance(int card_num, int price) const
+{
     
     int balance;
 
@@ -67,7 +65,8 @@ bool Bank::reqeustPayment(int card_num, int price){
 }
 
 //확정
-void Bank::rollback(int card_num, int price){
+void Bank::rollback(int card_num, int price) const
+{
     int balance;
 
     std::ifstream ifle("card.json");
