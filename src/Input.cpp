@@ -10,6 +10,7 @@ int Input::getFirstScreenAnswer(){
         std::getline(std::cin,inputString);
         if(inputString == "s"){return 0;}
         else if (inputString == "인증번호"){return 1;}
+        return -1;
     }
 }
 

@@ -17,7 +17,10 @@ void Controller:: run(){
         showScreen.displayFirstScreen();
         int firstScreenAnswer = input.getFirstScreenAnswer();
         //음료 선택 및 결제 과정
-        if(firstScreenAnswer==0){ 
+        if(firstScreenAnswer == -1){
+            continue;
+        }
+        else if(firstScreenAnswer==0){ 
             //구매하고자 하는 음료수 id, 갯수 입력
             showScreen.displayCurrentStock(stock.getCurrentStock());
             auto [_itemID, _itemNum] = input.getItemIDandNum();
