@@ -566,7 +566,7 @@ json MSG::AskStockMessage(json msg)
 void MSG::SocketOpenInIt(MSG *msg)
 {
     auto  serverThread = std::thread(&MSG::serverMessageOpen, msg); // 서버 수신 함수 백그라운드 실행
-    serverThread.join();                                     // 또는 joinable일 때 main에서 join (비차단 운영이면 detach)
+    serverThread.detach();                                     // 또는 joinable일 때 main에서 join (비차단 운영이면 detach)
 }
 
 // sendMessage에서는 선결제 메시지 송신 및 결과 수신
