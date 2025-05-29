@@ -46,12 +46,7 @@ include_directories(${json_SOURCE_DIR}/include)
 
 include(GoogleTest)
 
-# 테스트 타겟 1: SampleTest.cpp (기존 테스트)
-add_executable(unit_tests
-    test/SampleTest.cpp
-    src/CertCode.cpp        
 
-)
 
 add_executable(input_tests
     test/Input_test.cpp
@@ -76,11 +71,18 @@ add_executable(certCode_tests
     src/CertCode.cpp
 )
 
-target_link_libraries(unit_tests
-    gtest
-    gtest_main
+
+
+add_executable(certCodeManager_tests
+    test/CertCodeManager_test.cpp
+    src/CertCodeManager.cpp
 )
-gtest_discover_tests(unit_tests)
+
+# add_executable(MSG_tests
+#     test/MSG_test.cpp
+#     src/MSG.cpp
+# )
+
 
 target_link_libraries(beverage_tests
     gtest
@@ -105,6 +107,18 @@ target_link_libraries(certCode_tests
     gtest_main
 )
 gtest_discover_tests(certCode_tests)
+
+target_link_libraries(certCodeManager_tests
+    gtest
+    gtest_main
+)
+gtest_discover_tests(certCodeManager_tests)
+
+# target_link_libraries(MSG_tests
+#     gtest
+#     gtest_main
+# )
+# gtest_discover_tests(certCode_tests)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
