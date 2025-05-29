@@ -32,5 +32,6 @@ public:
     // 처음 시작시 설정
     void createTestData();
     void setController();
-    
+    void handlePurchaseFlow();
+    void handlePrepaidCollection();
 };
