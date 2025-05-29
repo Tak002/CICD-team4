@@ -28,12 +28,12 @@ TEST(InputTest, GetFirstScreenAnswer_s_Returns0) {
     EXPECT_EQ(input.getFirstScreenAnswer(), 0);
 }
 
-// "인증번호" 입력 시 1 반환
+// "인증코드" 입력 시 1 반환
 TEST(InputTest, GetFirstScreenAnswer_CertCode_Returns1) {
     Input input;
-    std::stringstream fakeInput("인증번호\n");
+    std::stringstream fakeInput("인증코드\n");
     StdinRedirector redirect(std::cin, fakeInput);
-    // "인증번호" 입력이 들어오면 1이 반환되는지 확인
+    // "인증코드" 입력이 들어오면 1이 반환되는지 확인
     EXPECT_EQ(input.getFirstScreenAnswer(), 1);
 }
 
@@ -106,10 +106,10 @@ TEST(InputTest, GetFirstScreenAnswer_ValidSInput) {
     EXPECT_EQ(input.getFirstScreenAnswer(), 0);
 }
 
-// GetFirstScreenAnswer: '인증번호' 입력 시 1 반환
+// GetFirstScreenAnswer: '인증코드' 입력 시 1 반환
 TEST(InputTest, GetFirstScreenAnswer_ValidCertCodeInput) {
     Input input;
-    std::stringstream fakeInput("인증번호\n");
+    std::stringstream fakeInput("인증코드\n");
     StdinRedirector redirect(std::cin, fakeInput);
     EXPECT_EQ(input.getFirstScreenAnswer(), 1);
 }
