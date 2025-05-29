@@ -1,13 +1,11 @@
 #pragma once
 #include <string>
 
-using namespace std;
-
 class CertCode {
     private:
-        string value;
-        string generateRandomString(size_t length);
+        std::string value;
+        std::string generateRandomString(size_t length);
     public:
-        string createCertCode();
-        string toString();
+        std::string createCertCode();
+        std::string toString() const;
 };

@@ -244,7 +244,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
         send(clientSocketfd, send_req_prepay_msg.c_str(), send_req_prepay_msg.length(), 0);
     }
     else {
-        cerr << "없는 request type입니다. " << endl;
+        std::cerr << "없는 request type입니다. " << std::endl;
         return ;
     }
 
