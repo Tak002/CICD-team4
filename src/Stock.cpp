@@ -124,8 +124,7 @@ bool Stock::isBuyable(std::string cert_code, int item_code, int item_num)
     list<Beverage> beverage_list = getCurrentStock();
     
     for (Beverage bev : beverage_list) {
-        if (bev.isSameId(item_code)) {
-            if (bev.isEnough(item_num)) {
+        if (bev.isSameId(item_code)&&bev.isEnough(item_num)) {
                 // JSON 생성
                 json j;
                 j["item_code"] = item_code;
@@ -136,7 +135,6 @@ bool Stock::isBuyable(std::string cert_code, int item_code, int item_num)
                 std::ostringstream oss;
                 oss << "certCode" << cert_code << ".json";
                 std::string filename = oss.str();
-
                 // 파일로 저장
                 std::ofstream ofile(filename);
                 if (ofile.is_open()) {
@@ -146,11 +144,9 @@ bool Stock::isBuyable(std::string cert_code, int item_code, int item_num)
                     return true;
                 } else {
                     std::cerr << "Failed to open file: " << filename << std::endl;
-                }
-            }
+                }   
         }
     }
-
     return false;
 }
 //확정
