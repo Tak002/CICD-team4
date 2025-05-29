@@ -3,7 +3,6 @@
 #include "Beverage.hpp"
 #include <string>
 
-using namespace std;
 
 class Stock {
     
@@ -15,9 +14,9 @@ class Stock {
 
     public:
         void requestBeverage(int item_id, int item_num);
-        list<Beverage> getCurrentStock();
+        std::list<Beverage> getCurrentStock();
         bool isPrepayment(int item_code, int item_num);
-        bool isBuyable(string certCode,int item_code, int item_num);
+        bool isBuyable(std::string certCode,int item_code, int item_num);
         void blockSale();
         void editStock(int item_id, int item_num);
 

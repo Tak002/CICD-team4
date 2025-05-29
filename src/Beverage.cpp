@@ -1,14 +1,16 @@
 // Beverage.cpp
 #include "Beverage.hpp"
 
-bool Beverage::isSameId(int id){
+bool Beverage::isSameId(int id) const
+{
     if(id == bev_code){
         return true;
     }
     return false;
 }
 
-bool Beverage::isEnough(int num){
+bool Beverage::isEnough(int num) const
+{
     if(num<=bev_num){
         return true;
     }
