@@ -11,7 +11,6 @@
 #include "ShowScreen.hpp"
 #include "enum/BeverageType.hpp"
 
-using namespace std;
 
 //화면 출력 틀 / private
 void ShowScreen::display(string str){
@@ -48,16 +47,16 @@ void ShowScreen::displayCurrentStock(std::list<Beverage> beverages) {
 }
 
 void ShowScreen::displayFirstScreen(){
-    string str;
+    std::string str;
     str += std::string("어서오세요.") + "\n";
     str += std::string("시작하려면 's'를 입력하세요.") + "\n";
-    str += std::string("(선결제 인증코드 입력을 원하시면 인증코드를 입력하세요...)");
+    str += std::string("(선결제 인증코드 입력을 원하시면 \"인증코드\"를 입력하세요...)");
 
     display(str);
 }
 
 void ShowScreen::displayPrepayLocation(int coor_x, int coor_y){
-    string str;
+    std::string str;
     str +=string("목표 위치 x: %d / y: %d\n",coor_x,coor_y);
     str +=string("결제를 원하시면 'y', 원하지 않으시면 'n'를 입력해주세요\n");
     str +=string("결제 여부: ");
@@ -78,19 +77,19 @@ void ShowScreen::displayPaymentResultScreen(bool paymentSuccess){
 }
 
 void  ShowScreen::displayPaymentSuccess(){
-    string str = "결제에 성공했습니다";
+    std::string str = "결제에 성공했습니다";
     display(str);
 }
 
 void ShowScreen::displayPaymentFailed(){
-    string str = "결제에 실패했습니다.\n";
+    std::string str = "결제에 실패했습니다.\n";
     str+= "카드번호나 잔액을 확인해주세요";
 
     display(str);
 }
 
 void ShowScreen::displayInvalidIdRange(){
-    string str = "id는 1~20 사이여야 합니다. 다시 입력하세요.\n";
+    std::string str = "id는 1~20 사이여야 합니다. 다시 입력하세요.\n";
     display(str);
 }
 
@@ -98,22 +97,22 @@ void ShowScreen::displayBeverage(int item_id, int item_num){
     BeverageType type = static_cast<BeverageType>(item_id-1);
     std::ostringstream oss;
     oss <<"음료수 명 : "<<toString(type)<<", 갯수: "<<item_num<<"\n안녕히가십시오.";
-    string str = oss.str();
+    std::string str = oss.str();
     display(str);
 }
 
 
 void ShowScreen::displayCertCodeEnter(){
-    string str = "인증코드를 입력하세요";
+    std::string str = "인증코드를 입력하세요";
     display(str);
 }
 void ShowScreen::displayCertCodeFailed(){
-    string str = "유효하지 않은 인증코드 입니다.";
+    std::string str = "유효하지 않은 인증코드 입니다.";
     display(str);
 }
 
 void ShowScreen::displayGetCardNum(){
-    string str = "카드번호를 입력해주세요";
+    std::string str = "카드번호를 입력해주세요";
     display(str); 
 }
 
