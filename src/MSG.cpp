@@ -244,13 +244,8 @@ void clientMessage(const std::string &dst_id, const json &msg)
         std::cerr << "[" << dst_id << "] Failed to receive message" << std::endl;
     }
 
-    std::cout << "메시지를 받는 중입니다." << std::endl;
-
-    // std::cout << "[" << dst_id << "] Received message type: " << recv_parsing_msg["msg_type"] << std::endl;
     if (recv_parsing_msg["msg_type"] == "resp_stock")
     {
-        std::cout << recv_parsing_msg << std::endl;
-        // std::cout << "[" << dst_id << "] Stock request ACK received" << std::endl;
         // 각각의 재고 확인 메시지를 json 파일 형식으로 저장
         std::string fileName = "../msgdata/stock/" + dst_id + "_stock.json";
         std::ofstream outFile(fileName);
@@ -258,7 +253,6 @@ void clientMessage(const std::string &dst_id, const json &msg)
         {
             outFile << recv_parsing_msg.dump(2); // 2칸 들여쓰기로 예쁘게 출력
             outFile.close();
-            // std::cout << "[" << dst_id << "] Stock data saved to " << fileName << std::endl;
         }
         else
         {
@@ -267,19 +261,16 @@ void clientMessage(const std::string &dst_id, const json &msg)
     }
     else if (recv_parsing_msg["msg_type"] == "resp_prepay")
     {
-        std::cout << "[" << dst_id << "] Prepay request ACK received" << recv_parsing_msg << std::endl;
 
         if (recv_parsing_msg["msg_content"]["availability"] == "T")
         {
             isPrepayValid = true;
-            // std::cout << "[" << dst_id << "] Prepay request successful" << std::endl;
             // 인증번호 전송 처리 완료
             return;
         }
         else
         {
             isPrepayValid = false;
-            // std::cout << "[" << dst_id << "] Prepay request failed" << std::endl;
             return;
             // ROLLBACK 처리
         }
@@ -289,7 +280,6 @@ void clientMessage(const std::string &dst_id, const json &msg)
         std::cerr << "[" << dst_id << "] Unknown message type" << std::endl;
     }
     close(clientSocketfd); // 클라이언트 소켓 닫기
-    // std::cout << "[" << dst_id << "] Client socket closed" << std::endl;
     return;
 }
 
@@ -300,14 +290,12 @@ void MSG::handleClient(int client_socket)
     if (valread > 0)
     {
         buffer[valread] = '\0';
-        // std::cout << "Received message: " << buffer << std::endl;
 
         json msg = json::parse(buffer);
 
         // 클라이언트 메시지에 따라 ACK를 다르게
         if (msg["msg_type"] == "req_stock")
         {
-            // std::cout << "[Server] Stock request received" << std::endl;
             json read_ = MSG::AskStockMessage(msg);
 
             // Stock을 통해 item_code와 , item_num을 호출해야 하면 coor_x, coor_y도 가져와야 한다.
@@ -332,7 +320,6 @@ void MSG::handleClient(int client_socket)
         else if (msg["msg_type"] == "req_prepay") // 현재 재고 상태를 확인 후 resp_prepay availability를 T나 F로 보낸다.
         {
             Stock stock;
-            // std::cout << "[Server] Prepay request received" << std::endl;
             // list<Beverage> beverage_list = stock.getCurrentStock(); //..? stock에서
 
             bool availability = stock.isBuyable(msg["msg_content"]["cert_code"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인 메시지 포맷 현재 재고 상태에 대해 전송이 아닌 현재 재고 상태를 확인만 하고 T F를 보내기만 하면 된다.
@@ -397,12 +384,10 @@ void MSG::serverMessageOpen()
         close(serverSocketfd); // 소켓 닫기
         return;
     }
-    // std::cout << "Bind successful" << std::endl; // 바인드 성공 시 출력
 #pragma endregion
 
 #pragma region listen
     listen(serverSocketfd, 8); // 연결 요청 대기 상태
-    // std::cout << "Listening on port 9000" << std::endl; // 연결 요청 대기 상태 출력
 #pragma endregion
 
     while (true)
@@ -415,15 +400,12 @@ void MSG::serverMessageOpen()
             continue;
         }
 
-        // std::cout << "Client connected" << std::endl;
-
         // 클라이언트 처리 스레드 생성
         std::thread clientThread(&MSG::handleClient, this, client_socket);
         clientThread.detach(); // 클라이언트별로 비동기 처리
     }
 
     close(serverSocketfd); // 서버 소켓 닫기
-    // std::cout << "Server socket closed" << std::endl;
 }
 
 void clientSendMessage(int sockfd, const std::string &msg)
@@ -435,10 +417,6 @@ void clientSendMessage(int sockfd, const std::string &msg)
         if (::send(sockfd, msg.c_str(), msg.length(), 0) < 0)
         {
             throw std::runtime_error("Send failed");
-        }
-        else
-        {
-            // std::cout << "Message sent" << std::endl;
         }
     }
     catch (const std::exception &e)
@@ -488,7 +466,6 @@ void MSG::broadMessage(const std::string &msg)
             t.join();
     }
 
-    // std::cout << "[Broadcast] 모든 메시지 전송 완료" << std::endl;
 
     return;
 }
@@ -497,7 +474,6 @@ void MSG::broadMessage(const std::string &msg)
 std::tuple<int, int, std::string> MSG::DVMMessageOutofStock(int beverageId, int quantity)
 {
     // 1. 브로드 캐스트를 이용해서 json 메시지를 받아온다.
-    // std::cout << "[Out of Stock] Beverage ID: " << beverageId << ", Quantity: " << quantity << std::endl; // 재고 부족 메시지 출력
 
     std::string DVMMessageOutofStock_MessageFormat = msgFormat(
         "req_stock",
@@ -568,7 +544,6 @@ std::tuple<int, int, std::string> MSG::DVMMessageOutofStock(int beverageId, int 
                 otherDVMstock = j["msg_content"]["item_num"].get<int>();
             }
 
-            std::cout << "[Out of Stock] Checking DVM ID: " << src_id << ", Position: (" << x << ", " << y << "), Stock: " << otherDVMstock << std::endl;
 
             if (otherDVMstock >= quantity)
             {
@@ -588,7 +563,6 @@ std::tuple<int, int, std::string> MSG::DVMMessageOutofStock(int beverageId, int 
             continue;
         }
     }
-    std::cout << "[Out of Stock] Nearest Position: " << nearest_x << ", " << nearest_y << ", ID: " << shortest_id << std::endl;
     return {nearest_x, nearest_y, shortest_id};
 }
 // // 재고 확인 요청 메시지 처리 Server에서 다른 클라이언트부터 요청을 받았을 때
@@ -685,8 +659,7 @@ bool MSG::sendMessage(const std::tuple<std::string, int, int, std::string> &msgD
 
     if (thread.joinable())
         thread.join();
-
-    // std::cout << "[Send Message] " << msg_type << std::endl;
+        
     // json msg = json(jsonstr);
     // clientMessage(dst_id, msg);
 
