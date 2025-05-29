@@ -13,11 +13,11 @@
 
 
 //화면 출력 틀 / private
-void ShowScreen::display(string str){
+void ShowScreen::display(std::string str){
     
-    cout<<"-------------------------------"<<endl;
-    cout<<str<<endl;
-    cout<<"-------------------------------"<<endl;
+    std::cout<<"-------------------------------"<<std::endl;
+    std::cout<<str<<std::endl;
+    std::cout<<"-------------------------------"<<std::endl;
 }
 
 
@@ -57,14 +57,14 @@ void ShowScreen::displayFirstScreen(){
 
 void ShowScreen::displayPrepayLocation(int coor_x, int coor_y){
     std::string str;
-    str +=string("목표 위치 x: %d / y: %d\n",coor_x,coor_y);
-    str +=string("결제를 원하시면 'y', 원하지 않으시면 'n'를 입력해주세요\n");
-    str +=string("결제 여부: ");
+    str +=std::string("목표 위치 x: %d / y: %d\n",coor_x,coor_y);
+    str +=std::string("결제를 원하시면 'y', 원하지 않으시면 'n'를 입력해주세요\n");
+    str +=std::string("결제 여부: ");
     display(str);
 }
 
 void ShowScreen::displayEnterCardNum(){
-    string str = "카드 번호를 입력해주세요.";
+    std::string str = "카드 번호를 입력해주세요.";
 
     display(str);
 }

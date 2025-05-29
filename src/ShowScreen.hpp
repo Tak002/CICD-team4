@@ -3,16 +3,15 @@
 
 #include "Beverage.hpp"
 
-using namespace std;
 
 class ShowScreen {
     private:
-        void display(string str);
+        void display(std::string str);
         void displayPaymentSuccess();
         void displayPaymentFailed();
 
     public:
-        void displayCurrentStock(list<Beverage> beverages);
+        void displayCurrentStock(std::list<Beverage> beverages);
         
         void displayFirstScreen();
         void displayPrepayLocation(int, int);
