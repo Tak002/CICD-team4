@@ -35,4 +35,5 @@ class ShowScreen {
 
         void displayInvalidItemNum();
         void displayInvalidArgument();
+        void displayInvalidFirstScreenAnswer();
 };

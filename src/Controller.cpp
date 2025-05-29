@@ -19,7 +19,7 @@ using json = nlohmann::json;
         int firstScreenAnswer = input.getFirstScreenAnswer();
         //음료 선택 및 결제 과정
         switch(firstScreenAnswer){
-            case -1 : break;
+            case -1 : showScreen.displayInvalidFirstScreenAnswer(); break;
             case 0: handlePurchaseFlow();       break;
             case  1: handlePrepaidCollection();  break;
             default: break;
@@ -89,7 +89,7 @@ void Controller::handlePurchaseFlow(){
             showScreen.displayInvalidIdRange();
             continue; 
         }
-        else if(itemNum <= 0 || itemNum>=100 ){
+        else if(itemNum <= 0  ){
             showScreen.displayInvalidItemNum();
         }
         else{

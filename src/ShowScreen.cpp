@@ -141,3 +141,9 @@ void ShowScreen::displayInvalidArgument(){
     std::string str = "유효한 숫자 두개(상품 코드, 상품 수량)만 입력해주세요";
     display(str);
 }
+
+
+void ShowScreen::displayInvalidFirstScreenAnswer(){
+    std::string str = "'s' 나 '인증번호'를 입력하세요";
+    display(str);
+}
