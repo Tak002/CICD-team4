@@ -44,7 +44,7 @@ bool CertCodeManager::isValidCertCode(std::string code,int& itemID, int & itemNu
         return true;
 
     }catch(const std::exception& e){
-            cerr << "Error parsing " << "certCode.json" << ": " << e.what() << std::endl;
+            // cerr << "Error parsing " << "certCode.json" << ": " << e.what() << std::endl;
             return false;
     }
 }
