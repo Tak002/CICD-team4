@@ -132,8 +132,8 @@ void Controller::handlePurchaseFlow(){
     if(isPrepayment == true){
         std::string newCertCode = certCode.createCertCode();  
         //선결제 메시지 송신 및 결과 수신
-        bool availability =msg.sendMessage(std::make_tuple(src_id,itemID,itemNum,newCertCode));
-        if(availability){
+        if(bool availability =msg.sendMessage(std::make_tuple(src_id,itemID,itemNum,newCertCode))
+        ){
             showScreen.displayPositionAndCertCode(coor_x, coor_y, newCertCode);
         }
         else{
@@ -152,9 +152,8 @@ void Controller::handlePurchaseFlow(){
 
 void Controller::handlePrepaidCollection(){
     showScreen.displayCertCodeEnter();
-    std::string certCode = input.getCertCode();
-    int itemID=0, itemNum=0;
-    bool isValid = certCodeManager.isValidCertCode(certCode,itemID,itemNum); //CertCodeManager 미구현
+    std::string input_certCode = input.getCertCode();
+    bool isValid = certCodeManager.isValidCertCode(input_certCode,itemID,itemNum); //CertCodeManager 미구현
     //인증번호가 유효할 경우
     if(isValid){
         showScreen.displayBeverage(itemID,itemNum);
