@@ -22,7 +22,7 @@ bool Bank::checkCardValidity(int card_num, int price) const
         ifle >> js;
         
         if(js["card_num"] == card_num && js["balance"]>=price){
-            true;
+            return true;
         }
         
     }catch(const nlohmann::json::exception& e){

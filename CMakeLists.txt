@@ -83,6 +83,10 @@ add_executable(certCodeManager_tests
 #     src/MSG.cpp
 # )
 
+add_executable(bank_tests
+    test/Bank_test.cpp
+    src/Bank.cpp
+)
 
 target_link_libraries(beverage_tests
     gtest
@@ -119,6 +123,12 @@ gtest_discover_tests(certCodeManager_tests)
 #     gtest_main
 # )
 # gtest_discover_tests(certCode_tests)
+
+target_link_libraries(bank_tests
+    gtest
+    gtest_main
+)
+gtest_discover_tests(bank_tests)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
