@@ -10,7 +10,7 @@
 using json = nlohmann::json;
 
 
-void Controller:: run(){
+[[noreturn]] void Controller:: run(){
     Controller::setController();
     Controller::createTestData();
 

@@ -27,7 +27,7 @@ private:
     int coor_y;
 
 public:
-    void run();
+    [[noreturn]] void run();
 
     // 처음 시작시 설정
     void createTestData();
