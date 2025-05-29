@@ -30,7 +30,7 @@ public:
     [[noreturn]] void run();
 
     // 처음 시작시 설정
-    void createTestData();
+    void createTestData() const;
     void setController();
     void handlePurchaseFlow();
     void handlePrepaidCollection();

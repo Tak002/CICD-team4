@@ -22,6 +22,7 @@ using json = nlohmann::json;
             case -1 : break;
             case 0: handlePurchaseFlow();       break;
             case  1: handlePrepaidCollection();  break;
+            default: break;
         }
     }
 }
@@ -33,10 +34,10 @@ void Controller:: setController(){
 
 };
 
-void Controller ::createTestData(){
+void Controller ::createTestData() const{
     // 1. 음료 정보 생성
     for(int i = 0 ; i<20; i++){
-        BeverageType type = static_cast<BeverageType>(i);
+        auto  type = static_cast<BeverageType>(i);
         json js;
         js["item_code"] = i+1;
         if(i<7) js["item_num"] = 99;
@@ -152,7 +153,7 @@ void Controller::handlePurchaseFlow(){
 void Controller::handlePrepaidCollection(){
     showScreen.displayCertCodeEnter();
     std::string certCode = input.getCertCode();
-    int itemID, itemNum;
+    int itemID=0, itemNum=0;
     bool isValid = certCodeManager.isValidCertCode(certCode,itemID,itemNum); //CertCodeManager 미구현
     //인증번호가 유효할 경우
     if(isValid){
