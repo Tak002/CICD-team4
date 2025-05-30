@@ -59,7 +59,7 @@ std::string msgFormat(
 {
     json msg;
     msg["msg_type"] = quest_type;
-    msg["src_id"] = "T4";
+    msg["src_id"] = "T3";
     msg["dst_id"] = dst_id;
 
     try
@@ -89,7 +89,7 @@ std::string msgFormat(
     catch (const std::exception &e)
     {
         std::cerr << "[Error] coor_x 변환 실패: " << e.what() << std::endl;
-        msg["msg_content"]["coor_x"] = 0;
+        msg["msg_content"]["coor_x"] = 10;
     }
 
     try
@@ -99,7 +99,7 @@ std::string msgFormat(
     catch (const std::exception &e)
     {
         std::cerr << "[Error] coor_y 변환 실패: " << e.what() << std::endl;
-        msg["msg_content"]["coor_y"] = 0;
+        msg["msg_content"]["coor_y"] = 10;
     }
 
     msg["msg_content"]["cert_code"] = cert_code;

@@ -112,7 +112,7 @@ void Controller ::createTestData(){
         BeverageType type = static_cast<BeverageType>(i);
         json js;
         js["item_code"] = i+1;
-        if(i<7) js["item_num"] = 99;
+        if(i>7) js["item_num"] = 99;
         else js["item_num"] = 0;
         js["item_price"] = toPrice(type);
 
