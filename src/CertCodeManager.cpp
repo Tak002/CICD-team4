@@ -16,7 +16,7 @@ using json = nlohmann::json;
 using namespace std;
 
 //controller 주석 존재
-bool CertCodeManager::isValidCertCode(std::string code,int& itemID, int & itemNum) const
+bool CertCodeManager::isValidCertCode(const std::string& code, int& itemID, int & itemNum) const
 {
     string flnm = "certCode";
     flnm+=code;
@@ -43,7 +43,7 @@ bool CertCodeManager::isValidCertCode(std::string code,int& itemID, int & itemNu
 
         return true;
 
-    }catch(const std::exception& e){
+    }catch(const json::parse_error& e){
             // cerr << "Error parsing " << "certCode.json" << ": " << e.what() << std::endl;
             return false;
     }
