@@ -17,7 +17,7 @@ using namespace std;
 using json = nlohmann::json;
 
 //확정
-void Stock::updateStock(int item_code, int item_num)
+void Stock::updateStock(const int item_code, const int item_num)
 {
     ostringstream oss;
     oss << "item" << item_code << ".json";
@@ -51,14 +51,14 @@ void Stock::updateStock(int item_code, int item_num)
         ofle.close();
         filesystem::remove("orderItem.json");
     }
-    catch (const std::exception &e)
+    catch (const json::parse_error &e)
     {
         std::cerr << "JSON 파싱 오류: " << e.what() << std::endl;
     }
 }
 
 //확정
-list<Beverage> Stock::getCurrentStock()
+list<Beverage> Stock::getCurrentStock() const
 {
     list<Beverage> beverages;
     for (int i = 1; i <= 20; i++)
@@ -86,7 +86,7 @@ list<Beverage> Stock::getCurrentStock()
 
             Beverage bev(item_code, item_num, price);
             beverages.push_back(bev);
-        }catch(const std::exception& e){
+        }catch(const json::parse_error& e){
             cerr << "Error parsing " << filename << ": " << e.what() << std::endl;
         }
 
