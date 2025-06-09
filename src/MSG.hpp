@@ -6,7 +6,6 @@ using json = nlohmann::json; // JSON 라이브러리 사용
 
 class MSG {
     private:
-        bool isPrepayValid; // 다른 서버의 메시지의 ["msg_content"]["availability"]가 true인지 false인지 확인하는 변수
         // int clientSocketfd; // 클라이언트 소켓 파일 디스크립터
         int serverSocketfd; // 서버 소켓 파일 디스크립터
         std::string messageFormat(const std::string &msg); // 메시지 형식
