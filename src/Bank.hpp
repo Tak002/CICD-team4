@@ -10,7 +10,7 @@ class Bank {
         friend class BankTest;
         
     public:
-        bool reqeustPayment(int card_num, int price);
+        bool reqeustPayment(const int card_num, const int price);
         void rollback(int card_num, int price) const ;
         
 };
