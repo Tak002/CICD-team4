@@ -6,7 +6,7 @@
 
 class ShowScreen {
     private:
-        void display(std::string str);
+        void display(const std::string &str) const;
         void displayPaymentSuccess();
         void displayPaymentFailed();
 
@@ -29,7 +29,7 @@ class ShowScreen {
         void displayInvalidIdRange();
         void displayGetCardNum();
 
-        void displayPositionAndCertCode(int x, int y, std::string &cert_code);
+        void displayPositionAndCertCode(int x, int y, const std::string &cert_code);
         void displayPrePayCancel();
         void displayPrePayDisavailable();
 

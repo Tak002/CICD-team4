@@ -13,7 +13,7 @@
 
 
 //화면 출력 틀 / private
-void ShowScreen::display(std::string str){
+void ShowScreen::display(const std::string &str) const{
     
     std::cout<<"-------------------------------"<<std::endl;
     std::cout<<str<<std::endl;
@@ -32,7 +32,7 @@ void ShowScreen::displayCurrentStock(std::list<Beverage> beverages) {
 
         int code = it->getBevCode();
         int quantity = it->getBevNum();
-        BeverageType type = static_cast<BeverageType>(i);
+        auto type = static_cast<BeverageType>(i);
 
         // 항목 출력 형식
         str += "(" + std::to_string(code) + ") " + toString(type) + " : " + std::to_string(quantity) + "개 " + std::to_string(toPrice(type))+"원 ";
@@ -116,7 +116,7 @@ void ShowScreen::displayGetCardNum(){
     display(str); 
 }
 
-void ShowScreen::displayPositionAndCertCode(int x, int y, std::string &cert_code){
+void ShowScreen::displayPositionAndCertCode(int x, int y, const std::string &cert_code){
     std::string str = "x좌표: " + std::to_string(x) + ", y좌표: " + std::to_string(y) + ", 인증번호: " + cert_code;
     display(str);
 }
