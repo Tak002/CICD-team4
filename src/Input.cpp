@@ -5,7 +5,7 @@
 #include <sstream>
 
 using namespace std;
-int Input::getFirstScreenAnswer(){
+int Input::getFirstScreenAnswer() const{
         
         std::string inputString;
         std::getline(std::cin,inputString);
@@ -17,13 +17,14 @@ int Input::getFirstScreenAnswer(){
 
 
 //오류 검출 과정 추가 필요
-std::pair<int, int> Input::getItemIDandNum() {
+std::pair<int, int> Input::getItemIDandNum() const{
     while(true){
         std::string line;
         std::getline(std::cin, line);
 
         std::istringstream iss(line);
-        int itemID, itemNum;
+        int itemID;
+        int itemNum;
         std::string extra;
         if ((iss >> itemID >> itemNum) && !(iss >> extra)) {
             return {itemID, itemNum}; // 정상 입력
@@ -35,7 +36,7 @@ std::pair<int, int> Input::getItemIDandNum() {
 
 
 
-bool Input::getBoolAnswer(){
+bool Input::getBoolAnswer() const{
     std::string inputString;
     while(true){
         std::getline(std::cin,inputString);
@@ -55,7 +56,7 @@ bool isAllDigits(const std::string& str) {
     return true;
 }
 //오류 검출 과정 추가 필요
-int Input::getCardNum(){
+int Input::getCardNum() const{
     int value;
     std::string line;
     while(true){
@@ -71,7 +72,7 @@ int Input::getCardNum(){
 }
 
 //오류 검출 과정 추가 필요
-std::string Input::getCertCode(){
+std::string Input::getCertCode()const {
 
     std::string inputString;
     std::getline(std::cin,inputString);
