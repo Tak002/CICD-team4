@@ -29,7 +29,7 @@ class ShowScreen {
         void displayInvalidIdRange();
         void displayGetCardNum();
 
-        void displayPositionAndCertCode(int x, int y, std::string cert_code);
+        void displayPositionAndCertCode(int x, int y, std::string &cert_code);
         void displayPrePayCancel();
         void displayPrePayDisavailable();
 

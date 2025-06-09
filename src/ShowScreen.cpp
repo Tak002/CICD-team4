@@ -94,7 +94,7 @@ void ShowScreen::displayInvalidIdRange(){
 }
 
 void ShowScreen::displayBeverage(int item_id, int item_num){
-    BeverageType type = static_cast<BeverageType>(item_id-1);
+    auto type = static_cast<BeverageType>(item_id-1);
     std::ostringstream oss;
     oss <<"음료수 명 : "<<toString(type)<<", 갯수: "<<item_num<<"\n안녕히가십시오.";
     std::string str = oss.str();
@@ -116,7 +116,7 @@ void ShowScreen::displayGetCardNum(){
     display(str); 
 }
 
-void ShowScreen::displayPositionAndCertCode(int x, int y, std::string cert_code){
+void ShowScreen::displayPositionAndCertCode(int x, int y, std::string &cert_code){
     std::string str = "x좌표: " + std::to_string(x) + ", y좌표: " + std::to_string(y) + ", 인증번호: " + cert_code;
     display(str);
 }
