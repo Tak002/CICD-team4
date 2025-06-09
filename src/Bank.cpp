@@ -54,7 +54,7 @@ void Bank::updateBalance(int card_num, int price) const
 
 
 //확정
-bool Bank::reqeustPayment(int card_num, int price){
+bool Bank::reqeustPayment(const int card_num, const int price){
 
     if(checkCardValidity(card_num,price)){
         updateBalance(card_num, price);
