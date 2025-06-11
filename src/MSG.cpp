@@ -3,11 +3,6 @@
 #include "Stock.hpp"
 #include "Position.hpp"
 #include "Beverage.hpp"
-/*
-    1. JSON 파일 생성 메시지 형식대로
-    2. broadcast 또는 ACK 메시지 전송
-*/
-
 #include <iostream>     //표준 입력/출력 스트림 (예: std::cout)
 #include <string.h>     //C++ 표준 문자열 클래스 사용
 #include <sys/types.h>  //POSIX 시스템 호출을 위한 헤더 파일
@@ -42,8 +37,11 @@ using json = nlohmann::json; // JSON 라이브러리 사용
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 
-std::string directoryPath = "../msgdata/stock/"; // JSON 파일이 있는 디렉토리 경로
+const std::string directoryPath = "../msgdata/stock/"; // JSON 파일이 있는 디렉토리 경로
 std::vector<fs::path> jsonFiles;
+
+const std::string x = "3"; // T3의 X좌표
+const std::string y = "3"; // T3의 Y좌표
 
 bool isPrepayValid; // 다른 서버의 메시지의 ["msg_content"]["availability"]가 true인지 false인지 확인하는 변수
 
@@ -64,19 +62,37 @@ std::string msgFormat(
 
     try
     {
-        msg["msg_content"]["item_code"] = !item_code.empty() ? std::stoi(item_code) : 0;
+        msg["msg_content"]["item_code"] = std::stoi(item_code);
+        if (msg["msg_content"]["item_code"] > 20)
+        {
+            throw std::out_of_range("item_code는 21 이상일 수 없습니다.");
+        }
     }
-    catch (const std::exception &e)
+    catch (const std::invalid_argument &e)
     {
-        std::cerr << "[Error] item_code 변환 실패: " << e.what() << std::endl;
+        std::cerr << "[Error] 숫자가 아닌 값을 입력했습니다: " << e.what() << std::endl;
+        msg["msg_content"]["item_code"] = 0;
+    }
+    catch (const std::out_of_range &e)
+    {
+        std::cerr << "[Error] 값이 너무 큽니다: " << e.what() << std::endl;
         msg["msg_content"]["item_code"] = 0;
     }
 
     try
     {
-        msg["msg_content"]["item_num"] = !item_num.empty() ? std::stoi(item_num) : 0;
+        msg["msg_content"]["item_num"] = std::stoi(item_num);
+        if (msg["msg_content"]["item_num"] > 99)
+        {
+            throw std::out_of_range("item_num은 100 이상일 수 없습니다.");
+        }
     }
-    catch (const std::exception &e)
+    catch (const std::invalid_argument &e)
+    {
+        std::cerr << "[Error] 숫자가 아닌 값을 입력했습니다: " << e.what() << std::endl;
+        msg["msg_content"]["item_num"] = 0;
+    }
+    catch (const std::out_of_range &e)
     {
         std::cerr << "[Error] item_num 변환 실패: " << e.what() << std::endl;
         msg["msg_content"]["item_num"] = 0;
@@ -84,9 +100,18 @@ std::string msgFormat(
 
     try
     {
-        msg["msg_content"]["coor_x"] = !coor_x.empty() ? std::stoi(coor_x) : 0;
+        msg["msg_content"]["coor_x"] = std::stoi(coor_x);
+        if (msg["msg_content"]["coor_x"] < 0 || msg["msg_content"]["coor_x"] > 99)
+        {
+            throw std::out_of_range("coor_x는 0 이상 100 이하의 값이어야 합니다.");
+        }
     }
-    catch (const std::exception &e)
+    catch (const std::invalid_argument &e)
+    {
+        std::cerr << "[Error] coor_x 숫자가 아닌 값을 입력했습니다: " << e.what() << std::endl;
+        msg["msg_content"]["coor_x"] = 0;
+    }
+    catch (const std::out_of_range &e)
     {
         std::cerr << "[Error] coor_x 변환 실패: " << e.what() << std::endl;
         msg["msg_content"]["coor_x"] = 0;
@@ -94,9 +119,18 @@ std::string msgFormat(
 
     try
     {
-        msg["msg_content"]["coor_y"] = !coor_y.empty() ? std::stoi(coor_y) : 0;
+        msg["msg_content"]["coor_y"] = std::stoi(coor_y);
+        if (msg["msg_content"]["coor_y"] < 0 || msg["msg_content"]["coor_y"] > 99)
+        {
+            throw std::out_of_range("coor_y는 0 이상 100 이하의 값이어야 합니다.");
+        }
     }
-    catch (const std::exception &e)
+    catch (const std::invalid_argument &e)
+    {
+        std::cerr << "[Error] coor_y 숫자가 아닌 값을 입력했습니다: " << e.what() << std::endl;
+        msg["msg_content"]["coor_y"] = 0;
+    }
+    catch (const std::out_of_range &e)
     {
         std::cerr << "[Error] coor_y 변환 실패: " << e.what() << std::endl;
         msg["msg_content"]["coor_y"] = 0;
@@ -105,13 +139,8 @@ std::string msgFormat(
     msg["msg_content"]["cert_code"] = cert_code;
     msg["msg_content"]["availability"] = availability;
 
-    // std::cout << "[MSG] JSON Message: " << msg.dump(2) << std::endl; // 2칸 들여쓰기로 예쁘게 출력
-    // std::ofstream file("../data/msg.json"); // JSON 파일 저장
-
-    return msg.dump(2); // JSON string with pretty-print
+    return msg.dump(2);
 }
-
-int serverSocketfd;
 
 void clientMessage(const std::string &dst_id, const json &msg)
 {
@@ -122,15 +151,6 @@ void clientMessage(const std::string &dst_id, const json &msg)
 
     int clientSocketfd; // 클라이언트 소켓 파일 디스크립터
 
-    /*
-        1. socket()        // 소켓 생성  --> 클라이언트로 다른 서버에게 알리는 일 broadcast 때와 req_prepay 때만 생성하면 된다.
-        2. connect()       // 서버에 연결 요청 -->
-        3. write()/send()  // 서버에 데이터 전송 --> 클라이언트가 매개변수로 받은 데이터를 서버에 전송한다.
-        4. read()/recv()   // 서버로부터 데이터 수신 --> 서버가 응답한 데이터를 수신한다. 즉 서버가 ACK를 보내기 전까지 닫으면 안 된다.
-        5. close()         // 소켓 닫기 --> 서버가 응답한 데이터를 수신한 후 소켓을 닫는다.
-    */
-
-    // 1. socket() --> 클라이언트 소켓 생성
     try
     {
         clientSocketfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -228,7 +248,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
     }
 
     // 메시지 수신
-    int valread = recv(clientSocketfd, buffer, BUFSIZE, 0);
+    long valread = recv(clientSocketfd, buffer, BUFSIZE, 0);
     json recv_parsing_msg;
     if (valread > 0)
     {
@@ -272,7 +292,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
         if (recv_parsing_msg["msg_content"]["availability"] == "T")
         {
             isPrepayValid = true;
-            // std::cout << "[" << dst_id << "] Prepay request successful" << std::endl;
+            std::cout << "[" << dst_id << "] Prepay request successful" << isPrepayValid << std::endl;
             // 인증번호 전송 처리 완료
             return;
         }
@@ -296,7 +316,7 @@ void clientMessage(const std::string &dst_id, const json &msg)
 void MSG::handleClient(int client_socket)
 {
     char buffer[BUFSIZ] = {0};
-    int valread = recv(client_socket, buffer, BUFSIZ, 0);
+    long valread = recv(client_socket, buffer, BUFSIZ, 0);
     if (valread > 0)
     {
         buffer[valread] = '\0';
@@ -332,8 +352,6 @@ void MSG::handleClient(int client_socket)
         else if (msg["msg_type"] == "req_prepay") // 현재 재고 상태를 확인 후 resp_prepay availability를 T나 F로 보낸다.
         {
             Stock stock;
-            // std::cout << "[Server] Prepay request received" << std::endl;
-            // list<Beverage> beverage_list = stock.getCurrentStock(); //..? stock에서
 
             bool availability = stock.isBuyable(msg["msg_content"]["cert_code"], msg["msg_content"]["item_code"], msg["msg_content"]["item_num"]); // 재고 확인 메시지 포맷 현재 재고 상태에 대해 전송이 아닌 현재 재고 상태를 확인만 하고 T F를 보내기만 하면 된다.
 
@@ -342,8 +360,8 @@ void MSG::handleClient(int client_socket)
                 msg["src_id"],
                 std::to_string(msg["msg_content"]["item_code"].get<int>()),
                 std::to_string(msg["msg_content"]["item_num"].get<int>()),
-                "", // 필요없는 정보 x좌표
-                "", // 필요없는 정보 y좌표
+                x, // 필요없는 정보 x좌표
+                y, // 필요없는 정보 y좌표
                 "",
                 availability ? "T" : "F"); // availability는 T나 F로 보내야 한다.
 
@@ -360,18 +378,6 @@ void MSG::handleClient(int client_socket)
 
 void MSG::serverMessageOpen()
 {
-    /*
-        1. socket()        // 소켓 생성 --> 서버 소켓 생성 main 앞 부분에서 실행해야 하는 부분
-        2. bind()          // IP주소와 포트번호를 소켓에 할당
-        3. listen()        // 연결 요청 대기 상태
-
-        이후 부분은 while문 안에서 반복적으로 실행되어야 한다.
-        4. accept()        // 클라이언트 연결 수락
-        5. read()/recv()   // 클라이언트로부터 데이터 수신
-        6. write()/send()  // 클라이언트로 데이터 송신
-        7. close()         // 소켓 닫기
-    */
-    char buffer[BUFSIZ]; // 버퍼 선언
 
 #pragma region socketcreate
     serverSocketfd = socket(AF_INET, SOCK_STREAM, 0); // 서버 소켓 생성
@@ -448,7 +454,7 @@ void clientSendMessage(int sockfd, const std::string &msg)
 
     char buffer[1024];
     memset(buffer, 0, sizeof(buffer));
-    int len = recv(sockfd, buffer, sizeof(buffer), 0);
+    long len = recv(sockfd, buffer, sizeof(buffer), 0);
     if (len > 0)
     {
         // std::cout << "[ACK Received] " << buffer << std::endl;
@@ -474,7 +480,7 @@ void MSG::broadMessage(const std::string &msg)
         // }
         json req_msg = json::parse(msg);
         threads.emplace_back([dst_id, req_msg]()
-                             {
+        {
             try {
                 clientMessage(dst_id, req_msg);
             } catch (const std::exception& e) {
@@ -497,15 +503,14 @@ void MSG::broadMessage(const std::string &msg)
 std::tuple<int, int, std::string> MSG::DVMMessageOutofStock(int beverageId, int quantity)
 {
     // 1. 브로드 캐스트를 이용해서 json 메시지를 받아온다.
-    // std::cout << "[Out of Stock] Beverage ID: " << beverageId << ", Quantity: " << quantity << std::endl; // 재고 부족 메시지 출력
 
     std::string DVMMessageOutofStock_MessageFormat = msgFormat(
         "req_stock",
         "",
         std::to_string(beverageId),
         std::to_string(quantity),
-        "",
-        "",
+        x,
+        y,
         "",
         "");
     json parsed_req_stock_msg;
@@ -683,13 +688,12 @@ bool MSG::sendMessage(const std::tuple<std::string, int, int, std::string> &msgD
         std::cerr << "[Exception] " << e.what() << std::endl;
     };
 
-    if (thread.joinable())
+    if (thread.joinable()) 
         thread.join();
 
     // std::cout << "[Send Message] " << msg_type << std::endl;
     // json msg = json(jsonstr);
     // clientMessage(dst_id, msg);
 
-    // 선결제 무조건 가능하다고 가정
     return isPrepayValid;
 }

@@ -6,7 +6,6 @@ using json = nlohmann::json; // JSON 라이브러리 사용
 
 class MSG {
     private:
-        // int clientSocketfd; // 클라이언트 소켓 파일 디스크립터
         int serverSocketfd; // 서버 소켓 파일 디스크립터
         std::string messageFormat(const std::string &msg); // 메시지 형식
         void broadMessage(const std::string &msg); // 브로드캐스트 메시지 전체 DVM에 메시지 전송
