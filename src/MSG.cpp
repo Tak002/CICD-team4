@@ -28,8 +28,8 @@
 
 using json = nlohmann::json; // JSON 라이브러리 사용
 
-#define PORT_NUM 9000 // 서버 포트 번호
-#define BUFSIZE 1024  // 버퍼 사이즈
+constexpr int PORT_NUM = 9000;
+constexpr int BUFSIZE = 1024;  // 버퍼 사이즈
 
 using json = nlohmann::json;
 namespace fs = std::filesystem;
