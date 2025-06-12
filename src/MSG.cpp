@@ -240,19 +240,33 @@ void clientMessage(const std::string &dst_id, const json &msg)
         return;
     }
 
-    // 메시지 수신
-    long valread = recv(clientSocketfd, buffer, BUFSIZE - 1, 0);
+    char buffer_recv[BUFSIZE] = {0};
+    long valread = recv(clientSocketfd, buffer_recv, BUFSIZE - 1, 0);
     json recv_parsing_msg;
-    if (valread > 0)
-    {
-        buffer[valread] = '\0';
 
-        // JSON 파싱
-        recv_parsing_msg = json::parse(buffer);
+    if (valread > 0 && valread < BUFSIZE)
+    {
+        buffer_recv[valread] = '\0'; // 안전함
+        try
+        {
+            recv_parsing_msg = json::parse(buffer_recv);
+        }
+        catch (json::parse_error &e)
+        {
+            std::cerr << "[ERROR] JSON parsing failed: " << e.what() << std::endl;
+        }
+    }
+    else if (valread == 0)
+    {
+        std::cerr << "[INFO] Connection closed by peer." << std::endl;
+    }
+    else if (valread < 0)
+    {
+        perror("[ERROR] recv failed");
     }
     else
     {
-        std::cerr << "[" << dst_id << "] Failed to receive message" << std::endl;
+        std::cerr << "[ERROR] Received message exceeds buffer size." << std::endl;
     }
 
     if (recv_parsing_msg["msg_type"] == "resp_stock")
