@@ -31,9 +31,6 @@ using json = nlohmann::json; // JSON 라이브러리 사용
 #define PORT_NUM 9000 // 서버 포트 번호
 #define BUFSIZE 1024  // 버퍼 사이즈
 
-// #define tmp_ip_address "127.0.0.1" // 임시 ip 주소
-
-// #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 
@@ -199,8 +196,6 @@ void clientMessage(const std::string &dst_id, const json &msg)
     server_addr.sin_port = htons(PORT_NUM);                        // 포트 번호 설정
     inet_pton(AF_INET, ip_address.c_str(), &server_addr.sin_addr); // IP 주소 변환
 
-    // std::cout << "[" << dst_id << "] Server address set" << std::endl;
-
     if (connect(clientSocketfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
         std::cerr << "connect failed. errno=" << errno << " : " << strerror(errno) << std::endl;
@@ -227,8 +222,6 @@ void clientMessage(const std::string &dst_id, const json &msg)
     json parsed_request_msg;
     parsed_request_msg = json::parse(request_msg); // JSON 메시지 파싱
 
-    std::cout << msg["msg_type"] << std::endl;
-
     if (parsed_request_msg["msg_type"] == "req_stock")
     {
         std::string send_req_stock_msg = parsed_request_msg.dump(2); // JSON 문자열로 변환
@@ -248,29 +241,22 @@ void clientMessage(const std::string &dst_id, const json &msg)
     }
 
     // 메시지 수신
-    long valread = recv(clientSocketfd, buffer, BUFSIZE, 0);
+    long valread = recv(clientSocketfd, buffer, BUFSIZE - 1, 0);
     json recv_parsing_msg;
     if (valread > 0)
     {
         buffer[valread] = '\0';
-        // std::cout << "[" << dst_id << "] Received message" << std::endl;
 
         // JSON 파싱
         recv_parsing_msg = json::parse(buffer);
-        // std::cout << "[" << dst_id << "] Parsed message: " << recv_parsing_msg.dump(2) << std::endl;
     }
     else
     {
         std::cerr << "[" << dst_id << "] Failed to receive message" << std::endl;
     }
 
-    std::cout << "메시지를 받는 중입니다." << std::endl;
-
-    // std::cout << "[" << dst_id << "] Received message type: " << recv_parsing_msg["msg_type"] << std::endl;
     if (recv_parsing_msg["msg_type"] == "resp_stock")
     {
-        std::cout << recv_parsing_msg << std::endl;
-        // std::cout << "[" << dst_id << "] Stock request ACK received" << std::endl;
         // 각각의 재고 확인 메시지를 json 파일 형식으로 저장
         std::string fileName = "../msgdata/stock/" + dst_id + "_stock.json";
         std::ofstream outFile(fileName);
@@ -278,7 +264,6 @@ void clientMessage(const std::string &dst_id, const json &msg)
         {
             outFile << recv_parsing_msg.dump(2); // 2칸 들여쓰기로 예쁘게 출력
             outFile.close();
-            // std::cout << "[" << dst_id << "] Stock data saved to " << fileName << std::endl;
         }
         else
         {
@@ -287,19 +272,16 @@ void clientMessage(const std::string &dst_id, const json &msg)
     }
     else if (recv_parsing_msg["msg_type"] == "resp_prepay")
     {
-        std::cout << "[" << dst_id << "] Prepay request ACK received" << recv_parsing_msg << std::endl;
 
         if (recv_parsing_msg["msg_content"]["availability"] == "T")
         {
             isPrepayValid = true;
-            std::cout << "[" << dst_id << "] Prepay request successful" << isPrepayValid << std::endl;
             // 인증번호 전송 처리 완료
             return;
         }
         else
         {
             isPrepayValid = false;
-            // std::cout << "[" << dst_id << "] Prepay request failed" << std::endl;
             return;
             // ROLLBACK 처리
         }
@@ -309,7 +291,6 @@ void clientMessage(const std::string &dst_id, const json &msg)
         std::cerr << "[" << dst_id << "] Unknown message type" << std::endl;
     }
     close(clientSocketfd); // 클라이언트 소켓 닫기
-    // std::cout << "[" << dst_id << "] Client socket closed" << std::endl;
     return;
 }
 
@@ -536,7 +517,6 @@ std::tuple<int, int, std::string> MSG::DVMMessageOutofStock(int beverageId, int 
     Position pos;
     for (const auto &path : jsonFiles)
     {
-
         try
         {
             std::ifstream file(path);
@@ -573,8 +553,6 @@ std::tuple<int, int, std::string> MSG::DVMMessageOutofStock(int beverageId, int 
                 otherDVMstock = j["msg_content"]["item_num"].get<int>();
             }
 
-            std::cout << "[Out of Stock] Checking DVM ID: " << src_id << ", Position: (" << x << ", " << y << "), Stock: " << otherDVMstock << std::endl;
-
             if (otherDVMstock >= quantity)
             {
                 float distance = pos.calcDistance(x, y);
@@ -593,7 +571,6 @@ std::tuple<int, int, std::string> MSG::DVMMessageOutofStock(int beverageId, int 
             continue;
         }
     }
-    std::cout << "[Out of Stock] Nearest Position: " << nearest_x << ", " << nearest_y << ", ID: " << shortest_id << std::endl;
     return {nearest_x, nearest_y, shortest_id};
 }
 // // 재고 확인 요청 메시지 처리 Server에서 다른 클라이언트부터 요청을 받았을 때
@@ -671,8 +648,8 @@ bool MSG::sendMessage(const std::tuple<std::string, int, int, std::string> &msgD
         dst_id,
         std::to_string(itemID),
         std::to_string(itemNum),
-        "",
-        "",
+        x,
+        y,
         newCertCode,
         "");
     json parsed_req_stock_msg;
